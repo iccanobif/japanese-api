@@ -1,6 +1,8 @@
 test:
   script:
+    - pwd
     - cd src
+    - pwd
     - npm i
     - npm test
 
