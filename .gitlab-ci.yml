@@ -1,7 +1,6 @@
 test:
-  before_script:
+  script:
     - cd src
     - npm i
-  script:
     - npm test
 
