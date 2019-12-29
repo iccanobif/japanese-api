@@ -3,6 +3,6 @@ test:
     - pwd
     - cd src
     - pwd
-    - npm i
-    - npm test
+    - yarn
+    - yarn test
 
