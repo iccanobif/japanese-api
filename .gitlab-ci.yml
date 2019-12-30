@@ -12,8 +12,8 @@ stages:
 build:
   stage: build
   script: 
-    - cd src
     - yarn
+    - yarn build
   artifacts:
     paths:
       - src/node_modules/
@@ -21,18 +21,14 @@ build:
 test:
   stage: test
   script: 
-    - cd src
     - yarn test
 
 deploy_prod:
   stage: deploy
   script:
-    - cd src
     - pm2 delete japanese-api-prod || true
-    - pwd
-    - whoami
     - rsync --verbose --recursive --delete . /home/japanese-api/prod
-    - pm2 start /home/japanese-api/prod/index.js --name japanese-api-prod
+    - pm2 start /home/japanese-api/prod/build/index.js --name japanese-api-prod
   environment:
     name: production
     url: https://www.iccan.us/japanese-api
