@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.get("/", (req: any, res: any) =>
 {
   res.type("text/plain")
-  res.end("welcome 6")
+  res.end("welcome in typescript")
 })
 app.get("/edict/:word", (req: any, res: any) => {
   const word = req.params.word
