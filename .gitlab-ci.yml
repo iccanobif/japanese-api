@@ -4,10 +4,6 @@ cache:
   paths:
   - node_modules/
 
-before_script:
-  - cd src
-  - yarn
-
 stages:
   - test
   - build
@@ -15,29 +11,25 @@ stages:
 
 test:
   stage: test
-  script: yarn test
+  script: 
+    - cd src
+    - yarn
+    - yarn test
 
 build:
   stage: build
   script: echo "Building the app"
 
-deploy_staging:
-  stage: deploy
-  script:
-    - echo "Deploy to staging server"
-  environment:
-    name: test
-    url: https://staging.example.com
-  only:
-  - master
-
 deploy_prod:
   stage: deploy
   script:
     - echo "Deploy to production server"
+    - pm2 delete japanese-api-prod; true
+    - rsync --verbose --recursive --delete src /home/japanese-api/prod
+    - pm2 start /home/japanese-api/prod/index.js --name japanese-api-prod
   environment:
     name: production
-    url: https://example.com
+    url: https://www.iccan.us/japanese-api
   when: manual
   only:
   - master
