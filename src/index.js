@@ -8,9 +8,10 @@ const ut = require("./utils.js")
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.get("/", (req, res) => {
-    res.type("text/plain")
-    res.end("welcome 2")
+app.get("/", (req, res) =>
+{
+  res.type("text/plain")
+  res.end("welcome 2")
 })
 
 http.listen(PORT, "0.0.0.0")
