@@ -9,21 +9,21 @@ stages:
   - build
   - deploy
 
+build:
+  stage: build
+  script: 
+    - cd src
+    - yarn
+    
 test:
   stage: test
   script: 
     - cd src
-    - yarn
     - yarn test
-
-build:
-  stage: build
-  script: echo "Building the app"
 
 deploy_prod:
   stage: deploy
   script:
-    - echo "Deploy to production server"
     - pm2 delete japanese-api-prod; true
     - rsync --verbose --recursive --delete src /home/japanese-api/prod
     - pm2 start /home/japanese-api/prod/index.js --name japanese-api-prod
