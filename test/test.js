@@ -1,6 +1,6 @@
 const assert = require("assert")
-const edict = require("../edict.js")
-const ut = require("../utils.js")
+const edict = require("../src/edict.js")
+const ut = require("../src/utils.js")
 // const sentenceSplitter = require("../sentenceSplitter.js")
 // const kanjidic = require("../kanjidic.js")
 // const jigen = require("../jigen.js")
