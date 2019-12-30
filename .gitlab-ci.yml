@@ -5,8 +5,8 @@ cache:
   - node_modules
 
 stages:
-  - test
   - build
+  - test
   - deploy
 
 build:
