@@ -4,6 +4,7 @@ const express = require("express")
 const app = express()
 const http = require("http").Server(app)
 const bodyParser = require("body-parser");
+const ut = require("./utils.js")
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -13,4 +14,4 @@ app.get("/", (req, res) => {
 })
 
 http.listen(PORT, "0.0.0.0")
-console.log("Server running on port " + PORT)
+ut.log("Server running on port " + PORT)
