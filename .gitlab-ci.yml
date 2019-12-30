@@ -31,7 +31,7 @@ deploy_prod:
     - pm2 delete japanese-api-prod || true
     - pwd
     - whoami
-    - rsync --verbose --recursive --delete src /home/japanese-api/prod
+    - rsync --verbose --recursive --delete . /home/japanese-api/prod
     - pm2 start /home/japanese-api/prod/index.js --name japanese-api-prod
   environment:
     name: production
