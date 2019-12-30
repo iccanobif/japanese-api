@@ -4,7 +4,7 @@ const express = require("express")
 const app = express()
 const http = require("http").Server(app)
 const bodyParser = require("body-parser");
-const ut = require("./utils.js")
+const ut = require("./utils")
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
