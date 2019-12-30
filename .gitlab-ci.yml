@@ -3,6 +3,7 @@ cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
   - node_modules/
+  - build/
 
 stages:
   - build
@@ -17,6 +18,7 @@ build:
   artifacts:
     paths:
       - node_modules/
+      - build/
     
 test:
   stage: test
