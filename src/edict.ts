@@ -1,22 +1,36 @@
 const fs = require("fs")
-const readline = require("readline")
+import readline from "readline"
 const ut = require("./utils")
 
 const partOfSpeechWhitelist = new Set("v1|v5aru|v5b|v5g|v5k-s|v5k|v5m|v5n|v5r-i|v5r|v5s|v5t|v5u-s|v5uru|v5u|v5|adj-ix|adj-i|vs-s|vs-i".split("|"))
 const unsupportedConjugations = new Set(["v5", "v5aru", "v5r-i", "v5u-s", "v5uru"])
 
-let dictionary = {}
-let conjugatedToUnconjugatedFormsDictionary = {} // keys are strings, values are Set
-let kanjiToReadingsDictionary = {}
-let isLoaded = false
-let callbacks = []
+const dictionary: { [key: string]: any } = {}
+const conjugatedToUnconjugatedFormsDictionary: { [key: string]: any } = {}
+const kanjiToReadingsDictionary: { [key: string]: Set<string> } = {}
 
-function makeCleanParsingStatus() 
-{
+let callbacks: (() => void)[] = []
+let _isLoaded = false
+
+export interface KanjiReadingLink {
+  kanjiElement: string | null, readingElement: string | null
+}
+
+interface ParsingStatus {
+  kanjiElements: string[]
+  readingElements: string[]
+  kanjiReadingLinks: KanjiReadingLink[] // each "link" is an array [kanji, reading]
+  keys: Set<string>
+  partOfSpeech: Set<string>
+  glosses: string[]
+  re_restr: string[]
+}
+
+function makeCleanParsingStatus(): ParsingStatus {
   return {
     kanjiElements: [],
     readingElements: [],
-    kanjiReadingLinks: [], // each "link" is an array [kanji, reading]
+    kanjiReadingLinks: [],
     keys: new Set(),
     partOfSpeech: new Set(),
     glosses: [],
@@ -26,20 +40,16 @@ function makeCleanParsingStatus()
 
 let currentParsingStatus = makeCleanParsingStatus()
 
-function conjugate(kanjiWord, kanaWord, partOfSpeech)
-{
+function conjugate(kanjiWord: string | null, kanaWord: string | null, partOfSpeech: string): KanjiReadingLink[] {
   if (partOfSpeech == null)
     return []
   if (unsupportedConjugations.has(partOfSpeech))
     return [] // I don't know how to conjugate this stuff (yet)
 
-  let newWords = []
+  let newWords: KanjiReadingLink[] = []
 
-  function add(suffix, charactersToTrim)
-  {
+  function add(suffix: string, charactersToTrim: number = 1) {
     // Add to the output the original word replacing the last charactersToTrim characters with the suffix provided
-    if (typeof charactersToTrim === "undefined")
-      charactersToTrim = 1
 
     newWords.push({
       kanjiElement: kanjiWord == null ? null : kanjiWord.slice(0, kanjiWord.length - charactersToTrim) + suffix,
@@ -47,16 +57,14 @@ function conjugate(kanjiWord, kanaWord, partOfSpeech)
     })
   }
 
-  if (partOfSpeech == "vs-s" || partOfSpeech == "vs-i")
-  {
+  if (partOfSpeech == "vs-s" || partOfSpeech == "vs-i") {
     "し、します、しました、しません、しない、すれば、しよう、して、している、してる、しなかった、される、させる、しろ、した、したい、せず、しぬ"
       .split("、")
       .forEach(suffix => add(suffix, 2))
     return newWords
   }
 
-  switch (partOfSpeech)
-  {
+  switch (partOfSpeech) {
     case "adj-i":
       add("くない") // negative
       add("く")    // adverbial form
@@ -140,8 +148,7 @@ function conjugate(kanjiWord, kanaWord, partOfSpeech)
   let firstNegativeKana = ""
   let stemKana = ""
 
-  switch (partOfSpeech)
-  {
+  switch (partOfSpeech) {
     case "v5k-s": // potential // volitive // imperative  
     case "v5k": add("ける"); add("こう"); add("け"); stemKana = "き"; firstNegativeKana = "か"; break;
     case "v5g": add("げる"); add("ごう"); add("げ"); stemKana = "ぎ"; firstNegativeKana = "が"; break;
@@ -154,8 +161,7 @@ function conjugate(kanjiWord, kanaWord, partOfSpeech)
     case "v5s": add("せる"); add("そう"); add("せ"); stemKana = "し"; firstNegativeKana = "さ"; break;
   }
 
-  if (partOfSpeech.startsWith("v5"))
-  {
+  if (partOfSpeech.startsWith("v5")) {
     add(firstNegativeKana + "ない")  // negative
     add(firstNegativeKana + "なかった")  // past negative
     add(firstNegativeKana + "せる")  // causative
@@ -182,37 +188,31 @@ const dirtyClosingTag = new RegExp(";</(pos|misc|ke_inf|dial|re_inf|field)>", "g
 
 readline
   .createInterface({ input: fs.createReadStream("datasets/JMdict_e") })
-  .on("line", (line) =>
-  {
-    if (line.startsWith("<keb>"))
-    {
-      let keb = line.substring("<keb>".length, line.length - "</keb>".length)
+  .on("line", (line) => {
+    if (line.startsWith("<keb>")) {
+      const keb = line.substring("<keb>".length, line.length - "</keb>".length)
       currentParsingStatus.kanjiElements.push(keb)
       currentParsingStatus.keys.add(keb)
     }
-    if (line.startsWith("<reb>"))
-    {
-      let reb = line.substring("<reb>".length, line.length - "</reb>".length)
+    if (line.startsWith("<reb>")) {
+      const reb = line.substring("<reb>".length, line.length - "</reb>".length)
       currentParsingStatus.readingElements.push(reb)
       currentParsingStatus.keys.add(reb)
     }
-    if (line.startsWith("<re_restr>"))
-    {
+    if (line.startsWith("<re_restr>")) {
       // This element is used to indicate when the reading only applies
       // to a subset of the keb elements in the entry. In its absence, all
       // readings apply to all kanji elements. The contents of this element 
       // must exactly match those of one of the keb elements.
       currentParsingStatus.re_restr.push(line.substring("<re_restr>".length, line.length - "</re_restr>".length))
     }
-    if (line.startsWith("</r_ele>"))
-    {
+    if (line.startsWith("</r_ele>")) {
       // I assume that all kanjiElements for this entry have been loaded (all <k_ele> tags come before the <r_ele> ones)
 
       (currentParsingStatus.re_restr.length == 0
         ? currentParsingStatus.kanjiElements
         : currentParsingStatus.re_restr)
-        .forEach((kanjiElement) =>
-        {
+        .forEach((kanjiElement) => {
           currentParsingStatus.kanjiReadingLinks.push({
             kanjiElement: kanjiElement,
             readingElement: currentParsingStatus.readingElements[currentParsingStatus.readingElements.length - 1]
@@ -221,8 +221,7 @@ readline
 
       currentParsingStatus.re_restr = []
     }
-    if (line.startsWith("<pos>"))
-    {
+    if (line.startsWith("<pos>")) {
       // For some reason <pos> entries begin with a & and end with a ;
       // I don't include them in the strings I add to the partOfSpeech array
       let type = line.substring("<pos>".length + 1, line.length - "</pos>".length - 1)
@@ -230,19 +229,16 @@ readline
       if (partOfSpeechWhitelist.has(type))
         currentParsingStatus.partOfSpeech.add(type)
     }
-    if (line.startsWith("<gloss>"))
-    {
+    if (line.startsWith("<gloss>")) {
       currentParsingStatus.glosses.push(line.substring("<gloss>".length, line.length - "</gloss>".length))
     }
-    if (line.startsWith("</entry>"))
-    {
+    if (line.startsWith("</entry>")) {
       // I have collected all relevant data for this entry, can add it to the dictionary
 
       // Add unconjugated forms to the kanjiToReadingsDictionary
       currentParsingStatus
         .kanjiReadingLinks
-        .forEach(link =>
-        {
+        .forEach(link => {
           ut.addToDictionaryOfSets(kanjiToReadingsDictionary,
             link.kanjiElement,
             ut.katakanaToHiragana(link.readingElement))
@@ -254,15 +250,12 @@ readline
       Array
         .from(currentParsingStatus.partOfSpeech) // convert to array
         .filter((partOfSpeech) => partOfSpeechWhitelist.has(partOfSpeech)) // only consider the relevant types of part of speech for conjugations
-        .forEach(partOfSpeech =>
-        {
+        .forEach(partOfSpeech => {
           currentParsingStatus
             .kanjiReadingLinks
-            .forEach(link =>
-            {
+            .forEach(link => {
               let conjugations = conjugate(link.kanjiElement, link.readingElement, partOfSpeech)
-              conjugations.forEach(conjugatedLink =>
-              {
+              conjugations.forEach(conjugatedLink => {
                 ut.addToDictionaryOfSets(kanjiToReadingsDictionary,
                   conjugatedLink.kanjiElement,
                   ut.katakanaToHiragana(conjugatedLink.readingElement))
@@ -273,8 +266,10 @@ readline
                   conjugatedLink.readingElement,
                   link.readingElement)
                 currentParsingStatus.kanjiReadingLinks.push(conjugatedLink)
-                currentParsingStatus.keys.add(conjugatedLink.kanjiElement)
-                currentParsingStatus.keys.add(conjugatedLink.readingElement)
+                if (conjugatedLink.kanjiElement)
+                  currentParsingStatus.keys.add(conjugatedLink.kanjiElement)
+                if (conjugatedLink.readingElement)
+                  currentParsingStatus.keys.add(conjugatedLink.readingElement)
               })
             })
         });
@@ -298,33 +293,29 @@ readline
       currentParsingStatus = makeCleanParsingStatus()
     }
   })
-  .on("close", () =>
-  {
+  .on("close", () => {
     ut.log("Finished loading edict")
-    isLoaded = true
+    _isLoaded = true
     callbacks.forEach(callback => callback())
-    callbacks = null
+    callbacks = []
   })
 
-module.exports.isLoaded = () =>
-{
-  return isLoaded
+export function isLoaded() {
+  return _isLoaded
 }
 
-module.exports.isJapaneseWord = (word) =>
-{
+export function isJapaneseWord(word: string) {
   return word in dictionary
 }
 
-module.exports.getDefinitions = (word) =>
-{
+export function getDefinitions(word: string) {
   if (word in dictionary)
     return dictionary[word]
   else
     return []
 }
 
-let exceptions = {
+const exceptions: { [key: string]: string[] } = {
   "私": ["わたし"],
   "彼": ["かれ"],
   "彼の": ["かれの"],
@@ -344,10 +335,8 @@ let exceptions = {
   "・": ["・"]
 }
 
-module.exports.getReadings = (word, doFiltering) =>
-{
-  if (doFiltering)
-  {
+export function getReadings(word: string, doFiltering: boolean): string[] {
+  if (doFiltering) {
     // For a few very common words that happen to also have a lot of uncommon readings (私 probably being 
     // the worst offender) or that have many common readings but that are unlikely to be the right ones
     // when looking for that word by itself (物 for example wouldn't normally be ぶつ, when alone) ignore
@@ -361,17 +350,15 @@ module.exports.getReadings = (word, doFiltering) =>
     return [word]
 }
 
-module.exports.getBaseForms = (conjugatedWord) =>
-{
+export function getBaseForms(conjugatedWord: string) {
   if (conjugatedWord in conjugatedToUnconjugatedFormsDictionary)
     return Array.from(conjugatedToUnconjugatedFormsDictionary[conjugatedWord])
   else
     return [conjugatedWord] // It's not really conjugated, after all
 }
 
-module.exports.addLoadedCallback = (callback) =>
-{
-  if (isLoaded)
+export function addLoadedCallback(callback: () => void) {
+  if (_isLoaded)
     callback()
   else
     callbacks.push(callback)
