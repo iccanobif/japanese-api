@@ -8,12 +8,12 @@ const ut = require("./utils.js")
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.get("/", (req, res) =>
+app.get("/", (req: any, res: any) =>
 {
   res.type("text/plain")
   res.end("welcome 2")
 })
-app.get("/edict/:word", (req, res) => {
+app.get("/edict/:word", (req: any, res: any) => {
   const word = req.params.word
   ut.log(word)
   res.type("text/plain")

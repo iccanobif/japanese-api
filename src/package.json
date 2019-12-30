@@ -12,6 +12,8 @@
     "test": "mocha"
   },
   "devDependencies": {
+    "typescript": "^3.7.4",
+    "@types/node": "^13.1.1",
     "mocha": "^6.2.2"
   }
 }
