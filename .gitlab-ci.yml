@@ -36,6 +36,6 @@ deploy_prod:
   environment:
     name: production
     url: https://www.iccan.us/japanese-api
-  when: manual
+  # when: manual
   only:
   - master
