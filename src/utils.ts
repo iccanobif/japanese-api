@@ -1,20 +1,20 @@
-module.exports.log = function log(msg: string) {
+export function log(msg: string) {
     let d = new Date()
     console.log("[" + d.toISOString() + "] " + msg)
 }
 
-module.exports.printError = function printError(e: Error) {
-    module.exports.log(e.message + " " + e.stack)
+export function printError(e: Error) {
+    log(e.message + " " + e.stack)
 }
 
-module.exports.addToDictionaryOfLists = function (dictionary: any, key: any, value: any) {
+export function addToDictionaryOfLists(dictionary: any, key: any, value: any) {
     if (key in dictionary)
         dictionary[key].push(value)
     else
         dictionary[key] = [value]
 }
 
-module.exports.addToDictionaryOfSets = function (dictionary: any, key: any, value: any) {
+export function addToDictionaryOfSets(dictionary: any, key: any, value: any) {
     if (key in dictionary)
         dictionary[key].add(value)
     else
@@ -32,6 +32,8 @@ module.exports.addToDictionaryOfSets = function (dictionary: any, key: any, valu
 //     return output;
 // }
 
+
+
 // Array.prototype.uniq = function ()
 // {
 //     return this
@@ -44,7 +46,7 @@ module.exports.addToDictionaryOfSets = function (dictionary: any, key: any, valu
 //         }, [])
 // }
 
-module.exports.katakanaToHiragana = function (str: string) {
+export function katakanaToHiragana(str: string) {
     // In unicode, katakana is from 12449 to 12533, hiragana from 12353, 12435
 
     return str
