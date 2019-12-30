@@ -27,6 +27,7 @@ test:
 deploy_prod:
   stage: deploy
   script:
+    - cd src
     - pm2 delete japanese-api-prod || true
     - pwd
     - whoami
