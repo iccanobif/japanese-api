@@ -4,7 +4,7 @@ import app from "../src/app"
 
 chai.use(chaiHttp)
 
-describe("index.js", () => {
+describe("app.js", () => {
   it("GET /", (done) => {
     const agent = chai.request(app)
     agent
