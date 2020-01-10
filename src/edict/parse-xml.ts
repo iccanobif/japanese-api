@@ -15,7 +15,7 @@ export async function* edictXmlParse() {
 
   for await (const line of rl) {
     if (!line.startsWith("</entry>")) {
-      if (line.match(/^<\/?keb>|^<\/?reb>|^<\/?re_restr>|^<\/?r_ele>|^<\/?pos>|^<entry>|^<\/?gloss/g))
+      if (line.match(/^<\/?keb>|^<\/?reb>|^<\/?re_restr>|^<\/?r_ele>|^<\/?pos>|^<entry>|^<ent_seq>|^<\/?gloss/g))
         xmlLines.push(line)
     }
     else {
@@ -27,8 +27,6 @@ export async function* edictXmlParse() {
 
       xmlLines = []
 
-      console.log(entryXml)
-
       const result: any = await new Promise((resolve, reject) => {
         xml.parseString(entryXml,
           (err, result) => {
@@ -38,47 +36,49 @@ export async function* edictXmlParse() {
       })
 
       // When a tag has attributes, xml.parseString puts the inner text into a field called "_". I have no idea why.
+      const entrySequence = Number.parseInt(result.entry.ent_seq[0])
       const glosses = result.entry.gloss.map(g => g._ ? g._ : g)
       const kanjiElements = result.entry.keb // Some entries don't have kanjiElements (eg. ヽ)
       const readingElements = result.entry.r_ele.map(r => r.reb).flat()
       const partOfSpeechList = result.entry.pos
 
-      console.log(result.entry.r_ele)
-      console.log(kanjiElements)
-
       const unconjugatedReadingLinks: KanjiReadingLink[] =
-        kanjiElements
-          ? result.entry.r_ele
-            .map(e => kanjiElements // Cartesian product between kanji elements and their readings
-              .map(kanjiElement =>
-                (e.re_restr ? e.re_restr : readingElements)
-                  .map(reading =>
-                    ({
-                      kanjiElement: kanjiElement,
-                      readingElement: reading
-                    })
-                  )
-              ))
-            .flat(2)
-          : readingElements.map(r => {
+        !kanjiElements
+          ? readingElements.map(r => {
             const out: KanjiReadingLink = {
               kanjiElement: r,
               readingElement: r
             }
             return out
           })
+          // : result.entry.r_ele
+          : result.entry.r_ele
+            // Cartesian product between kanji elements and their readings
+            .map(readingElement => kanjiElements
+              // Readings that have re_restr specified are only applied that that particular kanji element
+              .filter(kanjiElement => !readingElement.re_restr 
+                                      || readingElement.re_restr == kanjiElement)
+              .map(kanjiElement =>
+                ({
+                  kanjiElement: kanjiElement,
+                  readingElement: readingElement.reb[0],
+                })
+              ))
+            .flat(2)
 
-      const readingLinksWithConjugations: KanjiReadingLink[]
+      const conjugatedReadingLinks: KanjiReadingLink[]
         = unconjugatedReadingLinks
           .map(link =>
             partOfSpeechList
               .map(pos =>
                 conjugate(link.kanjiElement, link.readingElement, pos))
               .flat())
+          .flat()
 
       const newEntry: EdictEntryFromFile = {
+        entrySequence: entrySequence,
         unconjugatedReadingLinks: unconjugatedReadingLinks,
-        conjugatedReadingLinks: readingLinksWithConjugations,
+        conjugatedReadingLinks: conjugatedReadingLinks,
         partOfSpeech: partOfSpeechList,
         glosses: glosses,
       }

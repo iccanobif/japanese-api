@@ -4,6 +4,7 @@ export interface KanjiReadingLink {
 }
 
 export interface EdictEntryFromFile {
+  entrySequence: number, // Unique entry identifier
   unconjugatedReadingLinks: KanjiReadingLink[],
   conjugatedReadingLinks: KanjiReadingLink[],
   partOfSpeech:string[],
