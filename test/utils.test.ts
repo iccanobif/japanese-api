@@ -1,18 +1,19 @@
 import {
   addToDictionaryOfLists,
   katakanaToHiragana,
-  addToDictionaryOfSets
+  addToDictionaryOfSets,
+  uniq
 } from "../src/utils"
 
 const assert = require("assert")
 describe("utils", function () {
-  // describe("uniq()", () =>
-  // {
-  //   it("should work lol", () =>
-  //   {
-  //     assert.deepStrictEqual([1, 2, 3], [2, 2, 1, 3].uniq())
-  //   })
-  // })
+  describe("uniq()", () =>
+  {
+    it("should work lol", () =>
+    {
+      assert.deepStrictEqual([1, 2, 3], uniq([2, 2, 1, 3]))
+    })
+  })
   describe("addToDictionaryOfLists()", () => {
     it("should add values for new keys", () => {
       const dictionary: { [id: string]: string[] } = {}

@@ -1,9 +1,8 @@
 import app from "./app"
 import { log } from "./utils"
+import { environment } from "./environment"
 
-const PORT = 8085
-
-const server = app.listen(PORT, "0.0.0.0")
-log("Server running on port " + PORT)
+const server = app.listen(environment.httpPort, "0.0.0.0")
+log("Server running on port " + environment.httpPort)
 
 export default server

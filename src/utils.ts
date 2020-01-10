@@ -32,19 +32,17 @@ export function addToDictionaryOfSets(dictionary: any, key: any, value: any) {
 //     return output;
 // }
 
-
-
-// Array.prototype.uniq = function ()
-// {
-//     return this
-//         .sort()
-//         .reduce((acc, val) =>
-//         {
-//             if (acc[acc.length - 1] != val)
-//                 acc.push(val)
-//             return acc
-//         }, [])
-// }
+export function uniq(arr: any[]): any[]
+{
+    return arr
+        .sort()
+        .reduce((acc, val) =>
+        {
+            if (acc[acc.length - 1] != val)
+                acc.push(val)
+            return acc
+        }, [])
+}
 
 export function katakanaToHiragana(str: string) {
     // In unicode, katakana is from 12449 to 12533, hiragana from 12353, 12435
