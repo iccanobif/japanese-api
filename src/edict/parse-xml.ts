@@ -35,8 +35,8 @@ export async function* edictXmlParse() {
           })
       })
 
-      // When a tag has attributes, xml.parseString puts the inner text into a field called "_". I have no idea why.
       const entrySequence = Number.parseInt(result.entry.ent_seq[0])
+      // When a tag has attributes, xml.parseString puts the inner text into a field called "_". I have no idea why.
       const glosses = result.entry.gloss.map(g => g._ ? g._ : g)
       const kanjiElements = result.entry.keb // Some entries don't have kanjiElements (eg. ヽ)
       const readingElements = result.entry.r_ele.map(r => r.reb).flat()
@@ -51,7 +51,6 @@ export async function* edictXmlParse() {
             }
             return out
           })
-          // : result.entry.r_ele
           : result.entry.r_ele
             // Cartesian product between kanji elements and their readings
             .map(readingElement => kanjiElements
