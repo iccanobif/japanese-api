@@ -3,8 +3,8 @@ import { KanjiReadingLink } from "./types"
 const unsupportedConjugations = new Set(["v5", "v5aru", "v5r-i", "v5u-s", "v5uru"])
 
 // Returns only the conjugated stuff, not the originals
-export function conjugate(kanjiWord: string | null, 
-                          kanaWord: string | null, 
+export function conjugate(kanjiWord: string, 
+                          kanaWord: string, 
                           partOfSpeech: string): KanjiReadingLink[] {
   if (partOfSpeech == null)
     return []
@@ -17,8 +17,8 @@ export function conjugate(kanjiWord: string | null,
     // Add to the output the original word replacing the last charactersToTrim characters with the suffix provided
 
     newWords.push({
-      kanjiElement: kanjiWord == null ? null : kanjiWord.slice(0, kanjiWord.length - charactersToTrim) + suffix,
-      readingElement: kanaWord == null ? null : kanaWord.slice(0, kanaWord.length - charactersToTrim) + suffix
+      kanjiElement: kanjiWord.slice(0, kanjiWord.length - charactersToTrim) + suffix,
+      readingElement: kanaWord.slice(0, kanaWord.length - charactersToTrim) + suffix
     })
   }
 

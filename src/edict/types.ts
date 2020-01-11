@@ -1,6 +1,6 @@
 export interface KanjiReadingLink {
-  kanjiElement: string | null, 
-  readingElement: string | null,
+  kanjiElement: string, 
+  readingElement: string,
 }
 
 export interface EdictEntryFromFile {

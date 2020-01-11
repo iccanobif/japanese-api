@@ -1,12 +1,10 @@
 import { edictXmlParse } from "../src/edict/parse-xml"
-import { EdictEntryFromFile } from "../src/edict/types"
 import { uniq } from "../src/utils"
 import { expect } from "chai"
 
 describe("edict-parse-xml", function () {
   this.timeout(50000)
   it("can parse the xml", async () => {
-    const everything: EdictEntryFromFile[] = []
     for await (const val of edictXmlParse()) {
 
       expect(val.entrySequence).to.be.a("number")
