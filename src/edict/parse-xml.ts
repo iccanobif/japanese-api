@@ -55,8 +55,9 @@ export async function* edictXmlParse() {
             // Cartesian product between kanji elements and their readings
             .map(readingElement => kanjiElements
               // Readings that have re_restr specified are only applied that that particular kanji element
-              .filter(kanjiElement => !readingElement.re_restr 
-                                      || readingElement.re_restr == kanjiElement)
+              .filter(kanjiElement =>
+                !readingElement.re_restr
+                || readingElement.re_restr == kanjiElement)
               .map(kanjiElement =>
                 ({
                   kanjiElement: kanjiElement,
@@ -81,7 +82,7 @@ export async function* edictXmlParse() {
         partOfSpeech: partOfSpeechList,
         glosses: glosses,
       }
-console.log(newEntry)
+
       yield newEntry
     }
   }
