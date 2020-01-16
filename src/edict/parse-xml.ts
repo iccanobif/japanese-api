@@ -81,7 +81,7 @@ export async function* edictXmlParse() {
         partOfSpeech: partOfSpeechList,
         glosses: glosses,
       }
-
+console.log(newEntry)
       yield newEntry
     }
   }

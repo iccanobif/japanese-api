@@ -1,5 +1,5 @@
 export interface KanjiReadingLink {
-  kanjiElement: string, 
+  kanjiElement: string,
   readingElement: string,
 }
 
@@ -7,8 +7,13 @@ export interface EdictEntryFromFile {
   entrySequence: number, // Unique entry identifier
   unconjugatedReadingLinks: KanjiReadingLink[],
   conjugatedReadingLinks: KanjiReadingLink[],
-  partOfSpeech:string[],
+  partOfSpeech: string[],
   glosses: string[],
+}
+
+export interface DaijirinEntryFromFile {
+  lemma: string,
+  gloss: string,
 }
 
 // Tabelle su mongo:
@@ -18,7 +23,6 @@ export interface EdictEntryFromFile {
 // Una tabella con tutte le possibili chiavi, coniugate e non,
 // per quelle coniugate tengo anche un identificat
 
-export interface DictionaryEntry
-{
+export interface DictionaryEntry {
 
 }
