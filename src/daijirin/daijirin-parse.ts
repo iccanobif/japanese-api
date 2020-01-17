@@ -7,14 +7,6 @@ import { join } from "path";
 const datasetsDirectory = "datasets/daijirin"
 
 export async function* daijirinParse() {
-  // const fileStream = createReadStream("datasets/JMdict_e")
-  // const rl = readline.createInterface({
-  //   input: fileStream,
-  //   crlfDelay: Infinity
-  // })
-
-  // for await (const line of rl) {
-  // }
 
   const files: string[] = await new Promise((resolve, reject) => {
     fs.readdir(datasetsDirectory, (err, files) => {
@@ -37,7 +29,6 @@ export async function* daijirinParse() {
       const trimmedLine = line.trim()
 
       if (trimmedLine.startsWith("<idx:entry")) {
-
         entryLines = []
       }
       else if (trimmedLine.startsWith("</idx:entry>")) {
@@ -59,21 +50,8 @@ export async function* daijirinParse() {
         yield output
       }
       else {
-
         entryLines.push(trimmedLine)
       }
     }
-
-    // const fileText = await new Promise<string>((resolve, reject) => {
-    //   fs.readFile(datasetsDirectory + "/" + fileName,
-    //     { encoding: "utf8" },
-    //     (err, data) => {
-    //       if (err)
-    //         reject(err)
-    //       else
-    //         resolve(data)
-    //     })
-    // })
-
   }
 }
