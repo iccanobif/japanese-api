@@ -1,4 +1,4 @@
-import { KanjiReadingLink } from "./types"
+import { KanjiReadingLink } from "../types"
 
 const unsupportedConjugations = new Set(["v5", "v5aru", "v5r-i", "v5u-s", "v5uru"])
 

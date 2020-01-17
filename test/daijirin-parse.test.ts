@@ -1,5 +1,5 @@
 import { daijirinParse } from "../src/daijirin/daijirin-parse"
-import { DaijirinEntryFromFile } from "../src/edict/types"
+import { DaijirinEntryFromFile } from "../src/types"
 import { expect } from "chai"
 
 describe("daijirin parse", function () {

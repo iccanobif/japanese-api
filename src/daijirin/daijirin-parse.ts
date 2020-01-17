@@ -1,7 +1,7 @@
 import fs, { createReadStream } from "fs"
 import readline from "readline";
 import xml from "xml2js";
-import { DaijirinEntryFromFile } from "../edict/types";
+import { DaijirinEntryFromFile } from "../types";
 import { join } from "path";
 
 const datasetsDirectory = "datasets/daijirin"

@@ -1,6 +1,6 @@
 import readline from "readline";
 import { createReadStream } from "fs";
-import { EdictEntryFromFile, KanjiReadingLink } from "./types";
+import { EdictEntryFromFile, KanjiReadingLink } from "../types";
 import xml from "xml2js";
 import { conjugate } from "./conjugate";
 
