@@ -3,19 +3,21 @@ const app: express.Application = express()
 
 const bodyParser = require("body-parser");
 import { log } from "./utils";
+import { getDictionaryEntries } from "./edict/repository";
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get("/", (req: any, res: any) => {
   res.type("text/plain")
-  res.end("welcome in typescript")
+  res.end("home")
 })
 
-app.get("/edict/:word", (req: any, res: any) => {
-  const word = req.params.word
-  log(word)
-  res.type("text/plain")
-  res.end(word)
+app.get("/dictionary/:query", async (req: any, res: any) => {
+  const query = req.params.query
+  log(query)
+
+  const entries = await getDictionaryEntries(query)
+  res.json(entries)
 })
 
 export default app

@@ -24,9 +24,14 @@ export interface DaijirinEntryFromFile {
 // per quelle coniugate tengo anche un identificat
 
 export interface DictionaryEntry {
+  keys: string[], // Use these to find 
   lemmas: {
     unconjugatedText: string,
     conjugatedText: string
-  },
+  }[],
+  glosses: string[]
+}
+
+export interface Definition {
   glosses: string[]
 }

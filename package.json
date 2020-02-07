@@ -14,7 +14,7 @@
     "build": "npx tsc",
     "start": "node build/index.js",
     "test": "mocha -r ts-node/register test/*.ts",
-    "build-edict-db": "ts-node src/edict/build-db.ts"
+    "build-db": "ts-node src/build-db.ts"
   },
   "devDependencies": {
     "@types/chai": "^4.2.7",
