@@ -34,9 +34,11 @@ test:
 deploy_prod:
   stage: deploy
   script:
+    # - pm2 delete japanese-api-prod || true
+    # - rsync --verbose --recursive --delete . /home/japanese-api/prod
+    # - pm2 start /home/japanese-api/prod/build/index.js --name japanese-api-prod
     - pm2 delete japanese-api-prod || true
-    - rsync --verbose --recursive --delete . /home/japanese-api/prod
-    - pm2 start /home/japanese-api/prod/build/index.js --name japanese-api-prod # TODO: restart when crashing?
+    - pm2 start ./build/index.js --name japanese-api-prod
   environment:
     name: production
     url: https://www.iccan.us/japanese-api
