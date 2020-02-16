@@ -3,7 +3,7 @@ import { uniq } from "../src/utils"
 import { expect } from "chai"
 
 describe("edict-parse-xml", function () {
-  this.timeout(100000)
+  this.timeout(1000000)
   it("can parse the xml", async () => {
     for await (const val of edictXmlParse()) {
 
