@@ -6,12 +6,13 @@ cache:
   - build/
 
 stages:
-  - build
+  - build_application
+  - build_database
   - test
   - deploy
 
-build:
-  stage: build
+build_application:
+  stage: build_application
   script: 
     - yarn
     - yarn build
@@ -19,6 +20,11 @@ build:
     paths:
       - node_modules/
       - build/
+
+build_database:
+  stage: build_database
+  script:
+    - yarn build-db
     
 test:
   stage: test

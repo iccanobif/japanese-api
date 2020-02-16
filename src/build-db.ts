@@ -4,7 +4,7 @@ import { edictXmlParse } from "./edict/parse-xml";
 import { log, printError } from "./utils";
 import { DictionaryEntry } from "./types";
 
-async function buildEdictDB() {
+export async function buildEdictDB() {
   let client: MongoClient | null = null;
 
   try {
@@ -16,7 +16,13 @@ async function buildEdictDB() {
     await client.connect()
     const db = client.db(environment.mongodbName)
     const dictionaryColl = db.collection("dictionary")
-    await dictionaryColl.deleteMany({})
+
+    // Build db only if it's currently empty
+    if (await dictionaryColl.findOne({}))
+    {
+      log("Database already popupated, stopping database build.")
+      return
+    }
 
     for await (const val of edictXmlParse()) {
       const allReadingLinks = val.unconjugatedReadingLinks
