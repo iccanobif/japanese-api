@@ -32,7 +32,8 @@ export async function buildEdictDB() {
         .concat(allReadingLinks.map(x => x.readingElement))
       const newDictionaryEntry: DictionaryEntry = {
         keys: keys,
-        glosses: val.glosses,
+        edictGlosses: val.glosses,
+        daijirinGlosses: [], // TODO
         lemmas: [] // TODO
       }
       await dictionaryColl.insertOne(newDictionaryEntry)

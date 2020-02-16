@@ -12,8 +12,9 @@ export interface EdictEntryFromFile {
 }
 
 export interface DaijirinEntryFromFile {
+  key: string,
   lemma: string,
-  gloss: string,
+  glosses: string[],
 }
 
 // Tabelle su mongo:
@@ -29,7 +30,8 @@ export interface DictionaryEntry {
     unconjugatedText: string,
     conjugatedText: string
   }[],
-  glosses: string[]
+  edictGlosses: string[],
+  daijirinGlosses: string[],
 }
 
 export interface Definition {

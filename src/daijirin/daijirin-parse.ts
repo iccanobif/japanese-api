@@ -26,31 +26,36 @@ export async function* daijirinParse() {
     })
 
     for await (const line of rl) {
-      const trimmedLine = line.trim()
+      const trimmedLine = line.trim().replace("<br/>", "")
 
       if (trimmedLine.startsWith("<idx:entry")) {
         entryLines = []
       }
       else if (trimmedLine.startsWith("</idx:entry>")) {
 
+        // console.log(entryLines)
         // We hit </idx:entry>. parse!
-        const lemma = entryLines[1]
+        const key = entryLines[1]
           .replace("</idx:orth>", "")
           .replace(/^<idx:orth.*?>/, "")
 
-        const gloss = entryLines
-          .splice(3)
-          .join("")
-
         const output: DaijirinEntryFromFile = {
-          lemma: lemma,
-          gloss: gloss,
+          key: key,
+          lemma: entryLines[3],
+          glosses: entryLines.splice(4),
         }
 
         yield output
       }
       else {
-        entryLines.push(trimmedLine)
+        if (trimmedLine.startsWith("→")) {
+          // Lines that start with → are actually part of the previous gloss
+          entryLines[entryLines.length - 1]
+            = entryLines[entryLines.length - 1] + trimmedLine
+        }
+        else
+          if (trimmedLine) // Ignore whitespace only lines
+            entryLines.push(trimmedLine)
       }
     }
   }
