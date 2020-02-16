@@ -38,7 +38,7 @@ deploy_prod:
     # - rsync --verbose --recursive --delete . /home/japanese-api/prod
     # - pm2 start /home/japanese-api/prod/build/index.js --name japanese-api-prod
     - pm2 delete japanese-api-prod || true
-    - pm2 start ./build/index.js --name japanese-api-prod
+    - pm2 start ./build/src/index.js --name japanese-api-prod
   environment:
     name: production
     url: https://www.iccan.us/japanese-api
