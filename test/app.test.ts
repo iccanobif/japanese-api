@@ -1,6 +1,7 @@
 import chai, { expect } from "chai"
 import chaiHttp from "chai-http"
 import app from "../src/app"
+import { DictionaryEntryForAPI } from "../src/types"
 
 chai.use(chaiHttp)
 
@@ -32,6 +33,15 @@ describe("dictionary", () => {
   it("can find base forms with kanji", async () => {
     const response = await get("/dictionary/" + encodeURIComponent("食べる"))
     expect(response).to.have.status(200)
-    expect(response.body).to.be.an("array").that.is.not.empty
+
+    const thing = response.body as DictionaryEntryForAPI[]
+    expect(thing).to.be.an("array").that.is.not.empty
+  }),
+  it("edict base form", async () => {
+    const response = await get("/dictionary/" + encodeURIComponent("食べる"))
+    const thing = response.body as DictionaryEntryForAPI[]
+
+
+    // expect(thing).to.contain()
   })
 })

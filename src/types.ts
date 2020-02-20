@@ -17,23 +17,22 @@ export interface DaijirinEntryFromFile {
   glosses: string[],
 }
 
-// Tabelle su mongo:
-// EdictEntries
-// KanjiReadings
-
-// Una tabella con tutte le possibili chiavi, coniugate e non,
-// per quelle coniugate tengo anche un identificat
-
-export interface DictionaryEntry {
-  keys: string[], // Use these to find 
+export interface DictionaryEntryInDb {
   lemmas: {
-    unconjugatedText: string,
-    conjugatedText: string
-  }[],
+    kanji: string,
+    readings: string,
+    conjugated: boolean,
+  }[]
   edictGlosses: string[],
   daijirinGlosses: string[],
 }
 
-export interface Definition {
+export interface DictionaryEntryForAPI {
+  // Only the readings relative to the given kanji
+  // Only unconjugated stuff
+  lemmas: {
+    kanji: string[],
+    readings: string[],
+  }[]
   glosses: string[]
 }

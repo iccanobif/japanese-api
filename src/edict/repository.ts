@@ -1,9 +1,9 @@
-import { DictionaryEntry } from "../types";
+import { DictionaryEntryInDb } from "../types";
 import { doOnMongoCollection } from "../utils";
 
-export async function getDictionaryEntries(query: string): Promise<DictionaryEntry[]> {
+export async function getDictionaryEntries(query: string): Promise<DictionaryEntryInDb[]> {
 
-  return await doOnMongoCollection<DictionaryEntry, any[]>("dictionary",
+  return await doOnMongoCollection<DictionaryEntryInDb, any[]>("dictionary",
     coll => coll
       .find({ keys: query },
         { projection: { glosses: 1, _id: 0 } })
