@@ -19,11 +19,7 @@ export interface DaijirinEntryFromFile {
 }
 
 export interface DictionaryEntryInDb {
-  lemmas: {
-    kanji: string,
-    readings: string,
-    conjugated: boolean,
-  }[]
+  lemmas: string[]
   edictGlosses: string[],
   daijirinGlosses: string[],
 }
