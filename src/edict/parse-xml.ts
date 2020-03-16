@@ -4,7 +4,8 @@ import { EdictEntryFromFile, KanjiReadingLink } from "../types";
 import xml from "xml2js";
 import { conjugate } from "./conjugate";
 
-export async function* edictXmlParse() {
+export async function* edictXmlParse()
+{
   const fileStream = createReadStream("datasets/JMdict_e")
   const rl = readline.createInterface({
     input: fileStream,
@@ -13,12 +14,15 @@ export async function* edictXmlParse() {
 
   let xmlLines: string[] = []
 
-  for await (const line of rl) {
-    if (!line.startsWith("</entry>")) {
+  for await (const line of rl)
+  {
+    if (!line.startsWith("</entry>"))
+    {
       if (line.match(/^<\/?keb>|^<\/?reb>|^<\/?re_restr>|^<\/?r_ele>|^<\/?pos>|^<entry>|^<ent_seq>|^<\/?gloss/g))
         xmlLines.push(line)
     }
-    else {
+    else
+    {
 
       const entryXml = xmlLines
         .join("\n")
@@ -27,9 +31,11 @@ export async function* edictXmlParse() {
 
       xmlLines = []
 
-      const result: any = await new Promise((resolve, reject) => {
+      const result: any = await new Promise((resolve, reject) =>
+      {
         xml.parseString(entryXml,
-          (err, result) => {
+          (err, result) =>
+          {
             if (err) reject(err)
             else (resolve(result))
           })
@@ -44,7 +50,8 @@ export async function* edictXmlParse() {
 
       const unconjugatedReadingLinks: KanjiReadingLink[] =
         !kanjiElements
-          ? readingElements.map(r => {
+          ? readingElements.map(r =>
+          {
             const out: KanjiReadingLink = {
               kanjiElement: r,
               readingElement: r
@@ -81,6 +88,10 @@ export async function* edictXmlParse() {
         conjugatedReadingLinks: conjugatedReadingLinks,
         partOfSpeech: partOfSpeechList,
         glosses: glosses,
+        allKeys: unconjugatedReadingLinks.map(l => l.kanjiElement)
+          .concat(unconjugatedReadingLinks.map(l => l.readingElement))
+          .concat(conjugatedReadingLinks.map(l => l.readingElement))
+          .concat(conjugatedReadingLinks.map(l => l.readingElement))
       }
 
       yield newEntry

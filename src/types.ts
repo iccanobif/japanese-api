@@ -9,6 +9,7 @@ export interface EdictEntryFromFile {
   conjugatedReadingLinks: KanjiReadingLink[],
   partOfSpeech: string[],
   glosses: string[],
+  allKeys: string[],
 }
 
 export interface DaijirinEntryFromFile {

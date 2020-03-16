@@ -32,16 +32,16 @@ export async function* daijirinParse() {
         entryLines = []
       }
       else if (trimmedLine.startsWith("</idx:entry>")) {
-
         // console.log(entryLines)
-        // We hit </idx:entry>. parse!
-        const key = entryLines[1]
-          .replace("</idx:orth>", "")
-          .replace(/^<idx:orth.*?>/, "")
-
+        // We just hit </idx:entry>. Time to parse!
         const output: DaijirinEntryFromFile = {
-          key: key,
+          // Key is the text inside the <idx:orth> tag
+          key: entryLines[1]
+                  .replace("</idx:orth>", "")
+                  .replace(/^<idx:orth.*?>/, ""),
+          // lemma is the first line outside of the <h2> tag
           lemma: entryLines[3],
+          // glosses is the rest of the lines (excluded the first line) outside of the <h2> tag
           glosses: entryLines.splice(4),
         }
 
