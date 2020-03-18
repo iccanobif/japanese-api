@@ -23,20 +23,34 @@ export async function buildEdictDB()
     const daijirinFileEntries = db.collection("daijirinFileEntries")
     const dictionary = db.collection("dictionary")
 
-    // log("Parsing edict...")
-    // for await (const edictItem of edictXmlParse())
-    // {
-    //   await edictFileEntries.insertOne(edictItem)
-    // }
+    log("Parsing edict...")
+    for await (const edictItem of edictXmlParse())
+    {
+      await edictFileEntries.insertOne(edictItem)
+    }
 
-    // log("Creating edict indexes...")
-    // await edictFileEntries.createIndex({ allKeys: 1 })
+    log("Creating edict indexes...")
+    await edictFileEntries.createIndex({ allKeys: 1 })
 
-    // log("Parsing daijirin...")
-    // for await (const daijirinItem of daijirinParse())
-    // {
-    //   await daijirinFileEntries.insertOne(daijirinItem)
-    // }
+    log("Parsing daijirin...")
+    for await (const daijirinItem of daijirinParse())
+    {
+      await daijirinFileEntries.insertOne(daijirinItem)
+    }
+
+    log("Putting edict entries into dictionary...")
+    await edictFileEntries.aggregate([
+      {
+        $project: {
+          lemmas: "$allKeys",
+          edictGlosses: "$glosses",
+          daijirinGlosses: []
+        }
+      },
+      { $out: "dictionary" }
+    ]
+    ).toArray()
+    await dictionary.createIndex({ lemmas: 1 })
 
     log("Merging daijirin into edict...")
     const daijirinMergeCursor = daijirinFileEntries.aggregate([
@@ -60,16 +74,15 @@ export async function buildEdictDB()
       },
     ], { allowDiskUse: true })
 
+
     while (await daijirinMergeCursor.hasNext())
     {
-      // log("fetching...")
       const daijirinDocument = await daijirinMergeCursor.next()
-      // log(daijirinDocument.lemma)
+      
       // Find element in edict
-      const edictDocuments = await edictFileEntries.find({
-        allKeys: { $all: daijirinDocument.keys }
+      const edictDocuments = await dictionary.find({
+        lemmas: { $all: daijirinDocument.keys }
       }).toArray()
-      // log("fetched edict document " + edictDocuments.join(","))
 
       if (edictDocuments.length == 0)
       {
@@ -85,16 +98,12 @@ export async function buildEdictDB()
       {
         for (const edictDocument of edictDocuments)
         {
-          const heh: DictionaryEntryInDb = {
-            lemmas: edictDocument.keys,
-            daijirinGlosses: daijirinDocument.glosses,
-            edictGlosses: edictDocument.glosses,
-          }
-          await dictionary.insertOne(heh)
+          await dictionary.updateOne({ _id: edictDocument._id },
+            { $push: { daijirinGlosses: { $each: daijirinDocument.glosses } } })
         }
       }
-      // log("inserted to dictionary")
     }
+
 
     // Strange things: {lemma: "――を取・る"} has a lot of entries, with different keys
     // i casi di "lemma duplicati" sono di due tipi: diversi modi di scrivere (vedi 取引vs取り引き)
