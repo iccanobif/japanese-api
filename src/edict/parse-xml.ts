@@ -90,7 +90,7 @@ export async function* edictXmlParse()
         glosses: glosses,
         allKeys: unconjugatedReadingLinks.map(l => l.kanjiElement)
           .concat(unconjugatedReadingLinks.map(l => l.readingElement))
-          .concat(conjugatedReadingLinks.map(l => l.readingElement))
+          .concat(conjugatedReadingLinks.map(l => l.kanjiElement))
           .concat(conjugatedReadingLinks.map(l => l.readingElement))
       }
 
