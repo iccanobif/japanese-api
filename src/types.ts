@@ -23,13 +23,3 @@ export interface DictionaryEntryInDb {
   edictGlosses: string[],
   daijirinGlosses: string[],
 }
-
-export interface DictionaryEntryForAPI {
-  // Only the readings relative to the given kanji
-  // Only unconjugated stuff
-  lemmas: {
-    kanji: string[],
-    readings: string[],
-  }[]
-  glosses: string[]
-}

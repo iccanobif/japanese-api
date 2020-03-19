@@ -14,8 +14,6 @@ app.get("/", (req: any, res: any) => {
 
 app.get("/dictionary/:query", async (req: any, res: any) => {
   const query = req.params.query
-  log(query)
-
   const entries = await getDictionaryEntries(query)
   res.json(entries)
 })
