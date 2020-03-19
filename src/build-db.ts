@@ -74,11 +74,11 @@ export async function buildEdictDB()
       },
     ], { allowDiskUse: true })
 
-
     while (await daijirinMergeCursor.hasNext())
     {
       const daijirinDocument = await daijirinMergeCursor.next()
-      
+      daijirinDocument.keys = daijirinDocument.keys.map(k => k.replace("=", "").replace("＝", ""))
+
       // Find element in edict
       const edictDocuments = await dictionary.find({
         lemmas: { $all: daijirinDocument.keys }
