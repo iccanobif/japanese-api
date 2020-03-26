@@ -52,8 +52,8 @@ describe("dictionary", () =>
           entry.glosses.some(gloss =>
             gloss == "to eat"))) // from edict
   }),
-    it("edict base form", async () =>
-    {
-      const response = await get("/dictionary/" + encodeURIComponent("食べる"))
-    })
+  it("edict base form", async () =>
+  {
+    const response = await get("/dictionary/" + encodeURIComponent("食べる"))
+  })
 })

@@ -9,6 +9,9 @@ describe("edict-parse-xml", function () {
 
       expect(val.entrySequence).to.be.a("number")
 
+      expect(val.unconjugatedReadingLinks).to.be.an("array").that.is.not.empty
+      expect(val.conjugatedReadingLinks).to.be.an("array")
+
       val.unconjugatedReadingLinks.forEach(l => {
         expect(l.kanjiElement).to.be.a("string")
         expect(l.readingElement).to.be.a("string")
