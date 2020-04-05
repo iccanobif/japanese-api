@@ -1,11 +1,11 @@
-import { DictionaryEntryInDb } from "../types";
+import { DictionaryEntryInDb, DictionaryApiOutput } from "../types";
 import { doOnMongoCollection } from "../utils";
 
 export async function getDictionaryEntries(query: string)
-  : Promise<{ glosses: string[] }[]>
+  : Promise<DictionaryApiOutput[]>
 {
 
-  return await doOnMongoCollection<DictionaryEntryInDb, any[]>("dictionary",
+  return await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
     coll => coll
       .aggregate([
         { $match: { lemmas: query } },

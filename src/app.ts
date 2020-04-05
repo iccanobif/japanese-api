@@ -2,7 +2,6 @@ import express from "express";
 const app: express.Application = express()
 
 const bodyParser = require("body-parser");
-import { log } from "./utils";
 import { getDictionaryEntries } from "./edict/repository";
 
 app.use(bodyParser.urlencoded({ extended: false }));

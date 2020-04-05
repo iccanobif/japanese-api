@@ -1,11 +1,10 @@
 import readline from "readline";
 import { createReadStream } from "fs";
-import { EdictEntryFromFile, KanjiReadingLink } from "../types";
+import { EdictEntryFromFile, Lemma } from "../types";
 import xml from "xml2js";
 import { conjugate } from "./conjugate";
 
-export async function* edictXmlParse()
-{
+export async function* edictXmlParse() {
   const fileStream = createReadStream("datasets/JMdict_e")
   const rl = readline.createInterface({
     input: fileStream,
@@ -14,15 +13,12 @@ export async function* edictXmlParse()
 
   let xmlLines: string[] = []
 
-  for await (const line of rl)
-  {
-    if (!line.startsWith("</entry>"))
-    {
+  for await (const line of rl) {
+    if (!line.startsWith("</entry>")) {
       if (line.match(/^<\/?keb>|^<\/?reb>|^<\/?re_restr>|^<\/?r_ele>|^<\/?pos>|^<entry>|^<ent_seq>|^<\/?gloss/g))
         xmlLines.push(line)
     }
-    else
-    {
+    else {
 
       const entryXml = xmlLines
         .join("\n")
@@ -31,11 +27,9 @@ export async function* edictXmlParse()
 
       xmlLines = []
 
-      const result: any = await new Promise((resolve, reject) =>
-      {
+      const result: any = await new Promise((resolve, reject) => {
         xml.parseString(entryXml,
-          (err, result) =>
-          {
+          (err, result) => {
             if (err) reject(err)
             else (resolve(result))
           })
@@ -43,55 +37,50 @@ export async function* edictXmlParse()
 
       const entrySequence = Number.parseInt(result.entry.ent_seq[0])
       // When a tag has attributes, xml.parseString puts the inner text into a field called "_". I have no idea why.
-      const glosses = result.entry.gloss.map(g => g._ ? g._ : g)
-      const kanjiElements = result.entry.keb // Some entries don't have kanjiElements (eg. ヽ)
-      const readingElements = result.entry.r_ele.map(r => r.reb).flat()
-      const partOfSpeechList = result.entry.pos
+      const glosses = result.entry.gloss.map((g: any) => g._ ? g._ : g) as string[]
+      const kanjiElements = result.entry.keb as string[] // Some entries don't have kanjiElements (eg. ヽ)
+      const readingElements = result.entry.r_ele.map((r: any) => r.reb).flat() as string[]
+      const partOfSpeechList = result.entry.pos as string[]
 
-      const unconjugatedReadingLinks: KanjiReadingLink[] =
+      const unconjugatedReadingLinks: Lemma[] =
         !kanjiElements
-          ? readingElements.map(r =>
-          {
-            const out: KanjiReadingLink = {
-              kanjiElement: r,
-              readingElement: r
+          ? readingElements.map(r => {
+            const out: Lemma = {
+              kanji: r,
+              reading: r,
+              isConjugated: false
             }
             return out
           })
           : result.entry.r_ele
             // Cartesian product between kanji elements and their readings
-            .map(readingElement => kanjiElements
+            .map((readingElement: any) => kanjiElements
               // Readings that have re_restr specified are only applied that that particular kanji element
-              .filter(kanjiElement =>
+              .filter((kanjiElement: any) =>
                 !readingElement.re_restr
                 || readingElement.re_restr == kanjiElement)
-              .map(kanjiElement =>
-                ({
-                  kanjiElement: kanjiElement,
-                  readingElement: readingElement.reb[0],
+              .map((kanjiElement: any): Lemma => ({
+                  kanji: kanjiElement,
+                  reading: readingElement.reb[0],
+                  isConjugated: false,
                 })
               ))
             .flat(2)
 
-      const conjugatedReadingLinks: KanjiReadingLink[]
+      const conjugatedReadingLinks: Lemma[]
         = unconjugatedReadingLinks
           .map(link =>
             partOfSpeechList
               .map(pos =>
-                conjugate(link.kanjiElement, link.readingElement, pos))
+                conjugate(link.kanji, link.reading, pos))
               .flat())
           .flat()
 
       const newEntry: EdictEntryFromFile = {
         entrySequence: entrySequence,
-        unconjugatedReadingLinks: unconjugatedReadingLinks,
-        conjugatedReadingLinks: conjugatedReadingLinks,
+        lemmas: unconjugatedReadingLinks.concat(conjugatedReadingLinks),
         partOfSpeech: partOfSpeechList,
-        glosses: glosses,
-        allKeys: unconjugatedReadingLinks.map(l => l.kanjiElement)
-          .concat(unconjugatedReadingLinks.map(l => l.readingElement))
-          .concat(conjugatedReadingLinks.map(l => l.kanjiElement))
-          .concat(conjugatedReadingLinks.map(l => l.readingElement))
+        glosses: glosses
       }
 
       yield newEntry

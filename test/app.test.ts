@@ -1,6 +1,7 @@
 import chai, { expect } from "chai"
 import chaiHttp from "chai-http"
 import app from "../src/app"
+import { DictionaryApiOutput } from "../src/types"
 
 chai.use(chaiHttp)
 
@@ -41,19 +42,19 @@ describe("dictionary", () =>
     const response = await get("/dictionary/" + encodeURIComponent("食べる"))
     expect(response).to.have.status(200)
 
-    const thing = response.body as []
+    const thing = response.body as DictionaryApiOutput[]
     expect(thing).to.be.an("array")
-      .that.satisfies(arr =>
+      .that.satisfies((arr: DictionaryApiOutput[]) =>
         arr.some(entry =>
           entry.glosses.some(gloss =>
             gloss == "（１）食物を口に入れ，かんで飲み込む。現在では「食う」よりは上品な言い方とされる。「果物を―・べる」「朝食を―・べる」"))) // from daijirin
-      .and.satisfies(arr =>
+      .and.satisfies((arr: DictionaryApiOutput[]) =>
         arr.some(entry =>
           entry.glosses.some(gloss =>
             gloss == "to eat"))) // from edict
   }),
   it("edict base form", async () =>
   {
-    const response = await get("/dictionary/" + encodeURIComponent("食べる"))
+    // const response = await get("/dictionary/" + encodeURIComponent("食べる"))
   })
 })

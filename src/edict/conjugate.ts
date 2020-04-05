@@ -1,24 +1,25 @@
-import { KanjiReadingLink } from "../types"
+import { Lemma } from "../types"
 
 const unsupportedConjugations = new Set(["v5", "v5aru", "v5r-i", "v5u-s", "v5uru"])
 
 // Returns only the conjugated stuff, not the originals
 export function conjugate(kanjiWord: string, 
                           kanaWord: string, 
-                          partOfSpeech: string): KanjiReadingLink[] {
+                          partOfSpeech: string): Lemma[] {
   if (partOfSpeech == null)
     return []
   if (unsupportedConjugations.has(partOfSpeech))
     return [] // I don't know how to conjugate this stuff (yet)
 
-  let newWords: KanjiReadingLink[] = []
+  let newWords: Lemma[] = []
 
   function add(suffix: string, charactersToTrim: number = 1) {
     // Add to the output the original word replacing the last charactersToTrim characters with the suffix provided
 
     newWords.push({
-      kanjiElement: kanjiWord.slice(0, kanjiWord.length - charactersToTrim) + suffix,
-      readingElement: kanaWord.slice(0, kanaWord.length - charactersToTrim) + suffix
+      kanji: kanjiWord.slice(0, kanjiWord.length - charactersToTrim) + suffix,
+      reading: kanaWord.slice(0, kanaWord.length - charactersToTrim) + suffix,
+      isConjugated: true
     })
   }
 
