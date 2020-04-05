@@ -9,7 +9,6 @@ describe("edict-parse-xml", function () {
     for await (const val of edictXmlParse()) {
 
       expect(val.entrySequence).to.be.a("number")
-      console.log(val)
 
       expect(val.lemmas).to.be.an("array").that.is.not.empty
 

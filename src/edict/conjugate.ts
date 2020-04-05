@@ -15,7 +15,6 @@ export function conjugate(kanjiWord: string,
 
   function add(suffix: string, charactersToTrim: number = 1) {
     // Add to the output the original word replacing the last charactersToTrim characters with the suffix provided
-
     newWords.push({
       kanji: kanjiWord.slice(0, kanjiWord.length - charactersToTrim) + suffix,
       reading: kanaWord.slice(0, kanaWord.length - charactersToTrim) + suffix,

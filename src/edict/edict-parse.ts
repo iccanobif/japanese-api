@@ -61,10 +61,10 @@ export async function* edictXmlParse() {
                 !readingElement.re_restr
                 || readingElement.re_restr.includes(kanjiElement))
               .map((kanjiElement): Lemma => ({
-                  kanji: kanjiElement,
-                  reading: readingElement.reb[0],
-                  isConjugated: false,
-                })
+                kanji: kanjiElement,
+                reading: readingElement.reb[0],
+                isConjugated: false,
+              })
               ))
             .flat(2)
 
@@ -76,6 +76,15 @@ export async function* edictXmlParse() {
                 conjugate(link.kanji, link.reading, pos))
               .flat())
           .flat()
+          // Remove duplicates
+          .sort((a, b) => (a.kanji + a.reading).localeCompare(b.kanji + b.reading))
+          .reduce((acc, curr) => {
+            const prevValue = acc[acc.length - 1]
+            if (prevValue && prevValue.kanji == curr.kanji && prevValue.reading == curr.reading)
+              return acc
+            else
+              return acc.concat([curr])
+          }, [] as Lemma[])
 
       const newEntry: EdictEntryFromFile = {
         entrySequence: entrySequence,

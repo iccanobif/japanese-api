@@ -31,7 +31,6 @@ export async function* daijirinParse() {
         entryLines = []
       }
       else if (trimmedLine.startsWith("</idx:entry>")) {
-        // console.log(entryLines)
         // We just hit </idx:entry>. Time to parse!
         const output: DaijirinEntryFromFile = {
           // Key is the text inside the <idx:orth> tag
