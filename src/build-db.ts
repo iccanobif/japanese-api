@@ -48,7 +48,7 @@ export async function buildEdictDB() {
     await edictFileEntries.aggregate([
       {
         $project: {
-          lemmas: "$allKeys",
+          lemmas: "$lemmas",
           edictGlosses: "$glosses",
           daijirinGlosses: []
         }
