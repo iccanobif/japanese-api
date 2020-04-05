@@ -1,6 +1,6 @@
 import { MongoClient } from "mongodb";
 import { environment } from "./environment";
-import { edictXmlParse } from "./edict/parse-xml";
+import { edictXmlParse } from "./edict/edict-parse";
 import { log, printError } from "./utils";
 import { daijirinParse } from "./daijirin/daijirin-parse";
 import { DictionaryEntryInDb } from "./types";

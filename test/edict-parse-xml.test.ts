@@ -1,4 +1,4 @@
-import { edictXmlParse } from "../src/edict/parse-xml"
+import { edictXmlParse } from "../src/edict/edict-parse"
 import { uniq, to } from "../src/utils"
 import { expect } from "chai"
 import { Lemma } from "../src/types"
@@ -9,6 +9,7 @@ describe("edict-parse-xml", function () {
     for await (const val of edictXmlParse()) {
 
       expect(val.entrySequence).to.be.a("number")
+      console.log(val)
 
       expect(val.lemmas).to.be.an("array").that.is.not.empty
 

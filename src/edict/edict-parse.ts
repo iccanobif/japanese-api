@@ -39,12 +39,13 @@ export async function* edictXmlParse() {
       // When a tag has attributes, xml.parseString puts the inner text into a field called "_". I have no idea why.
       const glosses = result.entry.gloss.map((g: any) => g._ ? g._ : g) as string[]
       const kanjiElements = result.entry.keb as string[] // Some entries don't have kanjiElements (eg. ヽ)
-      const readingElements = result.entry.r_ele.map((r: any) => r.reb).flat() as string[]
+      const onlyReadingElements = result.entry.r_ele.map((r: any) => r.reb).flat() as string[]
       const partOfSpeechList = result.entry.pos as string[]
+      const readingElements = result.entry.r_ele as { reb: string[], re_restr: string[] }[]
 
       const unconjugatedReadingLinks: Lemma[] =
         !kanjiElements
-          ? readingElements.map(r => {
+          ? onlyReadingElements.map(r => {
             const out: Lemma = {
               kanji: r,
               reading: r,
@@ -52,14 +53,14 @@ export async function* edictXmlParse() {
             }
             return out
           })
-          : result.entry.r_ele
+          : readingElements
             // Cartesian product between kanji elements and their readings
-            .map((readingElement: any) => kanjiElements
+            .map(readingElement => kanjiElements
               // Readings that have re_restr specified are only applied that that particular kanji element
-              .filter((kanjiElement: any) =>
+              .filter(kanjiElement =>
                 !readingElement.re_restr
-                || readingElement.re_restr == kanjiElement)
-              .map((kanjiElement: any): Lemma => ({
+                || readingElement.re_restr.includes(kanjiElement))
+              .map((kanjiElement): Lemma => ({
                   kanji: kanjiElement,
                   reading: readingElement.reb[0],
                   isConjugated: false,
