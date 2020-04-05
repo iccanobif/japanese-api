@@ -5,7 +5,7 @@ import { expect } from "chai"
 describe("generated-database", function () {
   it("has no empty unconjugatedReadingLinks", async () => {
     const coll = await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
-      coll => coll.findOne({ lemma: "お歯黒" })
+      coll => coll.findOne({ "lemmas.kanji": "お歯黒" })
     ) as DictionaryEntryInDb
 
     const sortLemmas = (lemmas: Lemma[]) => lemmas.sort((a, b) => (a.kanji + a.reading).localeCompare(b.kanji + b.reading))
