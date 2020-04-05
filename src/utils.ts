@@ -61,10 +61,10 @@ export function katakanaToHiragana(str: string) {
 }
 
 
-export async function doOnMongoCollection<TInput, TOutput>(
+export async function doOnMongoCollection<TInput>(
   collectionName: string,
-  callback: { (coll: Collection<TInput>): Promise<TOutput> }
-): Promise<TOutput> {
+  callback: { (coll: Collection<TInput>): Promise<any> }
+): Promise<any> {
   let client: MongoClient | null = null;
 
   try {

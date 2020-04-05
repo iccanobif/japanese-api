@@ -1,9 +1,11 @@
-export interface KanjiReadingLink {
+export interface KanjiReadingLink
+{
   kanjiElement: string,
   readingElement: string,
 }
 
-export interface EdictEntryFromFile {
+export interface EdictEntryFromFile
+{
   entrySequence: number, // Unique entry identifier
   unconjugatedReadingLinks: KanjiReadingLink[],
   conjugatedReadingLinks: KanjiReadingLink[],
@@ -12,14 +14,20 @@ export interface EdictEntryFromFile {
   allKeys: string[],
 }
 
-export interface DaijirinEntryFromFile {
+export interface DaijirinEntryFromFile
+{
   key: string,
   lemma: string,
   glosses: string[],
 }
 
-export interface DictionaryEntryInDb {
-  lemmas: string[]
+export interface DictionaryEntryInDb
+{
+  lemmas: {
+    kanji: string,
+    reading: string,
+    isConjugated: boolean,
+  }
   edictGlosses: string[],
   daijirinGlosses: string[],
 }
