@@ -3,7 +3,7 @@ import { environment } from "./environment";
 import { edictXmlParse } from "./edict/edict-parse";
 import { log, printError } from "./utils";
 import { daijirinParse } from "./daijirin/daijirin-parse";
-import { DictionaryEntryInDb } from "./types";
+import { DictionaryEntryInDb, Lemma } from "./types";
 
 export async function buildEdictDB() {
   let client: MongoClient | null = null;
@@ -50,13 +50,14 @@ export async function buildEdictDB() {
         $project: {
           lemmas: "$lemmas",
           edictGlosses: "$glosses",
-          daijirinGlosses: []
+          daijirinGlosses: [],
+          allKeys: "$allKeys"
         }
       },
       { $out: "dictionary" }
     ]
     ).toArray()
-    await dictionary.createIndex({ lemmas: 1 })
+    await dictionary.createIndex({ allKeys: 1 })
 
     log("Merging daijirin into edict...")
     const daijirinMergeCursor = daijirinFileEntries.aggregate([
@@ -86,13 +87,17 @@ export async function buildEdictDB() {
 
       // Find element in edict
       const edictDocuments = await dictionary.find({
-        lemmas: { $all: daijirinDocument.keys }
+        allKeys: { $all: daijirinDocument.keys }
       }).toArray()
 
       if (edictDocuments.length == 0) {
         // Not in edict, insert to dictionary as a daijirin only document
         const heh: DictionaryEntryInDb = {
-          lemmas: daijirinDocument.keys,
+          lemmas: daijirinDocument.keys.map((k: string): Lemma => ({
+            kanji: k,
+            reading: k,
+            isConjugated: false,
+          })),
           daijirinGlosses: daijirinDocument.glosses,
           edictGlosses: [],
         }

@@ -8,7 +8,7 @@ export async function getDictionaryEntries(query: string)
   return await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
     coll => coll
       .aggregate([
-        { $match: { lemmas: query } },
+        { $match: { allKeys: query } },
         {
           $project: {
             _id: 0,
