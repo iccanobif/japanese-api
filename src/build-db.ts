@@ -1,14 +1,16 @@
 import { MongoClient } from "mongodb";
 import { environment } from "./environment";
 import { edictXmlParse } from "./edict/edict-parse";
-import { log, printError } from "./utils";
+import { log, printError, to } from "./utils";
 import { daijirinParse } from "./daijirin/daijirin-parse";
 import { DictionaryEntryInDb, Lemma } from "./types";
 
-export async function buildEdictDB() {
+export async function buildEdictDB()
+{
   let client: MongoClient | null = null;
 
-  try {
+  try
+  {
     client = new MongoClient(environment.mongodbUrl,
       {
         autoReconnect: false,
@@ -26,7 +28,8 @@ export async function buildEdictDB() {
     const dictionary = db.collection("dictionary")
 
     log("Parsing edict...")
-    for await (const edictItem of edictXmlParse()) {
+    for await (const edictItem of edictXmlParse())
+    {
       await edictFileEntries.insertOne({
         entrySequence: edictItem.entrySequence,
         lemmas: edictItem.lemmas,
@@ -40,7 +43,8 @@ export async function buildEdictDB() {
     await edictFileEntries.createIndex({ allKeys: 1 })
 
     log("Parsing daijirin...")
-    for await (const daijirinItem of daijirinParse()) {
+    for await (const daijirinItem of daijirinParse())
+    {
       await daijirinFileEntries.insertOne(daijirinItem)
     }
 
@@ -81,8 +85,13 @@ export async function buildEdictDB() {
       },
     ], { allowDiskUse: true })
 
-    while (await daijirinMergeCursor.hasNext()) {
-      const daijirinDocument = await daijirinMergeCursor.next()
+    while (await daijirinMergeCursor.hasNext())
+    {
+      const daijirinDocument = await daijirinMergeCursor.next() as {
+        lemma: string,
+        glosses: string[],
+        keys: string[]
+      }
       daijirinDocument.keys = daijirinDocument.keys.map((k: string) => k.replace("=", "").replace("＝", ""))
 
       // Find element in edict
@@ -90,9 +99,10 @@ export async function buildEdictDB() {
         allKeys: { $all: daijirinDocument.keys }
       }).toArray()
 
-      if (edictDocuments.length == 0) {
+      if (edictDocuments.length == 0)
+      {
         // Not in edict, insert to dictionary as a daijirin only document
-        const heh: DictionaryEntryInDb = {
+        await dictionary.insertOne(to<DictionaryEntryInDb>({
           lemmas: daijirinDocument.keys.map((k: string): Lemma => ({
             kanji: k,
             reading: k,
@@ -100,27 +110,37 @@ export async function buildEdictDB() {
           })),
           daijirinGlosses: daijirinDocument.glosses,
           edictGlosses: [],
-        }
-        await dictionary.insertOne(heh)
+          daijirinLemmas: [daijirinDocument.lemma],
+          allKeys: daijirinDocument.keys
+        }))
       }
-      else {
-        for (const edictDocument of edictDocuments) {
+      else
+      {
+        for (const edictDocument of edictDocuments)
+        {
           await dictionary.updateOne({ _id: edictDocument._id },
-            { $push: { daijirinGlosses: { $each: daijirinDocument.glosses } } })
+            {
+              $push: { 
+                daijirinGlosses: { $each: daijirinDocument.glosses },
+                daijirinLemmas: daijirinDocument.lemma //is this needed? i'm not sure there will ever be more than one element for daijirinLemmas
+              },
+            })
         }
       }
     }
 
     log("finish")
   }
-  finally {
+  finally
+  {
     if (client)
       await client.close()
   }
 }
 
 buildEdictDB()
-  .catch((err) => {
+  .catch((err) =>
+  {
     printError(err)
   })
 

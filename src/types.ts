@@ -24,6 +24,8 @@ export interface DictionaryEntryInDb
   lemmas: Lemma[],
   edictGlosses: string[],
   daijirinGlosses: string[],
+  daijirinLemmas: string[],
+  allKeys: string[],
 }
 
 export interface DictionaryApiOutput
