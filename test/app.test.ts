@@ -53,8 +53,15 @@ describe("dictionary", () =>
           entry.glosses.some(gloss =>
             gloss == "to eat"))) // from edict
   }),
-  it("edict base form", async () =>
+  it("only non conjugated lemmas are returned", async () =>
   {
-    // const response = await get("/dictionary/" + encodeURIComponent("食べる"))
+    const response = await get("/dictionary/" + encodeURIComponent("食べた"))
+
+    const body = response.body as DictionaryApiOutput[]
+    expect(body).to.have.lengthOf(1)
+    expect(body[0].kanjiLemmas)
+      .to.be.deep.equal(["食べる","喰べる"])
+    expect(body[0].readingLemmas)
+      .to.be.deep.equal(["たべる"])
   })
 })

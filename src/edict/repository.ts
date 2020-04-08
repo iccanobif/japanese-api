@@ -12,6 +12,18 @@ export async function getDictionaryEntries(query: string)
         {
           $project: {
             _id: 0,
+            kanjiLemmas: {
+              $map: {
+                input: { $filter: { input: "$lemmas", cond: { $not: "$$this.isConjugated" } } },
+                in: "$$this.kanji"
+              }
+            },
+            readingLemmas: {
+              $map: {
+                input: { $filter: { input: "$lemmas", cond: { $not: "$$this.isConjugated" } } },
+                in: "$$this.reading"
+              }
+            },
             glosses: { $concatArrays: ["$daijirinGlosses", "$edictGlosses"] },
           }
         }
