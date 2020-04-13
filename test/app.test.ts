@@ -59,9 +59,7 @@ describe("dictionary", () =>
 
     const body = response.body as DictionaryApiOutput[]
     expect(body).to.have.lengthOf(1)
-    expect(body[0].kanjiLemmas)
-      .to.be.deep.equal(["食べる","喰べる"])
-    expect(body[0].readingLemmas)
-      .to.be.deep.equal(["たべる"])
+    expect(body[0].lemmas)
+      .to.be.deep.equal(["食べる（たべる）","喰べる（たべる）"])
   })
 })

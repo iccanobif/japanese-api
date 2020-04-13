@@ -30,7 +30,6 @@ export interface DictionaryEntryInDb
 
 export interface DictionaryApiOutput
 {
-  kanjiLemmas: string[],
-  readingLemmas: string[],
+  lemmas: string[],
   glosses: string[],
 }
