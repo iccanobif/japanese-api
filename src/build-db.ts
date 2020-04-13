@@ -17,7 +17,7 @@ export async function buildEdictDB()
         useUnifiedTopology: true
       })
     await client.connect()
-    const db = client.db(environment.mongodbName)
+    const db = client.db()
 
     // Drop all collections
     for (const collection of await db.collections())

@@ -75,7 +75,7 @@ export async function doOnMongoCollection<TInput>(
       })
 
     await client.connect()
-    const db = client.db(environment.mongodbName)
+    const db = client.db()
     const dictionaryColl = db.collection<TInput>(collectionName)
     const result = await callback(dictionaryColl)
     return result
