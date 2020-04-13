@@ -21,54 +21,34 @@ export async function buildEdictDB()
 
     // Drop all collections
     for (const collection of (await db.collections())
-      .filter(c =>
-        ["edictFileEntries",
-          "daijirinFileEntries",
-          "dictionary"]
-          .includes(c.collectionName)))
+      .filter(c => ["daijirinFileEntries", "dictionary"]
+        .includes(c.collectionName)))
     {
       await collection.drop()
     }
 
-    const edictFileEntries = db.collection("edictFileEntries")
     const daijirinFileEntries = db.collection("daijirinFileEntries")
     const dictionary = db.collection("dictionary")
 
     log("Parsing edict...")
     for await (const edictItem of edictXmlParse())
     {
-      await edictFileEntries.insertOne({
-        entrySequence: edictItem.entrySequence,
+      await dictionary.insertOne(to<DictionaryEntryInDb>({
         lemmas: edictItem.lemmas,
-        partOfSpeech: edictItem.partOfSpeech,
-        glosses: edictItem.glosses,
+        edictGlosses: edictItem.glosses,
+        daijirinGlosses: [],
+        daijirinLemmas: [],
         allKeys: edictItem.lemmas.map(l => l.kanji).concat(edictItem.lemmas.map(l => l.reading))
-      })
+      }))
     }
 
-    log("Creating edict indexes...")
-    await edictFileEntries.createIndex({ allKeys: 1 })
+    await dictionary.createIndex({ allKeys: 1 })
 
     log("Parsing daijirin...")
     for await (const daijirinItem of daijirinParse())
     {
       await daijirinFileEntries.insertOne(daijirinItem)
     }
-
-    log("Putting edict entries into dictionary...")
-    await edictFileEntries.aggregate([
-      {
-        $project: {
-          lemmas: "$lemmas",
-          edictGlosses: "$glosses",
-          daijirinGlosses: [],
-          allKeys: "$allKeys"
-        }
-      },
-      { $out: "dictionary" }
-    ]
-    ).toArray()
-    await dictionary.createIndex({ allKeys: 1 })
 
     log("Merging daijirin into edict...")
     const daijirinMergeCursor = daijirinFileEntries.aggregate([
@@ -135,6 +115,8 @@ export async function buildEdictDB()
         }
       }
     }
+    log("drop daijirinFileEntries")
+    await daijirinFileEntries.drop()
 
     log("finish")
   }
