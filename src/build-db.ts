@@ -20,8 +20,15 @@ export async function buildEdictDB()
     const db = client.db()
 
     // Drop all collections
-    for (const collection of await db.collections())
+    for (const collection of (await db.collections())
+      .filter(c =>
+        ["edictFileEntries",
+          "daijirinFileEntries",
+          "dictionary"]
+          .includes(c.collectionName)))
+    {
       await collection.drop()
+    }
 
     const edictFileEntries = db.collection("edictFileEntries")
     const daijirinFileEntries = db.collection("daijirinFileEntries")
@@ -120,7 +127,7 @@ export async function buildEdictDB()
         {
           await dictionary.updateOne({ _id: edictDocument._id },
             {
-              $push: { 
+              $push: {
                 daijirinGlosses: { $each: daijirinDocument.glosses },
                 daijirinLemmas: daijirinDocument.lemma //is this needed? i'm not sure there will ever be more than one element for daijirinLemmas
               },
