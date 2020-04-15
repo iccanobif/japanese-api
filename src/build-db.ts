@@ -38,19 +38,41 @@ export async function buildEdictDB()
         edictGlosses: edictItem.glosses,
         daijirinGlosses: [],
         daijirinLemmas: [],
-        allKeys: edictItem.lemmas.map(l => l.kanji).concat(edictItem.lemmas.map(l => l.reading))
+        allKeys: edictItem.lemmas
+          .map(l => l.kanji)
+          .concat(edictItem.lemmas
+            .map(l => l.reading)),
+        allConjugatedKeys: edictItem.lemmas
+          .filter(l => l.isConjugated)
+          .map(l => l.kanji)
+          .concat(edictItem.lemmas
+            .filter(l => l.isConjugated)
+            .map(l => l.reading)),
+        allUnconjugatedKeys: edictItem.lemmas
+          .filter(l => !l.isConjugated)
+          .map(l => l.kanji)
+          .concat(edictItem.lemmas
+            .filter(l => !l.isConjugated)
+            .map(l => l.reading)),
       }))
     }
-
+    log("Creating allKeys index on dictionary...")
     await dictionary.createIndex({ allKeys: 1 })
+    // await dictionary.createIndex({ allConjugatedKeys: 1 })
+    await dictionary.createIndex({ allUnconjugatedKeys: 1 })
 
     log("Parsing daijirin...")
     for await (const daijirinItem of daijirinParse())
     {
-      await daijirinFileEntries.insertOne(daijirinItem)
+      // Ignore entries for stuff that's not a japanese word, to save disk space
+      if (!daijirinItem.key.match(/[a-zA-Z]/)) 
+        await daijirinFileEntries.insertOne(daijirinItem)
     }
 
     log("Merging daijirin into edict...")
+    // PROBLEMA: quando decido a quale articolo edict agganciare la roba daijirin, 
+    // devo usare come chiave solo i lemma non coniugati, altrimenti faccio confusione 
+    // per parole tipo 楽しむ per cui esiste anche l'articolo separato 楽しみ
     const daijirinMergeCursor = daijirinFileEntries.aggregate([
       {
         $group: {
@@ -79,11 +101,10 @@ export async function buildEdictDB()
         glosses: string[],
         keys: string[]
       }
-      daijirinDocument.keys = daijirinDocument.keys.map((k: string) => k.replace("=", "").replace("＝", ""))
 
       // Find element in edict
       const edictDocuments = await dictionary.find({
-        allKeys: { $all: daijirinDocument.keys }
+        allUnconjugatedKeys: { $all: daijirinDocument.keys }
       }).toArray()
 
       if (edictDocuments.length == 0)
@@ -98,11 +119,19 @@ export async function buildEdictDB()
           daijirinGlosses: daijirinDocument.glosses,
           edictGlosses: [],
           daijirinLemmas: [daijirinDocument.lemma],
-          allKeys: daijirinDocument.keys
+          allKeys: daijirinDocument.keys,
+          allUnconjugatedKeys: daijirinDocument.keys,
+          allConjugatedKeys: [],
         }))
       }
       else
       {
+        // Caso strano: 口上
+        // if (edictDocuments.length > 1)
+        // {
+        //   console.log(daijirinDocument.keys,
+        //     edictDocuments.map(d => d.lemmas))
+        // }
         for (const edictDocument of edictDocuments)
         {
           await dictionary.updateOne({ _id: edictDocument._id },
@@ -116,7 +145,7 @@ export async function buildEdictDB()
       }
     }
     log("drop daijirinFileEntries")
-    await daijirinFileEntries.drop()
+    // await daijirinFileEntries.drop()
 
     log("finish")
   }

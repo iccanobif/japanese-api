@@ -36,7 +36,9 @@ export async function* daijirinParse() {
           // Key is the text inside the <idx:orth> tag
           key: entryLines[1]
                   .replace("</idx:orth>", "")
-                  .replace(/^<idx:orth.*?>/, ""),
+                  .replace(/^<idx:orth.*?>/, "")
+                  .replace("=", "")
+                  .replace("＝", ""),
           // lemma is the first line outside of the <h2> tag
           lemma: entryLines[3],
           // glosses is the rest of the lines (excluded the first line) outside of the <h2> tag

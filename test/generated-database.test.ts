@@ -24,7 +24,7 @@ describe("stuff depending on edict", function () {
   }),
   it("has conjugated terms", async () => {
     const documents = await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
-      coll => coll.find({ "lemmas.kanji": "食べた" }).toArray()
+      coll => coll.find({ allKeys: "食べた" }).toArray()
     ) as DictionaryEntryInDb[]
 
     expect(documents).to.have.lengthOf(1)
@@ -38,7 +38,7 @@ describe("stuff depending on edict", function () {
   }),
   it("has no entry without 'allKeys'", async() => {
     const document = await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
-      coll => coll.findOne({ lemmas: [] })
+      coll => coll.findOne({ allKeys: null } as any)
     ) as DictionaryEntryInDb
 
     expect(document).to.be.null

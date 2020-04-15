@@ -4,24 +4,18 @@ import { doOnMongoCollection } from "../utils";
 export async function getDictionaryEntries(query: string)
   : Promise<DictionaryApiOutput[]>
 {
+  const conjugatedResults = await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
+    coll => coll.find({ allConjugatedKeys: query }).toArray()
+  ) as DictionaryEntryInDb[]
 
-  return await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
-    coll => coll
-      .aggregate([
-        { $match: { allKeys: query } },
-        {
-          $project: {
-            _id: 0,
-            lemmas: {
-              $map: {
-                input: { $filter: { input: "$lemmas", cond: { $not: "$$this.isConjugated" } } },
-                in: {$concat: ["$$this.kanji", "（", "$$this.reading", "）"]}
-              }
-            },
-            glosses: { $concatArrays: ["$daijirinGlosses", "$edictGlosses"] },
-          }
-        }
-      ])
-      .toArray()
+  const unconjugatedResults = await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
+    coll => coll.find({ allUnconjugatedKeys: query }).toArray()
+  ) as DictionaryEntryInDb[]
+
+  return unconjugatedResults.concat(conjugatedResults).map(r =>
+    ({
+      lemmas: r.lemmas.filter(l => !l.isConjugated).map(l => l.kanji + "（" + l.reading + "）"),
+      glosses: r.daijirinGlosses.concat(r.edictGlosses)
+    })
   )
 }

@@ -26,6 +26,8 @@ export interface DictionaryEntryInDb
   daijirinGlosses: string[],
   daijirinLemmas: string[],
   allKeys: string[],
+  allUnconjugatedKeys: string[],
+  allConjugatedKeys: string[],
 }
 
 export interface DictionaryApiOutput
