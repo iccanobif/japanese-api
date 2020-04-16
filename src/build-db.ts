@@ -55,8 +55,6 @@ export async function buildEdictDB()
             .map(l => l.reading)),
       })
     }
-    log("Creating allKeys index on dictionary...")
-    await dictionary.createIndex({ allKeys: 1 })
     log("Creating allUnconjugatedKeys index on dictionary...")
     await dictionary.createIndex({ allUnconjugatedKeys: 1 })
     log("Creating daijirinArticles.lemma index on dictionary...")
@@ -113,6 +111,8 @@ export async function buildEdictDB()
       }
 
     }
+    log("Creating allKeys index on dictionary...")
+    await dictionary.createIndex({ allKeys: 1 })
     log("finish")
   }
   finally
