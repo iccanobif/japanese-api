@@ -1,9 +1,10 @@
 import { MongoClient } from "mongodb";
 import { environment } from "./environment";
 import { edictXmlParse } from "./edict/edict-parse";
-import { log, printError, to } from "./utils";
+import { log, printError } from "./utils";
 import { daijirinParse } from "./daijirin/daijirin-parse";
-import { DictionaryEntryInDb, Lemma } from "./types";
+import { DictionaryEntryInDb } from "./types";
+import deepEqual from "deep-equal";
 
 export async function buildEdictDB()
 {
@@ -27,17 +28,15 @@ export async function buildEdictDB()
       await collection.drop()
     }
 
-    const daijirinFileEntries = db.collection("daijirinFileEntries")
-    const dictionary = db.collection("dictionary")
+    const dictionary = db.collection<DictionaryEntryInDb>("dictionary")
 
     log("Parsing edict...")
     for await (const edictItem of edictXmlParse())
     {
-      await dictionary.insertOne(to<DictionaryEntryInDb>({
+      await dictionary.insertOne({
         lemmas: edictItem.lemmas,
         edictGlosses: edictItem.glosses,
-        daijirinGlosses: [],
-        daijirinLemmas: [],
+        daijirinArticles: [],
         allKeys: edictItem.lemmas
           .map(l => l.kanji)
           .concat(edictItem.lemmas
@@ -54,99 +53,66 @@ export async function buildEdictDB()
           .concat(edictItem.lemmas
             .filter(l => !l.isConjugated)
             .map(l => l.reading)),
-      }))
+      })
     }
     log("Creating allKeys index on dictionary...")
     await dictionary.createIndex({ allKeys: 1 })
-    // await dictionary.createIndex({ allConjugatedKeys: 1 })
+    log("Creating allUnconjugatedKeys index on dictionary...")
     await dictionary.createIndex({ allUnconjugatedKeys: 1 })
+    log("Creating daijirinArticles.lemma index on dictionary...")
+    await dictionary.createIndex({ "daijirinArticles.lemma": 1 })
 
     log("Parsing daijirin...")
+    let daijirinCount = 0;
     for await (const daijirinItem of daijirinParse())
     {
+      daijirinCount++
+      if (daijirinCount % 10000 == 0)
+        console.log(daijirinCount)
+
       // Ignore entries for stuff that's not a japanese word, to save disk space
-      if (!daijirinItem.key.match(/[a-zA-Z]/)) 
-        await daijirinFileEntries.insertOne(daijirinItem)
-    }
+      if (daijirinItem.key.match(/[a-zA-Z]/))
+        continue
 
-    log("Merging daijirin into edict...")
-    // PROBLEMA: quando decido a quale articolo edict agganciare la roba daijirin, 
-    // devo usare come chiave solo i lemma non coniugati, altrimenti faccio confusione 
-    // per parole tipo 楽しむ per cui esiste anche l'articolo separato 楽しみ
-    const daijirinMergeCursor = daijirinFileEntries.aggregate([
-      {
-        $group: {
-          _id: {
-            lemma: "$lemma",
-            glosses: "$glosses"
-          },
-          keys: { $push: "$key" },
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          lemma: "$_id.lemma",
-          glosses: "$_id.glosses",
-          keys: "$keys"
-        }
-      },
-    ], { allowDiskUse: true })
+      // OCCHIO: sui file di daijirin per esempio ci sono due item con chiave ティーシャツ e lemma diversi
 
-    while (await daijirinMergeCursor.hasNext())
-    {
-      const daijirinDocument = await daijirinMergeCursor.next() as {
-        lemma: string,
-        glosses: string[],
-        keys: string[]
-      }
+      /*
+        - Cerca documenti che hanno daijirinItem.key tra le unconjugated keys
+        - inseriscici dentro questo daijirinItem
+        - Cerca documento che hanno daijirinArticles con stessi lemma e glosses di daijirinItem, 
+        - ma che sono stati mergiati dentro un documento che NON ha daijirinItem.key tra i keys -> questi
+          sono casi in cui il documento è stato mergiato per sbaglio.
+        - per questi documenti, elimina il daijirinArticle con questo daijirinItem.lemma e daijirinItem.glosses
+      */
 
-      // Find element in edict
-      const edictDocuments = await dictionary.find({
-        allUnconjugatedKeys: { $all: daijirinDocument.keys }
+      await dictionary.updateMany({ allUnconjugatedKeys: daijirinItem.key },
+        {
+          $addToSet: {
+            daijirinArticles: {
+              lemma: daijirinItem.lemma,
+              glosses: daijirinItem.glosses,
+            }
+          }
+        })
+
+      const documentsMaybeToClean = await dictionary.find({
+        "daijirinArticles.lemma": daijirinItem.lemma,
+        "daijirinArticles.glosses": daijirinItem.glosses
       }).toArray()
 
-      if (edictDocuments.length == 0)
+      for (const doc of documentsMaybeToClean)
       {
-        // Not in edict, insert to dictionary as a daijirin only document
-        await dictionary.insertOne(to<DictionaryEntryInDb>({
-          lemmas: daijirinDocument.keys.map((k: string): Lemma => ({
-            kanji: k,
-            reading: k,
-            isConjugated: false,
-          })),
-          daijirinGlosses: daijirinDocument.glosses,
-          edictGlosses: [],
-          daijirinLemmas: [daijirinDocument.lemma],
-          allKeys: daijirinDocument.keys,
-          allUnconjugatedKeys: daijirinDocument.keys,
-          allConjugatedKeys: [],
-        }))
-      }
-      else
-      {
-        // Caso strano: 口上
-        // if (edictDocuments.length > 1)
-        // {
-        //   console.log(daijirinDocument.keys,
-        //     edictDocuments.map(d => d.lemmas))
-        // }
-        for (const edictDocument of edictDocuments)
+        if (!doc.allUnconjugatedKeys.includes(daijirinItem.key))
         {
-          await dictionary.updateOne({ _id: edictDocument._id },
-            {
-              $push: {
-                daijirinGlosses: { $each: daijirinDocument.glosses },
-                daijirinLemmas: daijirinDocument.lemma //is this needed? i'm not sure there will ever be more than one element for daijirinLemmas
-              },
-            })
+          // console.log("trovato robo da sostituire!")
+          // console.log(daijirinItem.lemma, daijirinItem.glosses, doc._id)
+          doc.daijirinArticles = doc.daijirinArticles
+            .filter(d => d.lemma != daijirinItem.lemma && !deepEqual(d.glosses, daijirinItem.glosses))
+          await dictionary.replaceOne({ _id: doc._id }, doc)
         }
       }
-    }
-    log("drop daijirinFileEntries")
-    // await daijirinFileEntries.drop()
 
+    }
     log("finish")
   }
   finally

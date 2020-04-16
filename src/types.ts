@@ -1,3 +1,5 @@
+import { ObjectID } from "mongodb";
+
 export interface Lemma {
   kanji: string,
   reading: string,
@@ -21,10 +23,13 @@ export interface DaijirinEntryFromFile
 
 export interface DictionaryEntryInDb
 {
+  _id: ObjectID,
   lemmas: Lemma[],
   edictGlosses: string[],
-  daijirinGlosses: string[],
-  daijirinLemmas: string[],
+  daijirinArticles: {
+    lemma: string,
+    glosses: string[],
+  }[]
   allKeys: string[],
   allUnconjugatedKeys: string[],
   allConjugatedKeys: string[],

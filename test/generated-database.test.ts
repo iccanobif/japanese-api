@@ -2,8 +2,10 @@ import { doOnMongoCollection } from "../src/utils"
 import { DictionaryEntryInDb, Lemma } from "../src/types"
 import { expect } from "chai"
 
-describe("stuff depending on edict", function () {
-  it("has no empty unconjugatedReadingLinks", async () => {
+describe("stuff depending on edict", function ()
+{
+  it("has no empty unconjugatedReadingLinks", async () =>
+  {
     const document = await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
       coll => coll.findOne({ "lemmas.kanji": "お歯黒" })
     ) as DictionaryEntryInDb
@@ -22,43 +24,60 @@ describe("stuff depending on edict", function () {
 
     expect(sortedActualLemmas).to.deep.equal(expectedLemmas)
   }),
-  it("has conjugated terms", async () => {
-    const documents = await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
-      coll => coll.find({ allKeys: "食べた" }).toArray()
-    ) as DictionaryEntryInDb[]
+    it("has conjugated terms", async () =>
+    {
+      const documents = await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
+        coll => coll.find({ allKeys: "食べた" }).toArray()
+      ) as DictionaryEntryInDb[]
 
-    expect(documents).to.have.lengthOf(1)
-  }),
-  it("has no entry without lemmas", async () => {
-    const document = await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
-      coll => coll.findOne({ lemmas: [] })
-    ) as DictionaryEntryInDb
+      expect(documents).to.have.lengthOf(1)
+    }),
+    it("has no entry without lemmas", async () =>
+    {
+      const document = await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
+        coll => coll.findOne({ lemmas: [] })
+      ) as DictionaryEntryInDb
 
-    expect(document).to.be.null
-  }),
-  it("has no entry without 'allKeys'", async() => {
-    const document = await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
-      coll => coll.findOne({ allKeys: null } as any)
-    ) as DictionaryEntryInDb
+      expect(document).to.be.null
+    }),
+    it("has no entry without 'allKeys'", async () =>
+    {
+      const document = await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
+        coll => coll.findOne({ allKeys: null } as any)
+      ) as DictionaryEntryInDb
 
-    expect(document).to.be.null
-  })
+      expect(document).to.be.null
+    })
 })
-describe("stuff depending on daijirin", function() {
-  it("merged lines beginning with → with the previous one (lemma)", async () => {
+describe("stuff depending on daijirin", function ()
+{
+  // it("merged lines beginning with → with the previous one (lemma)", async () => {
+  //   const document = await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
+  //     coll => coll.findOne({ allKeys: "ANZCERTA" })
+  //   ) as DictionaryEntryInDb
+
+  //   expect(document).not.to.be.null
+  //   expect(document.daijirinLemmas).to.deep.equal(["ANZCERTA 〖AustraliaNew Zealand Closer Economic Relationship Treaty Agreement〗→CER"])
+  // }),
+  // it("merged lines beginning with → with the previous one (glosses)", async () => {
+  //   const document = await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
+  //     coll => coll.findOne({ allKeys: "ATB" })
+  //   ) as DictionaryEntryInDb
+
+  //   expect(document).not.to.be.null
+  //   expect(document.daijirinGlosses).to.deep.equal(["オール-テレイン-バイク。全地形型バイク。→MTB"])
+  // })
+  it("doesn't have duplicate daijirin articles", async () =>
+  {
     const document = await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
-      coll => coll.findOne({ allKeys: "ANZCERTA" })
+      coll => coll.findOne({ allKeys: "食べた" })
     ) as DictionaryEntryInDb
 
-    expect(document).not.to.be.null
-    expect(document.daijirinLemmas).to.deep.equal(["ANZCERTA 〖AustraliaNew Zealand Closer Economic Relationship Treaty Agreement〗→CER"])
-  }),
-  it("merged lines beginning with → with the previous one (glosses)", async () => {
-    const document = await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
-      coll => coll.findOne({ allKeys: "ATB" })
-    ) as DictionaryEntryInDb
+    expect(document.daijirinArticles).to.have.lengthOf(2)
+    const bilingualDoc = document.daijirinArticles.find(a => a.lemma == "たべる【食べる】")
+    const monolingualDoc = document.daijirinArticles.find(a => a.lemma != "たべる【食べる】")
 
-    expect(document).not.to.be.null
-    expect(document.daijirinGlosses).to.deep.equal(["オール-テレイン-バイク。全地形型バイク。→MTB"])
+    expect(bilingualDoc).to.exist
+    expect(monolingualDoc).to.exist
   })
 })

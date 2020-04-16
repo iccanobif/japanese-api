@@ -15,7 +15,7 @@ export async function getDictionaryEntries(query: string)
   return unconjugatedResults.concat(conjugatedResults).map(r =>
     ({
       lemmas: r.lemmas.filter(l => !l.isConjugated).map(l => l.kanji + "（" + l.reading + "）"),
-      glosses: r.daijirinGlosses.concat(r.edictGlosses)
+      glosses: r.daijirinArticles.map(d => d.glosses).flat().concat(r.edictGlosses)
     })
   )
 }
