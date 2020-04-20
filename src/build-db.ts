@@ -2,9 +2,8 @@ import { MongoClient } from "mongodb";
 import { environment } from "./environment";
 import { edictXmlParse } from "./edict/edict-parse";
 import { log, printError } from "./utils";
-import { daijirinParse } from "./daijirin/daijirin-parse";
-import { DictionaryEntryInDb } from "./types";
-import deepEqual from "deep-equal";
+import { DictionaryEntryInDb, Lemma } from "./types";
+import { daijirinReadIntermediateFile } from "./daijirin/scan-intermediate-file";
 
 export async function buildEdictDB()
 {
@@ -62,47 +61,61 @@ export async function buildEdictDB()
 
     log("Parsing daijirin...")
     let daijirinCount = 0;
-    for await (const daijirinItem of daijirinParse())
+    for await (const daijirinItem of daijirinReadIntermediateFile())
     {
       daijirinCount++
       if (daijirinCount % 10000 == 0)
         console.log(daijirinCount)
 
-      // OCCHIO: sui file di daijirin per esempio ci sono due item con chiave ティーシャツ e lemma diversi
-
-      /*
-        - Cerca documenti che hanno daijirinItem.key tra le unconjugated keys
-        - inseriscici dentro questo daijirinItem
-        - Cerca documento che hanno daijirinArticles con stessi lemma e glosses di daijirinItem, 
-        - ma che sono stati mergiati dentro un documento che NON ha daijirinItem.key tra i keys -> questi
-          sono casi in cui il documento è stato mergiato per sbaglio.
-        - per questi documenti, elimina il daijirinArticle con questo daijirinItem.lemma e daijirinItem.glosses
-      */
-
-      await dictionary.updateMany({ allUnconjugatedKeys: daijirinItem.key },
-        {
-          $addToSet: {
-            daijirinArticles: {
-              lemma: daijirinItem.lemma,
-              glosses: daijirinItem.glosses,
-            }
-          }
-        })
-
-      const documentsMaybeToClean = await dictionary.find({
-        "daijirinArticles.lemma": daijirinItem.lemma,
-        "daijirinArticles.glosses": daijirinItem.glosses
+      // Find element in edict
+      const edictDocuments = await dictionary.find({
+        allUnconjugatedKeys: { $all: daijirinItem.keys }
       }).toArray()
 
-      for (const doc of documentsMaybeToClean)
+
+      if (edictDocuments.length == 0)
       {
-        if (!doc.allUnconjugatedKeys.includes(daijirinItem.key))
+        // Not in edict, insert to dictionary as a daijirin only document
+        await dictionary.insertOne({
+          lemmas: daijirinItem.keys.map((k: string): Lemma => ({
+            kanji: k,
+            reading: k,
+            isConjugated: false,
+          })),
+          edictGlosses: [],
+          allKeys: daijirinItem.keys,
+          allUnconjugatedKeys: daijirinItem.keys,
+          allConjugatedKeys: [],
+          daijirinArticles: [{
+            glosses: daijirinItem.glosses,
+            lemma: daijirinItem.lemma,
+          }]
+        })
+      }
+      else
+      {
+        // Caso strano: 口上
+        // if (edictDocuments.length > 1)
+        // {
+        //   console.log(daijirinDocument.keys,
+        //     edictDocuments.map(d => d.lemmas))
+        // }
+        for (const edictDocument of edictDocuments)
         {
-          // console.log("trovato robo da sostituire!")
-          // console.log(daijirinItem.lemma, daijirinItem.glosses, doc._id)
-          doc.daijirinArticles = doc.daijirinArticles
-            .filter(d => d.lemma != daijirinItem.lemma && !deepEqual(d.glosses, daijirinItem.glosses))
-          await dictionary.replaceOne({ _id: doc._id }, doc)
+          await dictionary.updateOne({ _id: edictDocument._id },
+            {
+              $push:
+              // {
+              //   daijirinGlosses: { $each: daijirinDocument.glosses },
+              //   daijirinLemmas: daijirinDocument.lemma //is this needed? i'm not sure there will ever be more than one element for daijirinLemmas
+              // },
+              {
+                daijirinItem: {
+                  glosses: daijirinItem.glosses,
+                  lemma: daijirinItem.lemma,
+                }
+              }
+            })
         }
       }
 
