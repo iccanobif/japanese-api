@@ -14,9 +14,16 @@ export interface EdictEntryFromFile
   glosses: string[],
 }
 
-export interface DaijirinEntryFromFile
+export interface DaijirinEntryFromOriginalFile
 {
   key: string,
+  lemma: string,
+  glosses: string[],
+}
+
+export interface DaijirinEntryFromIntermediateFile
+{
+  keys: string[],
   lemma: string,
   glosses: string[],
 }

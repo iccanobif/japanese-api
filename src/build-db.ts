@@ -68,10 +68,6 @@ export async function buildEdictDB()
       if (daijirinCount % 10000 == 0)
         console.log(daijirinCount)
 
-      // Ignore entries for stuff that's not a japanese word, to save disk space
-      if (daijirinItem.key.match(/[a-zA-Z]/))
-        continue
-
       // OCCHIO: sui file di daijirin per esempio ci sono due item con chiave ティーシャツ e lemma diversi
 
       /*

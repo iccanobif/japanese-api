@@ -1,6 +1,9 @@
 # TODO
 
 ## Database seeding
+
+To make database seeding faster and easier, make an intermediate json file with all daijirin articles grouped by lemma and glosses, and commit it, so that heroku will build from there.
+
 Store in the database a version number of the seed data and keep a similar number hardwired in the build-db script. If the build-db script has a higher version number, it must destroy the database and rebuild it, otherwise the database is good as it is. This way, i can run the build-db script in the build process, and run it on every push to heroku/master (hopefully building the database won't take more than 5 minutes).
 
 ## Heroku stuff

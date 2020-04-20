@@ -20,7 +20,8 @@
     "build": "npx tsc",
     "start": "node build/src/index.js",
     "test": "mocha -r ts-node/register test/*.ts",
-    "build-db": "ts-node src/build-db.ts"
+    "build-db": "ts-node src/build-db.ts",
+    "build-daijirin-intermediate-file": "ts-node src/daijirin/daijirin-parse.ts"
   },
   "devDependencies": {
     "@types/chai": "^4.2.7",
