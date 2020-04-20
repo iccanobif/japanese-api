@@ -43,6 +43,7 @@ describe("dictionary", () =>
     expect(response).to.have.status(200)
 
     const thing = response.body as DictionaryApiOutput[]
+
     expect(thing).to.be.an("array")
       .that.satisfies((arr: DictionaryApiOutput[]) =>
         arr.some(entry =>

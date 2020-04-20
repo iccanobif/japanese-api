@@ -95,22 +95,13 @@ export async function buildEdictDB()
       else
       {
         // Caso strano: 口上
-        // if (edictDocuments.length > 1)
-        // {
-        //   console.log(daijirinDocument.keys,
-        //     edictDocuments.map(d => d.lemmas))
-        // }
         for (const edictDocument of edictDocuments)
         {
           await dictionary.updateOne({ _id: edictDocument._id },
             {
               $push:
-              // {
-              //   daijirinGlosses: { $each: daijirinDocument.glosses },
-              //   daijirinLemmas: daijirinDocument.lemma //is this needed? i'm not sure there will ever be more than one element for daijirinLemmas
-              // },
               {
-                daijirinItem: {
+                daijirinArticles: {
                   glosses: daijirinItem.glosses,
                   lemma: daijirinItem.lemma,
                 }
