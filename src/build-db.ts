@@ -75,7 +75,7 @@ export async function buildEdictDB()
         x => x,
         async (arr: DaijirinEntryFromIntermediateFile[]) =>
         {
-          const bulkOp = dictionary.initializeOrderedBulkOp()
+          const bulkOp = dictionary.initializeUnorderedBulkOp()
           for (const daijirinItem of arr)
           {
             bulkOp
