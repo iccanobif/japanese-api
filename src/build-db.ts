@@ -5,7 +5,7 @@ import { log, printError } from "./utils";
 import { DictionaryEntryInDb, Lemma } from "./types";
 import { daijirinReadIntermediateFile } from "./daijirin/scan-intermediate-file";
 
-const INSERT_BUFFER_LENGTH = 50
+const INSERT_BUFFER_LENGTH = 10000
 
 export async function buildEdictDB()
 {
