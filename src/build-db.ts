@@ -1,7 +1,7 @@
 import { MongoClient } from "mongodb";
 import { environment } from "./environment";
 import { edictXmlParse } from "./edict/edict-parse";
-import { log, printError } from "./utils";
+import { log, printError, bulkify } from "./utils";
 import { DictionaryEntryInDb, Lemma } from "./types";
 import { daijirinReadIntermediateFile } from "./daijirin/scan-intermediate-file";
 
@@ -34,38 +34,37 @@ export async function buildEdictDB()
 
     log("Parsing edict...")
     {
-      let insertBuffer = []
-      for await (const edictItem of edictXmlParse())
-      {
-        insertBuffer.push({
-          lemmas: edictItem.lemmas,
-          edictGlosses: edictItem.glosses,
-          daijirinArticles: [],
-          allKeys: edictItem.lemmas
-            .map(l => l.kanji)
-            .concat(edictItem.lemmas
-              .map(l => l.reading)),
-          allConjugatedKeys: edictItem.lemmas
-            .filter(l => l.isConjugated)
-            .map(l => l.kanji)
-            .concat(edictItem.lemmas
+      await bulkify(EDICT_INSERT_BUFFER_LENGTH,
+        edictXmlParse(),
+        edictItem =>
+        {
+          return {
+            lemmas: edictItem.lemmas,
+            edictGlosses: edictItem.glosses,
+            daijirinArticles: [],
+            allKeys: edictItem.lemmas
+              .map(l => l.kanji)
+              .concat(edictItem.lemmas
+                .map(l => l.reading)),
+            allConjugatedKeys: edictItem.lemmas
               .filter(l => l.isConjugated)
-              .map(l => l.reading)),
-          allUnconjugatedKeys: edictItem.lemmas
-            .filter(l => !l.isConjugated)
-            .map(l => l.kanji)
-            .concat(edictItem.lemmas
+              .map(l => l.kanji)
+              .concat(edictItem.lemmas
+                .filter(l => l.isConjugated)
+                .map(l => l.reading)),
+            allUnconjugatedKeys: edictItem.lemmas
               .filter(l => !l.isConjugated)
-              .map(l => l.reading)),
-        })
-        if (insertBuffer.length == EDICT_INSERT_BUFFER_LENGTH)
+              .map(l => l.kanji)
+              .concat(edictItem.lemmas
+                .filter(l => !l.isConjugated)
+                .map(l => l.reading)),
+          };
+        },
+        async insertBuffer =>
         {
           log("Bulk writing edict")
           await dictionary.insertMany(insertBuffer)
-          insertBuffer = []
-        }
-      }
-      await dictionary.insertMany(insertBuffer)
+        })
     }
     log("Creating allUnconjugatedKeys index on dictionary...")
     await dictionary.createIndex({ allUnconjugatedKeys: 1 })
