@@ -2,7 +2,7 @@ import { MongoClient } from "mongodb";
 import { environment } from "./environment";
 import { edictXmlParse } from "./edict/edict-parse";
 import { log, printError, bulkify } from "./utils";
-import { DictionaryEntryInDb, Lemma } from "./types";
+import { DictionaryEntryInDb, Lemma, DaijirinEntryFromIntermediateFile } from "./types";
 import { daijirinReadIntermediateFile } from "./daijirin/scan-intermediate-file";
 
 const EDICT_INSERT_BUFFER_LENGTH = 10000
@@ -33,103 +33,85 @@ export async function buildEdictDB()
     const dictionary = db.collection<DictionaryEntryInDb>("dictionary")
 
     log("Parsing edict...")
-    {
-      await bulkify(EDICT_INSERT_BUFFER_LENGTH,
-        edictXmlParse(),
-        edictItem =>
-        {
-          return {
-            lemmas: edictItem.lemmas,
-            edictGlosses: edictItem.glosses,
-            daijirinArticles: [],
-            allKeys: edictItem.lemmas
-              .map(l => l.kanji)
-              .concat(edictItem.lemmas
-                .map(l => l.reading)),
-            allConjugatedKeys: edictItem.lemmas
+    await bulkify(EDICT_INSERT_BUFFER_LENGTH,
+      edictXmlParse(),
+      edictItem =>
+      {
+        return {
+          lemmas: edictItem.lemmas,
+          edictGlosses: edictItem.glosses,
+          daijirinArticles: [],
+          allKeys: edictItem.lemmas
+            .map(l => l.kanji)
+            .concat(edictItem.lemmas
+              .map(l => l.reading)),
+          allConjugatedKeys: edictItem.lemmas
+            .filter(l => l.isConjugated)
+            .map(l => l.kanji)
+            .concat(edictItem.lemmas
               .filter(l => l.isConjugated)
-              .map(l => l.kanji)
-              .concat(edictItem.lemmas
-                .filter(l => l.isConjugated)
-                .map(l => l.reading)),
-            allUnconjugatedKeys: edictItem.lemmas
+              .map(l => l.reading)),
+          allUnconjugatedKeys: edictItem.lemmas
+            .filter(l => !l.isConjugated)
+            .map(l => l.kanji)
+            .concat(edictItem.lemmas
               .filter(l => !l.isConjugated)
-              .map(l => l.kanji)
-              .concat(edictItem.lemmas
-                .filter(l => !l.isConjugated)
-                .map(l => l.reading)),
-          };
-        },
-        async insertBuffer =>
-        {
-          log("Bulk writing edict")
-          await dictionary.insertMany(insertBuffer)
-        })
-    }
+              .map(l => l.reading)),
+        };
+      },
+      async insertBuffer =>
+      {
+        log("Bulk writing edict")
+        await dictionary.insertMany(insertBuffer)
+      })
     log("Creating allUnconjugatedKeys index on dictionary...")
     await dictionary.createIndex({ allUnconjugatedKeys: 1 })
 
     log("Parsing daijirin...")
+    // versione bulk
     {
-      let operationBuffer: any[] = []
-
-      for await (const daijirinItem of daijirinReadIntermediateFile())
-      {
-        // Find element in edict
-        const edictDocuments = await dictionary.find({
-          allUnconjugatedKeys: { $all: daijirinItem.keys }
-        }).toArray()
-
-        if (edictDocuments.length == 0)
+      await bulkify(DAIJIRIN_UPSERT_BUFFER_LENGTH,
+        daijirinReadIntermediateFile(),
+        x => x,
+        async (arr: DaijirinEntryFromIntermediateFile[]) =>
         {
-          // Not in edict, insert to dictionary as a daijirin only document
-          operationBuffer.push({
-            insertOne: {
-              lemmas: daijirinItem.keys.map((k: string): Lemma => ({
-                kanji: k,
-                reading: k,
-                isConjugated: false,
-              })),
-              edictGlosses: [],
-              allKeys: daijirinItem.keys,
-              allUnconjugatedKeys: daijirinItem.keys,
-              allConjugatedKeys: [],
-              daijirinArticles: [{
-                glosses: daijirinItem.glosses,
-                lemma: daijirinItem.lemma,
-              }]
-            }
-          })
-        }
-        else
-        {
-          // Caso strano: 口上
-          for (const edictDocument of edictDocuments)
+          const bulkOp = dictionary.initializeOrderedBulkOp()
+          for (const daijirinItem of arr)
           {
-            operationBuffer.push({
-              updateOne: {
-                filter: { _id: edictDocument._id },
-                update: {
-                  $push:
-                  {
-                    daijirinArticles: {
-                      glosses: daijirinItem.glosses,
-                      lemma: daijirinItem.lemma,
-                    }
-                  }
+            bulkOp
+              .find({
+                allUnconjugatedKeys: {
+                  // I still don't understand why "$all: daijirinItem.keys" doesn't work, 
+                  // this thing with $elemMatch was copypasted from stack overflow, not really sure
+                  // of how it works
+                  $all: daijirinItem.keys.map(k => ({ $elemMatch: { $eq: k } }))
                 }
-              }
-            })
+              })
+              .upsert()
+              .update({
+                $push:
+                {
+                  daijirinArticles: {
+                    glosses: daijirinItem.glosses,
+                    lemma: daijirinItem.lemma,
+                  }
+                },
+                $setOnInsert: {
+                  lemmas: daijirinItem.keys.map((k: string): Lemma => ({
+                    kanji: k,
+                    reading: k,
+                    isConjugated: false,
+                  })),
+                  edictGlosses: [],
+                  allKeys: daijirinItem.keys,
+                  allUnconjugatedKeys: daijirinItem.keys,
+                  allConjugatedKeys: []
+                }
+              })
           }
-        }
-
-        if (operationBuffer.length >= DAIJIRIN_UPSERT_BUFFER_LENGTH)
-        {
-          log("Bulk writing daijirin")
-          await dictionary.bulkWrite(operationBuffer)
-          operationBuffer = []
-        }
-      }
+          log("Bulk daijirin upsert")
+          await bulkOp.execute()
+        })
     }
     log("Creating allKeys index on dictionary...")
     await dictionary.createIndex({ allKeys: 1 })
