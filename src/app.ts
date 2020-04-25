@@ -25,4 +25,9 @@ app.get("/dictionary/:query", async (req: any, res: any) =>
   res.json(entries)
 })
 
+app.get("/kanji-by-radical/:query", async (req: any, res: any) =>
+{
+  // const query = req.params.query
+})
+
 export default app
