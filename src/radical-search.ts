@@ -1,4 +1,5 @@
 import { readFileSync } from "fs"
+import { getKanjidicEntry } from "./kanjidic";
 
 const radicalsFileText = readFileSync("datasets/radicals.json", { encoding: "utf8" })
 const radicals = JSON.parse(radicalsFileText) as { radical: string, description: string }[]
@@ -46,6 +47,20 @@ export function searchKanjiByRadicalDescriptions(query: string): string[]
     return output
   })
 
-  // console.log(intersection)
-  return Array.from(intersection.values())
+  const allKanji = Array.from(intersection.values())
+
+  const allKanjiSorted = allKanji.sort((a, b) =>
+  {
+    const aKanjiData = getKanjidicEntry(a)
+    const bKanjiData = getKanjidicEntry(b)
+
+    const aStrokeCount = aKanjiData ? aKanjiData.strokeCount : a.charCodeAt(0)
+    const bStrokeCount = bKanjiData ? bKanjiData.strokeCount : b.charCodeAt(0)
+
+    if (aStrokeCount < bStrokeCount) return -1
+    if (aStrokeCount > bStrokeCount) return 1
+    return 0
+  })
+
+  return allKanjiSorted
 }
