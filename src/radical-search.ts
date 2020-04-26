@@ -24,8 +24,6 @@ readFileSync("datasets/kradfile-u", { encoding: "utf8" })
     }
   })
 
-  
-
 export function searchKanjiByRadicalDescriptions(query: string): string[]
 {
   // TODO Clean up names
@@ -57,12 +55,16 @@ export function searchKanjiByRadicalDescriptions(query: string): string[]
     const aKanjiData = getKanjidicEntry(a)
     const bKanjiData = getKanjidicEntry(b)
 
-    const aStrokeCount = aKanjiData ? aKanjiData.strokeCount : a.charCodeAt(0)
-    const bStrokeCount = bKanjiData ? bKanjiData.strokeCount : b.charCodeAt(0)
+    const aStrokeCount = aKanjiData ? aKanjiData.strokeCount : 9999
+    const bStrokeCount = bKanjiData ? bKanjiData.strokeCount : 9999
 
-    if (aStrokeCount < bStrokeCount) return -1
-    if (aStrokeCount > bStrokeCount) return 1
-    return 0
+    const aCharCode = a.charCodeAt(0)
+    const bCharCode = b.charCodeAt(0)
+
+    if (aStrokeCount == bStrokeCount)
+      return aCharCode < bCharCode ? -1 : aCharCode > bCharCode ? 1 : 0
+
+    return aStrokeCount < bStrokeCount ? -1 : aStrokeCount > bStrokeCount ? 1 : 0
   })
 
   return allKanjiSorted

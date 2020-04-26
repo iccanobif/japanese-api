@@ -40,5 +40,27 @@ describe("radical-search", function ()
       const resultsWithSpaces = searchKanjiByRadicalDescriptions("roof , pig")
       const resultsWithoutSpaces = searchKanjiByRadicalDescriptions("roof,pig")
       expect(resultsWithSpaces).to.deep.equal(resultsWithoutSpaces)
+    }),
+    it("has stable sorting", () =>
+    {
+      const results1 = searchKanjiByRadicalDescriptions("woman,pig")
+      const results2 = searchKanjiByRadicalDescriptions("woman,pig,")
+
+      displayDetails(results1)
+      displayDetails(results2)
+
+      expect(results1).to.deep.equal(results2)
     })
 })
+
+
+function displayDetails(kanjiList: string[])
+{
+  console.log(kanjiList.map(k =>
+    ({
+      kanji: k,
+      strokeCount: getKanjidicEntry(k)?.strokeCount,
+      charCode: k.charCodeAt(0),
+      kek: getKanjidicEntry(k) ? getKanjidicEntry(k)?.strokeCount : k.charCodeAt(0)
+    })))
+}

@@ -74,7 +74,7 @@ describe("radical lookup", () =>
     console.log(body)
     expect(body).to.deep.equal(
       [
-        '家', '窘', '寝', '嫁', '寢',
+        '家', '窘', '嫁', '寝', '寢',
         '稼', '糘', '邃', '疉', '傢',
         '宐', '宭', '寁', '寖', '濅',
         '鎵', '𨗉'
