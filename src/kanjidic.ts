@@ -16,7 +16,7 @@ readFileSync("datasets/kanjidic", { encoding: "utf8" })
     kanjidic[kanji] = { strokeCount: strokeCount }
   })
 
-export function getKanjidicEntry(kanji: string): { strokeCount: number }
+export function getKanjidicEntry(kanji: string): { strokeCount: number } | undefined
 {
   return kanjidic[kanji]
 }
