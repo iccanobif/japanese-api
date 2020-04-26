@@ -53,7 +53,6 @@ describe("radical-search", function ()
     })
 })
 
-
 function displayDetails(kanjiList: string[])
 {
   console.log(kanjiList.map(k =>

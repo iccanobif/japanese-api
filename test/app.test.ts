@@ -5,7 +5,6 @@ import { DictionaryApiOutput } from "../src/types"
 
 chai.use(chaiHttp)
 
-
 function get(path: string): Promise<ChaiHttp.Response>
 {
   return new Promise((resolve, reject) =>
@@ -80,8 +79,5 @@ describe("radical lookup", () =>
         '鎵', '𨗉'
       ]
     )
-
-    //家窘寝嫁寢稼糘邃疉傢宐宭寁寖濅鎵𨗉
-    //家窘嫁寝寢稼糘邃疉傢宐宭寁寖濅鎵
   })
 })
