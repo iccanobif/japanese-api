@@ -47,3 +47,8 @@ export interface DictionaryApiOutput
   lemmas: string[],
   glosses: string[],
 }
+
+export interface KanjidicEntry
+{
+  strokeCount: number
+}
