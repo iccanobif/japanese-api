@@ -54,13 +54,34 @@ describe("dictionary", () =>
           entry.glosses.some(gloss =>
             gloss == "to eat"))) // from edict
   }),
-  it("only non conjugated lemmas are returned", async () =>
-  {
-    const response = await get("/dictionary/" + encodeURIComponent("食べた"))
+    it("only non conjugated lemmas are returned", async () =>
+    {
+      const response = await get("/dictionary/" + encodeURIComponent("食べた"))
 
-    const body = response.body as DictionaryApiOutput[]
-    expect(body).to.have.lengthOf(1)
-    expect(body[0].lemmas)
-      .to.be.deep.equal(["食べる（たべる）","喰べる（たべる）"])
+      const body = response.body as DictionaryApiOutput[]
+      expect(body).to.have.lengthOf(1)
+      expect(body[0].lemmas)
+        .to.be.deep.equal(["食べる（たべる）", "喰べる（たべる）"])
+    })
+})
+
+describe("radical lookup", () =>
+{
+  it("can find 家", async () =>
+  {
+    const response = await get("/kanji-by-radical/roof,pig")
+    const body = response.body as string[]
+    console.log(body)
+    expect(body).to.deep.equal(
+      [
+        '家', '窘', '寝', '嫁', '寢',
+        '稼', '糘', '邃', '疉', '傢',
+        '宐', '宭', '寁', '寖', '濅',
+        '鎵', '𨗉'
+      ]
+    )
+
+    //家窘寝嫁寢稼糘邃疉傢宐宭寁寖濅鎵𨗉
+    //家窘嫁寝寢稼糘邃疉傢宐宭寁寖濅鎵
   })
 })

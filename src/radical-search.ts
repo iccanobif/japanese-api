@@ -12,7 +12,8 @@ readFileSync("datasets/kradfile-u", { encoding: "utf8" })
   {
     if (line.startsWith("#"))
       return
-    const kanji = line[0]
+    const kanji = line.split(" ")[0]
+
     const radicals = line.substr(4).trimEnd().split("")
     for (const radical of radicals)
     {
@@ -22,6 +23,8 @@ readFileSync("datasets/kradfile-u", { encoding: "utf8" })
         radicalToKanji[radical].push(kanji)
     }
   })
+
+  
 
 export function searchKanjiByRadicalDescriptions(query: string): string[]
 {

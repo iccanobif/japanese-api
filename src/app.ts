@@ -3,6 +3,7 @@ const app: express.Application = express()
 
 const bodyParser = require("body-parser");
 import { getDictionaryEntries } from "./edict/repository";
+import { searchKanjiByRadicalDescriptions } from "./radical-search";
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -27,7 +28,9 @@ app.get("/dictionary/:query", async (req: any, res: any) =>
 
 app.get("/kanji-by-radical/:query", async (req: any, res: any) =>
 {
-  // const query = req.params.query
+  const query = req.params.query
+  const output = await searchKanjiByRadicalDescriptions(query)
+  res.json(output)
 })
 
 export default app

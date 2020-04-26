@@ -11,6 +11,7 @@ describe("radical-search", function ()
     expect(results).to.be.an("array")
     expect(results).to.include("家")
     expect(results).to.include("嫁")
+    expect(results).to.include("𨗉")
     expect(results.indexOf("家")).to.be.lessThan(results.indexOf("嫁"))
 
     // This condition ensures that the sorting is stable
