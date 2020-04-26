@@ -29,7 +29,7 @@ readFileSync("datasets/kradfile-u", { encoding: "utf8" })
 export function searchKanjiByRadicalDescriptions(query: string): string[]
 {
   // TODO Clean up names
-  const descriptions = query.split(",").map(s => s.toLowerCase())
+  const descriptions = query.split(",").map(s => s.toLowerCase().trim())
 
   const radicalsToSearch = descriptions
     .map(d => radicals.filter(r => r.description.includes(d))

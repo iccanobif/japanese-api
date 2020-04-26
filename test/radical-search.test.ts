@@ -4,7 +4,7 @@ import { getKanjidicEntry } from "../src/kanjidic"
 
 describe("radical-search", function ()
 {
-  it("roof,pig", async () =>
+  it("roof,pig", () =>
   {
     const results = searchKanjiByRadicalDescriptions("roof,pig")
 
@@ -30,9 +30,15 @@ describe("radical-search", function ()
       }
     }
   }),
-    it("non existing name", async () =>
+    it("non existing name", () =>
     {
       const results = searchKanjiByRadicalDescriptions("there is no radical with this description")
       expect(results).to.be.an("array").that.is.empty
+    }),
+    it("ignore excessive whitespace", () =>
+    {
+      const resultsWithSpaces = searchKanjiByRadicalDescriptions("roof , pig")
+      const resultsWithoutSpaces = searchKanjiByRadicalDescriptions("roof,pig")
+      expect(resultsWithSpaces).to.deep.equal(resultsWithoutSpaces)
     })
 })
