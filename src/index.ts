@@ -1,8 +1,18 @@
-import app from "./app"
+import app, { setAppDatabase } from "./app"
 import { log } from "./utils"
 import { environment } from "./environment"
+import { MongoClient } from "mongodb"
 
-const server = app.listen(environment.httpPort, "0.0.0.0")
-log("Server running on port " + environment.httpPort)
+let client: MongoClient = new MongoClient(environment.mongodbUrl,
+  {
+    autoReconnect: false,
+    useUnifiedTopology: true
+  })
 
-export default server
+client.connect().then(() =>
+{
+  setAppDatabase(client.db())
+  app.listen(environment.httpPort, "0.0.0.0")
+  log("Server running on port " + environment.httpPort)
+})
+  .catch(console.error)

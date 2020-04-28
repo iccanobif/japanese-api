@@ -1,12 +1,11 @@
 import { DictionaryEntryInDb, DictionaryApiOutput } from "../types";
-import { doOnMongoCollection } from "../utils";
+import { Collection } from "mongodb";
 
-export async function getDictionaryEntries(query: string)
+
+export async function getDictionaryEntries(dictionary: Collection<DictionaryEntryInDb>, query: string)
   : Promise<DictionaryApiOutput[]>
 {
-  const results = await doOnMongoCollection<DictionaryEntryInDb>("dictionary",
-    coll => coll.find({ allKeys: query }).toArray()
-  ) as DictionaryEntryInDb[]
+  const results = await dictionary.find({ allKeys: query }).toArray()
 
   return results.map(r =>
     ({

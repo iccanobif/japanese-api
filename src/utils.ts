@@ -1,6 +1,3 @@
-import { Collection, MongoClient } from "mongodb"
-import { environment } from "./environment"
-
 export function log(msg: string)
 {
   let d = new Date()
@@ -27,17 +24,6 @@ export function addToDictionaryOfSets(dictionary: any, key: any, value: any)
   else
     dictionary[key] = new Set([value])
 }
-
-// Array.prototype.shuffle = function ()
-// {
-//     let output = this.slice(0)
-//     for (let i = output.length - 1; i > 0; i--)
-//     {
-//         const j = Math.floor(Math.random() * (i + 1));
-//         [output[i], output[j]] = [output[j], output[i]]; // eslint-disable-line no-param-reassign
-//     }
-//     return output;
-// }
 
 export function uniq(arr: any[]): any[]
 {
@@ -66,37 +52,6 @@ export function katakanaToHiragana(str: string)
         return c
     })
     .join("")
-}
-
-
-export async function doOnMongoCollection<TInput>(
-  collectionName: string,
-  callback: { (coll: Collection<TInput>): Promise<any> }
-): Promise<any>
-{
-  let client: MongoClient | null = null;
-
-  try
-  {
-    client = new MongoClient(environment.mongodbUrl,
-      {
-        autoReconnect: false,
-        useUnifiedTopology: true
-      })
-
-    await client.connect()
-    const db = client.db()
-    const dictionaryColl = db.collection<TInput>(collectionName)
-    const result = await callback(dictionaryColl)
-    return result
-  }
-  finally
-  {
-    if (client)
-    {
-      await client.close()
-    }
-  }
 }
 
 export function to<T>(value: T): T { return value; }
