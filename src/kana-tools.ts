@@ -1,15 +1,23 @@
-// converts romaji to hiragana and katakana to hiragana
-export function toHiragana(input: string): string
+import { readFileSync } from "fs"
+
+const kanaTable = JSON.parse(readFileSync("datasets/romaji-kana-table.json", { encoding: "utf8" })) as { romaji: string, kana: string }[]
+const romajiToHiraganaMap: { [romaji: string]: string } = {}
+kanaTable.forEach(k => romajiToHiraganaMap[k.romaji] = k.kana)
+
+function romajiToHiragana(text: string): string
+{
+  const regexp = RegExp(kanaTable.map(r => r.romaji).join("|"), "g")
+  return text.toLowerCase().replace(regexp, kana => romajiToHiraganaMap[kana])
+}
+
+function katakanaToHiragana(input: string): string
 {
   let output = ""
+  // hiragana from 12353 to 12435 (included)
+  // katanaka from 12449 to 12531 (included)
   for (let i = 0; i < input.length; i++)
   {
-    // Convert katakana to hiragana
-    // hiragana from 12353 to 12435 (included)
-    // katanaka from 12449 to 12531 (included)
-
     const charCode = input.charCodeAt(i)
-    console.log(charCode)
 
     if (charCode >= 12449 && charCode <= 12531)
       output = output + String.fromCharCode(charCode - (12449 - 12353))
@@ -19,18 +27,8 @@ export function toHiragana(input: string): string
   return output
 }
 
-
-// _katakana = ""
-// for i in range(12449, 12532):
-//     _katakana += chr(i)
-// _higarana = ""
-// for i in range(12353, 12436):
-//     _higarana += chr(i)
-// _transkatatohira = str.maketrans(_katakana, _higarana)
-// _transhiratokata = str.maketrans(_higarana, _katakana)
-
-// def katakana_to_hiragana(str):
-//     return str.translate(_transkatatohira)
-
-// def hiragana_to_katakana(str):
-//     return str.translate(_transhiratokata)
+// converts romaji to hiragana and katakana to hiragana
+export function toHiragana(input: string): string
+{
+  return katakanaToHiragana(romajiToHiragana(input))
+}
