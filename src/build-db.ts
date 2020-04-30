@@ -4,6 +4,7 @@ import { edictXmlParse } from "./edict/edict-parse";
 import { log, printError, bulkify } from "./utils";
 import { DictionaryEntryInDb, Lemma, DaijirinEntryFromIntermediateFile } from "./types";
 import { daijirinReadIntermediateFile } from "./daijirin/scan-intermediate-file";
+import { toHiragana } from "./kana-tools";
 
 const EDICT_INSERT_BUFFER_LENGTH = 10000
 const DAIJIRIN_UPSERT_BUFFER_LENGTH = 8000
@@ -44,7 +45,7 @@ export async function buildEdictDB()
           allKeys: edictItem.lemmas
             .map(l => l.kanji)
             .concat(edictItem.lemmas
-              .map(l => l.reading)),
+              .map(l => toHiragana(l.reading))),
           allConjugatedKeys: edictItem.lemmas
             .filter(l => l.isConjugated)
             .map(l => l.kanji)
@@ -103,7 +104,7 @@ export async function buildEdictDB()
                     isConjugated: false,
                   })),
                   edictGlosses: [],
-                  allKeys: daijirinItem.keys,
+                  allKeys: daijirinItem.keys.map(k => toHiragana(k)),
                   allUnconjugatedKeys: daijirinItem.keys,
                   allConjugatedKeys: []
                 }
