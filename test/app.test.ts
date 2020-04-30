@@ -85,6 +85,12 @@ describe("app.js", () =>
       expect(responseKanji).to.have.status(200)
       expect(responseRomaji.body).to.deep.equal(responseKanji.body)
     })
+    it("can find katakana lemmas", async() =>
+    {
+      const response = await get("/dictionary/" + encodeURIComponent("テスト"))
+      expect(response).to.have.status(200)
+      expect(response.body).to.have.lengthOf(1)
+    })
   })
 
   describe("radical lookup", () =>
