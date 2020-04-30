@@ -77,10 +77,18 @@ describe("app.js", () =>
       expect(body[0].lemmas)
         .to.be.deep.equal(["食べる（たべる）", "喰べる（たべる）"])
     })
-    it("can find searching by romaji", async () =>
+    it("can find searching by romaji (taberu)", async () =>
     {
       const responseRomaji = await get("/dictionary/taberu")
       const responseKanji = await get("/dictionary/" + encodeURIComponent("食べる"))
+      expect(responseRomaji).to.have.status(200)
+      expect(responseKanji).to.have.status(200)
+      expect(responseRomaji.body).to.deep.equal(responseKanji.body)
+    })
+    it("can find searching by romaji (ijou)", async () =>
+    {
+      const responseRomaji = await get("/dictionary/ijou")
+      const responseKanji = await get("/dictionary/" + encodeURIComponent("いじょう"))
       expect(responseRomaji).to.have.status(200)
       expect(responseKanji).to.have.status(200)
       expect(responseRomaji.body).to.deep.equal(responseKanji.body)

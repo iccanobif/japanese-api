@@ -12,4 +12,8 @@ describe("kana-tools", function ()
     const results = toHiragana("食べる")
     expect(results).to.equal("食べる")
   })
+  it("converts ijou correctly", () => {
+    const results = toHiragana("ijou")
+    expect(results).to.equal("いじょう")
+  })
 })
