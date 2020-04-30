@@ -1,10 +1,11 @@
 import { DictionaryEntryInDb, DictionaryApiOutput } from "../types";
 import { Collection } from "mongodb";
+import { toHiragana } from "../kana-tools";
 
 export async function getDictionaryEntries(dictionary: Collection<DictionaryEntryInDb>, query: string)
   : Promise<DictionaryApiOutput[]>
 {
-  const results = await dictionary.find({ allKeys: query }).toArray()
+  const results = await dictionary.find({ allKeys: toHiragana(query) }).toArray()
 
   const output = results.map(r =>
     ({
