@@ -114,5 +114,13 @@
   { "romaji": "pe", "kana": "ぺ" },
   { "romaji": "po", "kana": "ぽ" },
   { "romaji": "nn", "kana": "ん" },
-  { "romaji": "n", "kana": "ん" }
+  { "romaji": "ja", "kana": "じゃ" },
+  { "romaji": "ju", "kana": "じゅ" },
+  { "romaji": "jo", "kana": "じょ" },
+  { "romaji": "n", "kana": "ん" },
+  { "romaji": "a", "kana": "あ" },
+  { "romaji": "i", "kana": "い" },
+  { "romaji": "u", "kana": "う" },
+  { "romaji": "e", "kana": "え" },
+  { "romaji": "o", "kana": "お" }
 ]
