@@ -20,4 +20,8 @@ describe("kana-tools", function ()
     const results = toHiragana("jii")
     expect(results).to.equal("じい")
   })
+  it("converts midara correctly", () => {
+    const results = toHiragana("midara")
+    expect(results).to.equal("みだら")
+  })
 })
