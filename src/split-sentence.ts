@@ -9,6 +9,10 @@ export async function wordExists(dictionary: Collection<DictionaryEntryInDb>, wo
 
 export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>, sentence: string)
 {
+  
+  dictionary.find({$or: [{allKeys: "食べる"}, {allKeys: "以上"}]})
+  
+  
   return ["kek"]
 }
 

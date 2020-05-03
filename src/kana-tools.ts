@@ -6,8 +6,11 @@ kanaTable.forEach(k => romajiToHiraganaMap[k.romaji] = k.kana)
 
 function romajiToHiragana(text: string): string
 {
-  const regexp = RegExp(kanaTable.map(r => r.romaji).join("|"), "g")
-  return text.toLowerCase().replace(regexp, kana => romajiToHiraganaMap[kana])
+  text = text.toLowerCase()
+  text = text.replace("nn", "ん")
+  text = text.replace(/zz|yy|ww|uu|tt|ss|rr|pp|nn|mm|kk|jj|hh|gg|ff|dd|cc|bb/g, s => "っ" + s.charAt(0))
+  const kanaReplacementRegex = RegExp(kanaTable.map(r => r.romaji).join("|"), "g")
+  return text.replace(kanaReplacementRegex, kana => romajiToHiraganaMap[kana])
 }
 
 function katakanaToHiragana(input: string): string
