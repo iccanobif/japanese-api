@@ -53,7 +53,7 @@ describe("app.js", () =>
   {
     it("can find base forms with kanji", async () =>
     {
-      const response = await get("/dictionary/" + encodeURIComponent("食べる"))
+      const response = await get("/word/" + encodeURIComponent("食べる"))
       expect(response).to.have.status(200)
 
       const thing = response.body as DictionaryApiOutput[]
@@ -70,7 +70,7 @@ describe("app.js", () =>
     })
     it("only non conjugated lemmas are returned", async () =>
     {
-      const response = await get("/dictionary/" + encodeURIComponent("食べた"))
+      const response = await get("/word/" + encodeURIComponent("食べた"))
 
       const body = response.body as DictionaryApiOutput[]
       expect(body).to.have.lengthOf(1)
@@ -79,23 +79,23 @@ describe("app.js", () =>
     })
     it("can find searching by romaji (taberu)", async () =>
     {
-      const responseRomaji = await get("/dictionary/taberu")
-      const responseKanji = await get("/dictionary/" + encodeURIComponent("食べる"))
+      const responseRomaji = await get("/word/taberu")
+      const responseKanji = await get("/word/" + encodeURIComponent("食べる"))
       expect(responseRomaji).to.have.status(200)
       expect(responseKanji).to.have.status(200)
       expect(responseRomaji.body).to.deep.equal(responseKanji.body)
     })
     it("can find searching by romaji (ijou)", async () =>
     {
-      const responseRomaji = await get("/dictionary/ijou")
-      const responseKanji = await get("/dictionary/" + encodeURIComponent("いじょう"))
+      const responseRomaji = await get("/word/ijou")
+      const responseKanji = await get("/word/" + encodeURIComponent("いじょう"))
       expect(responseRomaji).to.have.status(200)
       expect(responseKanji).to.have.status(200)
       expect(responseRomaji.body).to.deep.equal(responseKanji.body)
     })
     it("can find katakana lemmas", async() =>
     {
-      const response = await get("/dictionary/" + encodeURIComponent("テスト"))
+      const response = await get("/word/" + encodeURIComponent("テスト"))
       expect(response).to.have.status(200)
       expect(response.body).to.have.lengthOf(1)
     })
