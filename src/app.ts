@@ -23,7 +23,15 @@ app.get("/", (req: any, res: any) =>
   res.end("home")
 })
 
-app.get("/dictionary/:query", async (req: any, res: any) =>
+/*
+  Routes outline:
+  - kanji (info for a given kanji)
+  - word (dictionary entry for a given word)
+  - sentence (splits a sentence into words and gives dictionary entries for each of them)
+  - kanji-by-radical (stays as it is)
+*/
+
+app.get("/word/:query", async (req: any, res: any) =>
 {
   const dictionary = db.collection<DictionaryEntryInDb>("dictionary")
   const query = req.params.query
