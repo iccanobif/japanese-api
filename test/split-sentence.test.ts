@@ -24,10 +24,21 @@ describe("split sentence", function ()
     expect(await wordExists(dictionary, "食べる")).to.be.true
     expect(await wordExists(dictionary, "asdfghweqrewuiofsd")).to.be.false
   })
-  it("splits a simple sentence", () =>
+  it("splits a simple sentence", async () =>
   {
-    const results = splitSentence(dictionary, "これはテストです")
+    const results = await splitSentence(dictionary, "これはテストです")
     expect(results).to.deep.equal(["これは", "テスト", "です"])
+  })
+  it("do not split single words", async () =>
+  {
+    const results = await splitSentence(dictionary, "食べる")
+    expect(results).to.deep.equal(["食べる"])
+  })
+  it("handles corner cases correctly", async () =>
+  {
+    expect(await splitSentence(dictionary, "")).to.deep.equal([])
+    expect(await splitSentence(dictionary, "à")).to.deep.equal(["à"])
+    expect(await splitSentence(dictionary, "あ")).to.deep.equal(["あ"])
   })
   after(() => (client.close()))
 })

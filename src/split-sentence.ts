@@ -7,28 +7,45 @@ export async function wordExists(dictionary: Collection<DictionaryEntryInDb>, wo
   return !(result === null)
 }
 
-export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>, sentence: string)
+export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>, sentence: string): Promise<string[]>
 {
-  
-  dictionary.find({$or: [{allKeys: "食べる"}, {allKeys: "以上"}]})
-  
-  
-  return ["kek"]
+  if (sentence == "")
+    return []
+  if (sentence.length == 1)
+    return [sentence]
+
+  const allFirstWordPossibilities = []
+  const facets: { [key: number]: any } = {}
+
+  for (let i = 1; i <= sentence.length; i++)
+  {
+    const word = sentence.substr(0, i)
+    allFirstWordPossibilities.push(word)
+    facets[i] = [{ $match: { allKeys: word } }, { $limit: 1 }, { $project: { lemmas: 1 } }]
+  }
+
+  const cursor = dictionary.aggregate([
+    // $match stage to force index scan on relevant documents
+    { $match: { allKeys: { $in: allFirstWordPossibilities } } },
+    { $facet: facets },
+  ])
+
+  const results = (await cursor.toArray())[0] as any
+
+  // Find longest result
+  let firstWord = ""
+  for (let i = sentence.length; i >= 1; i--)
+    if (results[i].length > 0)
+    {
+      firstWord = sentence.substr(0, i)
+      break
+    }
+
+  if (firstWord == "")
+    firstWord = sentence.charAt(0)
+
+
+  const restOfSentenceSplits = await splitSentence(dictionary, sentence.substring(firstWord.length, sentence.length))
+
+  return [firstWord].concat(restOfSentenceSplits)
 }
-
-/*
-# Always tries to make the first word as long as possible. Not resistant
-# against gibberish
-def splitSentencePrioritizeFirst(self, text):
-
-    if text == "":
-        return []
-    for i in range(len(text)+1, 0, -1):
-        firstWord = text[0:i]
-        if self.existsItem(firstWord):
-            return [firstWord] + self.splitSentencePrioritizeFirst(text[i:])
-
-    output = [text[0]] + self.splitSentencePrioritizeFirst(text[1:])
-    return output
-
-*/
