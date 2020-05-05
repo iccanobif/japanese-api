@@ -42,13 +42,20 @@ export interface DictionaryEntryInDb
   allConjugatedKeys: string[],
 }
 
-export interface DictionaryApiOutput
+export interface ApiWordOutput
 {
   lemmas: string[],
   glosses: string[],
+}
+
+export interface ApiSentenceOutput
+{
+  word: string,
+  dictionaryEntries: ApiWordOutput[],
 }
 
 export interface KanjidicEntry
 {
   strokeCount: number
 }
+

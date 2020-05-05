@@ -1,5 +1,6 @@
 import { DictionaryEntryInDb } from "./types";
 import { Collection } from "mongodb";
+import { toHiragana } from "./kana-tools";
 
 export async function wordExists(dictionary: Collection<DictionaryEntryInDb>, word: string)
 {
@@ -19,7 +20,7 @@ export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>,
 
   for (let i = 1; i <= sentence.length; i++)
   {
-    const word = sentence.substr(0, i)
+    const word = toHiragana(sentence.substr(0, i))
     allFirstWordPossibilities.push(word)
     facets[i] = [{ $match: { allKeys: word } }, { $limit: 1 }, { $project: { lemmas: 1 } }]
   }
@@ -43,7 +44,6 @@ export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>,
 
   if (firstWord == "")
     firstWord = sentence.charAt(0)
-
 
   const restOfSentenceSplits = await splitSentence(dictionary, sentence.substring(firstWord.length, sentence.length))
 

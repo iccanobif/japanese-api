@@ -2,7 +2,7 @@ import express from "express";
 const app: express.Application = express()
 
 const bodyParser = require("body-parser");
-import { getDictionaryEntries } from "./edict/repository";
+import { getDictionaryEntries, getEntriesForSentence } from "./edict/repository";
 import { searchKanjiByRadicalDescriptions } from "./radical-search";
 import { DictionaryEntryInDb } from "./types";
 import { Db } from "mongodb";
@@ -36,6 +36,14 @@ app.get("/word/:query", async (req: any, res: any) =>
   const dictionary = db.collection<DictionaryEntryInDb>("dictionary")
   const query = req.params.query
   const entries = await getDictionaryEntries(dictionary, query)
+  res.json(entries)
+})
+
+app.get("/sentence/:query/", async (req: any, res: any) => 
+{
+  const dictionary = db.collection<DictionaryEntryInDb>("dictionary")
+  const query = req.params.query
+  const entries = await getEntriesForSentence(dictionary, query)
   res.json(entries)
 })
 

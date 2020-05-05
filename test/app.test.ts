@@ -1,7 +1,7 @@
 import chai, { expect } from "chai"
 import chaiHttp from "chai-http"
 import app, { setAppDatabase } from "../src/app"
-import { DictionaryApiOutput } from "../src/types"
+import { ApiWordOutput, ApiSentenceOutput } from "../src/types"
 import { MongoClient } from "mongodb"
 import { environment } from "../src/environment"
 
@@ -22,8 +22,9 @@ function get(path: string): Promise<ChaiHttp.Response>
 
 let client: MongoClient
 
-describe("app.js", () =>
+describe("app.js", function()
 {
+  this.timeout(10000)
   before(async () =>
   {
     client = new MongoClient(environment.mongodbUrl,
@@ -49,21 +50,21 @@ describe("app.js", () =>
   })
 
 
-  describe("dictionary", () =>
+  describe("word", () =>
   {
     it("can find base forms with kanji", async () =>
     {
       const response = await get("/word/" + encodeURIComponent("食べる"))
       expect(response).to.have.status(200)
 
-      const thing = response.body as DictionaryApiOutput[]
+      const thing = response.body as ApiWordOutput[]
 
       expect(thing).to.be.an("array")
-        .that.satisfies((arr: DictionaryApiOutput[]) =>
+        .that.satisfies((arr: ApiWordOutput[]) =>
           arr.some(entry =>
             entry.glosses.some(gloss =>
               gloss == "（１）食物を口に入れ，かんで飲み込む。現在では「食う」よりは上品な言い方とされる。「果物を―・べる」「朝食を―・べる」"))) // from daijirin
-        .and.satisfies((arr: DictionaryApiOutput[]) =>
+        .and.satisfies((arr: ApiWordOutput[]) =>
           arr.some(entry =>
             entry.glosses.some(gloss =>
               gloss == "to eat"))) // from edict
@@ -72,7 +73,7 @@ describe("app.js", () =>
     {
       const response = await get("/word/" + encodeURIComponent("食べた"))
 
-      const body = response.body as DictionaryApiOutput[]
+      const body = response.body as ApiWordOutput[]
       expect(body).to.have.lengthOf(1)
       expect(body[0].lemmas)
         .to.be.deep.equal(["食べる（たべる）", "喰べる（たべる）"])
@@ -93,11 +94,27 @@ describe("app.js", () =>
       expect(responseKanji).to.have.status(200)
       expect(responseRomaji.body).to.deep.equal(responseKanji.body)
     })
-    it("can find katakana lemmas", async() =>
+    it("can find katakana lemmas", async () =>
     {
       const response = await get("/word/" + encodeURIComponent("テスト"))
       expect(response).to.have.status(200)
       expect(response.body).to.have.lengthOf(1)
+    })
+  })
+
+  describe("sentence", () =>
+  {
+    it("can split a sentence and return dictionary definitions for each word", async () =>
+    {
+      const response = await get("/sentence/" + encodeURIComponent("これはテストです"))
+      expect(response).to.have.status(200)
+
+      const actualOutput = response.body as ApiSentenceOutput[]
+      expect(actualOutput).to.be.an("array").that.is.not.empty
+
+      expect(actualOutput[0].word).to.equal("これは")
+      expect(actualOutput[1].word).to.equal("テスト")
+      expect(actualOutput[2].word).to.equal("です")
     })
   })
 

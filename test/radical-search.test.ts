@@ -29,23 +29,23 @@ describe("radical-search", function ()
         expect(kanjidicEntry2).to.not.exist
       }
     }
-  }),
-    it("non existing name", () =>
-    {
-      const results = searchKanjiByRadicalDescriptions("there is no radical with this description")
-      expect(results).to.be.an("array").that.is.empty
-    }),
-    it("ignore excessive whitespace", () =>
-    {
-      const resultsWithSpaces = searchKanjiByRadicalDescriptions("roof , pig")
-      const resultsWithoutSpaces = searchKanjiByRadicalDescriptions("roof,pig")
-      expect(resultsWithSpaces).to.deep.equal(resultsWithoutSpaces)
-    }),
-    it("has stable sorting", () =>
-    {
-      const results1 = searchKanjiByRadicalDescriptions("woman,pig")
-      const results2 = searchKanjiByRadicalDescriptions("woman,pig,")
+  })
+  it("non existing name", () =>
+  {
+    const results = searchKanjiByRadicalDescriptions("there is no radical with this description")
+    expect(results).to.be.an("array").that.is.empty
+  })
+  it("ignore excessive whitespace", () =>
+  {
+    const resultsWithSpaces = searchKanjiByRadicalDescriptions("roof , pig")
+    const resultsWithoutSpaces = searchKanjiByRadicalDescriptions("roof,pig")
+    expect(resultsWithSpaces).to.deep.equal(resultsWithoutSpaces)
+  })
+  it("has stable sorting", () =>
+  {
+    const results1 = searchKanjiByRadicalDescriptions("woman,pig")
+    const results2 = searchKanjiByRadicalDescriptions("woman,pig,")
 
-      expect(results1).to.deep.equal(results2)
-    })
+    expect(results1).to.deep.equal(results2)
+  })
 })

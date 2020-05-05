@@ -11,6 +11,7 @@ let client: MongoClient = new MongoClient(environment.mongodbUrl,
 describe("database tests", function ()
 {
   let dictionary: Collection<DictionaryEntryInDb>
+  this.timeout(10000)
   before(async () =>
   {
     await client.connect()

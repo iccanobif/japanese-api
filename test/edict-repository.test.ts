@@ -13,6 +13,7 @@ let client: MongoClient = new MongoClient(environment.mongodbUrl,
 describe("edict-repository", function ()
 {
   let dictionary: Collection<DictionaryEntryInDb>
+  this.timeout(10000)
   before(async () =>
   {
     await client.connect()

@@ -14,6 +14,7 @@ let client: MongoClient = new MongoClient(environment.mongodbUrl,
 describe("split sentence", function ()
 {
   let dictionary: Collection<DictionaryEntryInDb>
+  this.timeout(10000)
   before(async () =>
   {
     await client.connect()
@@ -39,6 +40,11 @@ describe("split sentence", function ()
     expect(await splitSentence(dictionary, "")).to.deep.equal([])
     expect(await splitSentence(dictionary, "à")).to.deep.equal(["à"])
     expect(await splitSentence(dictionary, "あ")).to.deep.equal(["あ"])
+  })
+  it("is flexible with receiving hiragana/katakana/romaji", async () =>
+  {
+    const results = await splitSentence(dictionary, "korehaてすとデス")
+    expect(results).to.deep.equal(["koreha", "てすと", "デス"])
   })
   after(() => (client.close()))
 })
