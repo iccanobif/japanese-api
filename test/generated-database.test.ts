@@ -88,6 +88,11 @@ describe("database tests", function ()
       expect(bilingualDoc).to.exist
       expect(monolingualDoc).to.exist
     })
+    it("doesn't have stray html entities", async () =>
+    {
+      const document = await dictionary.findOne({ "daijirinArticles.glosses": /&lt;/})
+      expect(document).to.equal(null)
+    })
   })
   after(() => (client.close()))
 })

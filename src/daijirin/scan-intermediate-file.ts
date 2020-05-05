@@ -1,6 +1,7 @@
 import { createReadStream } from "fs"
 import readline from "readline";
 import { DaijirinEntryFromIntermediateFile } from "../types";
+import { AllHtmlEntities } from "html-entities"
 
 export async function* daijirinReadIntermediateFile()
 {
@@ -12,6 +13,11 @@ export async function* daijirinReadIntermediateFile()
 
   for await (const line of rl)
   {
-    yield JSON.parse(line) as DaijirinEntryFromIntermediateFile
+    const data = JSON.parse(line) as DaijirinEntryFromIntermediateFile
+    for (let i = 0; i < data.glosses.length; i++)
+    {
+      data.glosses[i] = AllHtmlEntities.decode(data.glosses[i])
+    }
+    yield data
   }
 }
