@@ -15,6 +15,15 @@ export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>,
   if (sentence.length == 1)
     return [sentence]
 
+  const splitsByWhitespaceAndPunctuation = sentence.split(/[\s\.\,\。\、]/)
+  if (splitsByWhitespaceAndPunctuation.length > 1)
+  {
+    const wordSplitsPromises = splitsByWhitespaceAndPunctuation
+      .map(s => splitSentence(dictionary, s))
+    const wordSplits = await Promise.all(wordSplitsPromises)
+    return wordSplits.flat().filter(s => s != "")
+  }
+
   const allFirstWordPossibilities = []
   const facets: { [key: number]: any } = {}
 
