@@ -46,5 +46,10 @@ describe("split sentence", function ()
     const results = await splitSentence(dictionary, "korehaてすとデス")
     expect(results).to.deep.equal(["koreha", "てすと", "デス"])
   })
+  it("ignores whitespace and punctuation", async () =>
+  {
+    const results = await splitSentence(dictionary, "これは　テスト　です。")
+    expect(results).to.deep.equal(["これは", "テスト", "です"])
+  })
   after(() => (client.close()))
 })
