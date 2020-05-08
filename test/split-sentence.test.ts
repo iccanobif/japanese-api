@@ -1,5 +1,5 @@
 import { expect } from "chai"
-import { splitSentence, wordExists } from "../src/split-sentence"
+import { splitSentence, wordExists, getSubstringsIncludingPosition } from "../src/split-sentence"
 import { MongoClient, Collection } from "mongodb"
 import { environment } from "../src/environment"
 import { DictionaryEntryInDb } from "../src/types"
@@ -9,7 +9,6 @@ let client: MongoClient = new MongoClient(environment.mongodbUrl,
     autoReconnect: false,
     useUnifiedTopology: true
   })
-
 
 describe("split sentence", function ()
 {
@@ -21,7 +20,8 @@ describe("split sentence", function ()
     const db = client.db()
     dictionary = db.collection<DictionaryEntryInDb>("dictionary")
   })
-  it("can figure out if a word exists or not", async () => {
+  it("can figure out if a word exists or not", async () =>
+  {
     expect(await wordExists(dictionary, "食べる")).to.be.true
     expect(await wordExists(dictionary, "asdfghweqrewuiofsd")).to.be.false
   })
@@ -51,5 +51,35 @@ describe("split sentence", function ()
     const results = await splitSentence(dictionary, "これは　テスト　です。")
     expect(results).to.deep.equal(["これは", "テスト", "です"])
   })
+  // it("prioritize は for splitting", async () =>
+  // {
+  //   const results = await splitSentence(dictionary, "ご注文はうさぎですか")
+  //   expect(results).to.deep.equal(["ご注文", "は", "うさぎ", "ですか"])
+  // })
   after(() => (client.close()))
+})
+
+describe("getSubstrings", function ()
+{
+  it("works :)", () =>
+  {
+    expect(getSubstringsIncludingPosition("abcdefg", 2)).to.have.members(
+      [
+        'abc',
+        'abcd',
+        'abcde',
+        'abcdef',
+        'abcdefg',
+        'bc',
+        'bcd',
+        'bcde',
+        'bcdef',
+        'bcdefg',
+        'c',
+        'cd',
+        'cde',
+        'cdef',
+        'cdefg',
+      ])
+  })
 })

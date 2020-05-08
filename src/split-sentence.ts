@@ -58,3 +58,18 @@ export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>,
 
   return [firstWord].concat(restOfSentenceSplits)
 }
+
+// returns all possible substrings of "string" containing the character at position "positionToInclude"
+export function getSubstringsIncludingPosition(sentence: string, positionToInclude: number)
+{
+    const maxLength = 25
+    const slices = []
+    for (let a = positionToInclude; a >= 0 && a > positionToInclude - maxLength; a--)
+    {
+        for (let b = positionToInclude + 1; b - a < maxLength + 1 && b <= sentence.length; b++)
+        {
+            slices.push(sentence.slice(a, b))
+        }
+    }
+    return slices
+}
