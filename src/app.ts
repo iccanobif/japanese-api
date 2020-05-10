@@ -1,4 +1,6 @@
-import express from "express";
+import express from "express"
+import axios from "axios"
+import url from "url"
 const app: express.Application = express()
 
 const bodyParser = require("body-parser");
@@ -17,7 +19,7 @@ app.use((req, res, next) =>
   next()
 })
 
-app.get("/", (req: any, res: any) =>
+app.get("/", (req: express.Request, res: express.Response) =>
 {
   res.type("text/plain")
   res.end("home")
@@ -31,7 +33,7 @@ app.get("/", (req: any, res: any) =>
   - kanji-by-radical (stays as it is)
 */
 
-app.get("/word/:query", async (req: any, res: any) =>
+app.get("/word/:query", async (req: express.Request, res: express.Response) =>
 {
   const dictionary = db.collection<DictionaryEntryInDb>("dictionary")
   const query = req.params.query
@@ -39,7 +41,7 @@ app.get("/word/:query", async (req: any, res: any) =>
   res.json(entries)
 })
 
-app.get("/sentence/:query/", async (req: any, res: any) => 
+app.get("/sentence/:query/", async (req: express.Request, res: express.Response) => 
 {
   const dictionary = db.collection<DictionaryEntryInDb>("dictionary")
   const query = req.params.query
@@ -47,13 +49,46 @@ app.get("/sentence/:query/", async (req: any, res: any) =>
   res.json(entries)
 })
 
-app.get("/kanji-by-radical/:query", async (req: any, res: any) =>
+app.get("/kanji-by-radical/:query", async (req: express.Request, res: express.Response) =>
 {
   const query = req.params.query
   const output = await searchKanjiByRadicalDescriptions(query)
   res.json(output)
 })
 
+app.get("/integrated-dictionary/*", async (req: express.Request, res: express.Response) => 
+{
+  try
+  {
+    const targetUrlRaw = req.path.replace(/^\/integrated-dictionary\//, "")
+    const targetUrl = url.parse(targetUrlRaw)
+    const targetOrigin = targetUrl.protocol + "//" + targetUrl.host
+    const response = await axios.get(targetUrl.href)
+
+    // to replace in all href and src:
+    // - urls starting with / (replace the trailing / with /integrated-dictionary/{targetOrigin})
+    // - urls starting with the target domain (replace it with /integrated-dictionary/{targetOrigin})
+
+    const contentType: string = response.headers["content-type"]
+    console.log(contentType)
+    let output = ""
+    if (contentType.startsWith("text/html"))
+    {
+      output = response.data.replace(/(href|src)\s*=\s*(["'])\//ig,
+        "$1=$2/integrated-dictionary/" + targetOrigin + "/")
+    }
+    else
+    {
+      output = response.data
+    }
+
+    res.type(contentType)
+    res.send(output)
+  } catch (error)
+  {
+    res.send(error)
+  }
+})
 
 export default app
 
