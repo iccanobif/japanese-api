@@ -8,6 +8,7 @@ import { getDictionaryEntries, getEntriesForSentence } from "./edict/repository"
 import { searchKanjiByRadicalDescriptions } from "./radical-search";
 import { DictionaryEntryInDb } from "./types";
 import { Db } from "mongodb";
+import { katakanaToHiragana } from "./utils";
 
 let db: Db
 
@@ -61,21 +62,27 @@ app.get("/integrated-dictionary/*", async (req: express.Request, res: express.Re
   try
   {
     const targetUrlRaw = req.path.replace(/^\/integrated-dictionary\//, "")
+    console.log(req.path)
+    console.log(req.query)
     const targetUrl = url.parse(targetUrlRaw)
     const targetOrigin = targetUrl.protocol + "//" + targetUrl.host
-    const response = await axios.get(targetUrl.href)
+    const response = await axios.get(targetUrl.href, {
+      params: req.query
+    })
 
     // to replace in all href and src:
     // - urls starting with / (replace the trailing / with /integrated-dictionary/{targetOrigin})
     // - urls starting with the target domain (replace it with /integrated-dictionary/{targetOrigin})
 
     const contentType: string = response.headers["content-type"]
-    console.log(contentType)
+    console.log(targetUrlRaw, contentType)
     let output = ""
     if (contentType.startsWith("text/html"))
     {
       output = response.data.replace(/(href|src)\s*=\s*(["'])\//ig,
         "$1=$2/integrated-dictionary/" + targetOrigin + "/")
+
+      output = katakanaToHiragana(output)
     }
     else
     {
