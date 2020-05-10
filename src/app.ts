@@ -8,8 +8,6 @@ import { getDictionaryEntries, getEntriesForSentence } from "./edict/repository"
 import { searchKanjiByRadicalDescriptions } from "./radical-search";
 import { DictionaryEntryInDb } from "./types";
 import { Db } from "mongodb";
-import { katakanaToHiragana } from "./utils";
-import { toHiragana } from "./kana-tools";
 
 let db: Db
 
