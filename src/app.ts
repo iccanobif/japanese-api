@@ -9,6 +9,7 @@ import { searchKanjiByRadicalDescriptions } from "./radical-search";
 import { DictionaryEntryInDb } from "./types";
 import { Db } from "mongodb";
 import { katakanaToHiragana } from "./utils";
+import { toHiragana } from "./kana-tools";
 
 let db: Db
 
@@ -82,7 +83,7 @@ app.get("/integrated-dictionary/*", async (req: express.Request, res: express.Re
       output = response.data.replace(/(href|src)\s*=\s*(["'])\//ig,
         "$1=$2/integrated-dictionary/" + targetOrigin + "/")
 
-      output = katakanaToHiragana(output)
+      output = output.replace("。", "ぞ。")
     }
     else
     {
