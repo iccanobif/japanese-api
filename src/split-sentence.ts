@@ -15,7 +15,7 @@ export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>,
   if (sentence.length == 1)
     return [sentence]
 
-  const splitsByWhitespaceAndPunctuation = sentence.split(/[\s\.\,\。\、]/)
+  const splitsByWhitespaceAndPunctuation = sentence.split(/[\s.,。、]/)
   if (splitsByWhitespaceAndPunctuation.length > 1)
   {
     const wordSplitsPromises = splitsByWhitespaceAndPunctuation
