@@ -3,9 +3,6 @@ import axios from "axios"
 import url from "url"
 import { readFileSync } from "fs"
 
-const javascriptToInject = readFileSync("src/integrated-dictionary/javascript-to-inject.js", { encoding: "utf8" })
-
-
 export default async function handleIntegratedDictionary(req: express.Request, res: express.Response) 
 {
   try
@@ -29,9 +26,12 @@ export default async function handleIntegratedDictionary(req: express.Request, r
     if (contentType.startsWith("text/html"))
     {
       output = response.data.replace(/(href|src)\s*=\s*(["'])\//ig,
-        "$1=$2/integrated-dictionary/" + targetOrigin + "/")
+        "$1=$2/integrated-dictionary/" + targetOrigin + "/");
 
-      output = response.data.replace(/<head .*?>/i, "<head><script>" + javascriptToInject + "</script>")
+      // TODO: move readFileSync() outside of this function, on top of this file
+      const javascriptToInject = readFileSync("src/integrated-dictionary/javascript-to-inject.js", { encoding: "utf8" })
+
+      output = response.data.replace(/<head (.*?)>/i, "<head $1><script>" + javascriptToInject + "</script>")
     }
     else
     {
