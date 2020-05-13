@@ -2,7 +2,7 @@ import express from "express"
 const app: express.Application = express()
 
 const bodyParser = require("body-parser");
-import { getDictionaryEntries, getEntriesForSentence } from "./edict/repository";
+import { getDictionaryEntries, getEntriesForSentence, getEntriesForWordInOffset } from "./edict/repository";
 import { searchKanjiByRadicalDescriptions } from "./radical-search";
 import { DictionaryEntryInDb } from "./types";
 import { Db } from "mongodb";
@@ -39,6 +39,21 @@ app.get("/word/:query", async (req: express.Request, res: express.Response) =>
   const query = req.params.query
   const entries = await getDictionaryEntries(dictionary, query)
   res.json(entries)
+})
+
+app.get("/word/:query/:offset", async (req: express.Request, res: express.Response) => {
+  try {
+    const dictionary = db.collection<DictionaryEntryInDb>("dictionary")
+    const query = req.params.query
+    const offset = Number.parseInt(req.params.offset)
+    const entries = await getEntriesForWordInOffset(dictionary, query, offset)
+    res.json(entries)
+  } catch (error)
+  {
+    console.error(error)
+    res.status(500)
+    res.end(error.message)
+  }
 })
 
 app.get("/sentence/:query/", async (req: express.Request, res: express.Response) => 

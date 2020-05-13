@@ -1,6 +1,7 @@
 import { ObjectID } from "mongodb";
 
-export interface Lemma {
+export interface Lemma
+{
   kanji: string,
   reading: string,
   isConjugated: boolean,
@@ -42,10 +43,16 @@ export interface DictionaryEntryInDb
   allConjugatedKeys: string[],
 }
 
-export interface ApiWordOutput
+export class ApiWordOutput
 {
-  lemmas: string[],
-  glosses: string[],
+  public lemmas: string[];
+  public glosses: string[];
+
+  constructor(entry: DictionaryEntryInDb)
+  {
+    this.lemmas = entry.lemmas.filter(l => !l.isConjugated).map(l => l.kanji + "（" + l.reading + "）")
+    this.glosses = entry.daijirinArticles.map(d => d.glosses).flat().concat(entry.edictGlosses)
+  }
 }
 
 export interface ApiSentenceOutput
