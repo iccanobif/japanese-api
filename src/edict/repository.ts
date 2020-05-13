@@ -15,13 +15,14 @@ export async function getEntriesForSentence(dictionary: Collection<DictionaryEnt
   : Promise<ApiSentenceOutput[]>
 {
   const splits = await splitSentence(dictionary, sentence)
+  const hiraganaSplits = splits.map(s => toHiragana(s))
 
   const facets: { [key: string]: any } = {}
   for (let i = 0; i < splits.length; i++)
-    facets[i] = [{ $match: { allKeys: toHiragana(splits[i]) } }]
+    facets[i] = [{ $match: { allKeys: hiraganaSplits[i] } }]
 
   const cursor = dictionary.aggregate([
-    { $match: { allKeys: { $in: splits } } },
+    { $match: { allKeys: { $in: hiraganaSplits } } },
     { $facet: facets }
   ])
 

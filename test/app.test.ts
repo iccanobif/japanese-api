@@ -116,6 +116,19 @@ describe("app.js", function()
       expect(actualOutput[1].word).to.equal("テスト")
       expect(actualOutput[2].word).to.equal("です")
     })
+    it("works properly either with romaji or kana", async () =>
+    {
+      const responseKana = await get("/sentence/" + encodeURIComponent("つぼ"))
+      const responseRomaji = await get("/sentence/tubo")
+      expect(responseKana).to.have.status(200)
+      expect(responseRomaji).to.have.status(200)
+
+      const kanaOutput = responseKana.body as ApiSentenceOutput[]
+      const romajiOutput = responseRomaji.body as ApiSentenceOutput[]
+
+      expect(kanaOutput.map(o => o.dictionaryEntries)).to.deep.equal(romajiOutput.map(o => o.dictionaryEntries))
+
+    })
   })
 
   describe("radical lookup", () =>
