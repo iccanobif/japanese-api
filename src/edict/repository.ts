@@ -68,6 +68,7 @@ export async function getEntriesForWordInOffset(dictionary: Collection<Dictionar
   }
 
   // TODO sort by word length
+  output.sort((a, b) => b.word.length - a.word.length)
 
   return output
 

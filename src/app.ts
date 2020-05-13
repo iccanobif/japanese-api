@@ -43,8 +43,9 @@ app.get("/word/:query", async (req: express.Request, res: express.Response) =>
 
 app.get("/word/:query/:offset", async (req: express.Request, res: express.Response) => {
   try {
+    
     const dictionary = db.collection<DictionaryEntryInDb>("dictionary")
-    const query = req.params.query
+    const query = decodeURIComponent(req.params.query)
     const offset = Number.parseInt(req.params.offset)
     const entries = await getEntriesForWordInOffset(dictionary, query, offset)
     res.json(entries)
