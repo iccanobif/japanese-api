@@ -51,6 +51,11 @@ describe("split sentence", function ()
     const results = await splitSentence(dictionary, "これは　テスト　です。")
     expect(results).to.deep.equal(["これは", "テスト", "です"])
   })
+  it("ウケ狙い should not be split", async () =>
+  {
+    const results = await splitSentence(dictionary, "ウケ狙い")
+    expect(results).to.deep.equal(["ウケ狙い"])
+  })
   // it("prioritize は for splitting", async () =>
   // {
   //   const results = await splitSentence(dictionary, "ご注文はうさぎですか")

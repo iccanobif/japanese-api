@@ -25,13 +25,7 @@ export default async function handleIntegratedDictionary(req: express.Request, r
     let output = ""
     if (contentType.startsWith("text/html"))
     {
-      output = response.data.replace(/(href|src)\s*=\s*(["'])\//ig,
-        "$1=$2/integrated-dictionary/" + targetOrigin + "/");
-
-      // TODO: move readFileSync() outside of this function, on top of this file
-      const javascriptToInject = readFileSync("src/integrated-dictionary/javascript-to-inject.js", { encoding: "utf8" })
-
-      output = response.data.replace(/<head (.*?)>/i, "<head $1><script>" + javascriptToInject + "</script>")
+      output = injectJavascript(response.data, targetOrigin)
     }
     else
     {
@@ -44,4 +38,22 @@ export default async function handleIntegratedDictionary(req: express.Request, r
   {
     res.send(error)
   }
+}
+
+export function injectJavascript(pageContent: string, targetOrigin: string): string
+{
+  let output = ""
+  output = pageContent.replace(/(href|src)\s*=\s*(["'])\//ig, "$1=$2/integrated-dictionary/" + targetOrigin + "/");
+
+  // TODO: move readFileSync() outside of this function, on top of this file
+  const javascriptToInject = readFileSync("src/integrated-dictionary/javascript-to-inject.js", { encoding: "utf8" })
+
+  // PROVA AD USARE https://developer.mozilla.org/ja/docs/Web/API/DOMParser
+
+  // remove all <meta> tags inside <head>
+  output = output.replace(/(<head(| .*?)>.*)<meta .*?>(.*<\/head>)/ig, "$1$2")
+
+  output = output.replace(/<head(| .*?)>/i, "<head$1><script>" + javascriptToInject + "</script>")
+  
+  return output
 }

@@ -43,7 +43,7 @@ export async function buildEdictDB()
           edictGlosses: edictItem.glosses,
           daijirinArticles: [],
           allKeys: edictItem.lemmas
-            .map(l => l.kanji)
+            .map(l => toHiragana(l.kanji))
             .concat(edictItem.lemmas
               .map(l => toHiragana(l.reading))),
           allConjugatedKeys: edictItem.lemmas
