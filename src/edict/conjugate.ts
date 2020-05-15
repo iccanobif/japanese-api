@@ -1,6 +1,6 @@
 import { Lemma } from "../types"
 
-const unsupportedConjugations = new Set(["v5", "v5aru", "v5r-i", "v5u-s", "v5uru"])
+const unsupportedConjugations = new Set(["v5", "v5r-i", "v5u-s", "v5uru"])
 
 // Returns only the conjugated stuff, not the originals
 export function conjugate(kanjiWord: string, 
@@ -104,6 +104,7 @@ export function conjugate(kanjiWord: string,
     case "v5r":
     case "v5t":
     case "v5u":
+    case "v5aru":
       add("った") // past
       add("って") // -te form
       add("っている") // -te+iru form
@@ -124,6 +125,7 @@ export function conjugate(kanjiWord: string,
     case "v5t": add("てる"); add("とう"); add("て"); stemKana = "ち"; firstNegativeKana = "た"; break;
     case "v5u": add("える"); add("おう"); add("え"); stemKana = "い"; firstNegativeKana = "わ"; break;
     case "v5s": add("せる"); add("そう"); add("せ"); stemKana = "し"; firstNegativeKana = "さ"; break;
+    case "v5aru": add("れる"); add("ろう"); add("れ"); stemKana = "い"; firstNegativeKana = "ら"; break; // v5aru seems to be like v5r but い as 連用形 (ex. いらっしゃる)
   }
 
   if (partOfSpeech.startsWith("v5")) {

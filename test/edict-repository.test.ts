@@ -30,5 +30,10 @@ describe("edict-repository", function ()
     const entries = await getDictionaryEntries(dictionary, "いっその事")
     expect(entries).to.be.an("array").that.is.not.empty
   })
+  it("仰って", async () =>
+  {
+    const entries = await getDictionaryEntries(dictionary, "仰って")
+    expect(entries).to.be.an("array").that.is.not.empty
+  })
   after(() => (client.close()))
 })
