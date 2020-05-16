@@ -51,9 +51,11 @@ export class ApiWordOutput
 
   constructor(entry: DictionaryEntryInDb)
   {
+    const allDaijirinGlosses = entry.daijirinArticles.map(d => d.glosses).flat()
+
     this.lemmas = entry.lemmas.filter(l => !l.isConjugated).map(l => l.kanji + "（" + l.reading + "）")
-    this.japaneseGlosses = entry.daijirinArticles.map(d => d.glosses).flat()
-    this.englishGlosses = entry.edictGlosses
+    this.japaneseGlosses = allDaijirinGlosses.filter(g => !g.endsWith("→英和"))
+    this.englishGlosses = entry.edictGlosses.concat(allDaijirinGlosses.filter(g => g.endsWith("→英和")))
   }
 }
 

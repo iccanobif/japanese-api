@@ -24,6 +24,12 @@ describe("edict-repository", function ()
   {
     const entries = await getDictionaryEntries(dictionary, "食べる")
     expect(entries).to.be.an("array").that.is.not.empty
+    for (const entry of entries)
+    {
+      for (const japaneseGloss of entry.japaneseGlosses)
+        expect(japaneseGloss).not.to.match(/→英和$/)
+    }
+    expect(entries[0].englishGlosses).to.include("eat;→英和")
   })
   it("いっその事", async () =>
   {
