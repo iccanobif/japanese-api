@@ -46,12 +46,14 @@ export interface DictionaryEntryInDb
 export class ApiWordOutput
 {
   public lemmas: string[];
-  public glosses: string[];
+  public englishGlosses: string[];
+  public japaneseGlosses: string[];
 
   constructor(entry: DictionaryEntryInDb)
   {
     this.lemmas = entry.lemmas.filter(l => !l.isConjugated).map(l => l.kanji + "（" + l.reading + "）")
-    this.glosses = entry.daijirinArticles.map(d => d.glosses).flat().concat(entry.edictGlosses)
+    this.japaneseGlosses = entry.daijirinArticles.map(d => d.glosses).flat()
+    this.englishGlosses = entry.edictGlosses
   }
 }
 

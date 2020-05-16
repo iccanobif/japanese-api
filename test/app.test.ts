@@ -62,11 +62,11 @@ describe("app.js", function()
       expect(thing).to.be.an("array")
         .that.satisfies((arr: ApiWordOutput[]) =>
           arr.some(entry =>
-            entry.glosses.some(gloss =>
+            entry.japaneseGlosses.some(gloss =>
               gloss == "（１）食物を口に入れ，かんで飲み込む。現在では「食う」よりは上品な言い方とされる。「果物を―・べる」「朝食を―・べる」"))) // from daijirin
         .and.satisfies((arr: ApiWordOutput[]) =>
           arr.some(entry =>
-            entry.glosses.some(gloss =>
+            entry.englishGlosses.some(gloss =>
               gloss == "to eat"))) // from edict
     })
     it("only non conjugated lemmas are returned", async () =>
@@ -127,7 +127,6 @@ describe("app.js", function()
       const romajiOutput = responseRomaji.body as ApiSentenceOutput[]
 
       expect(kanaOutput.map(o => o.dictionaryEntries)).to.deep.equal(romajiOutput.map(o => o.dictionaryEntries))
-
     })
   })
 
