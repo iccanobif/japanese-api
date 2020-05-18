@@ -41,5 +41,16 @@ describe("edict-repository", function ()
     const entries = await getDictionaryEntries(dictionary, "仰って")
     expect(entries).to.be.an("array").that.is.not.empty
   })
+  it("separates english glosses from japanese glosses", async () => 
+  {
+    const entries = await getDictionaryEntries(dictionary, "悶える")
+    expect(entries).to.be.an("array").that.is.not.empty
+    for (const entry of entries)
+    {
+      for (const japaneseGloss of entry.japaneseGlosses)
+        expect(japaneseGloss).not.to.match(/agonized/)
+    }
+    expect(entries[0].englishGlosses).to.include("be agonized.")
+  })
   after(() => (client.close()))
 })
