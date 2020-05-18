@@ -13,21 +13,21 @@ function romajiToHiragana(text: string): string
   return text.replace(kanaReplacementRegex, kana => romajiToHiraganaMap[kana])
 }
 
-function katakanaToHiragana(input: string): string
+function katakanaToHiragana(str: string)
 {
-  let output = ""
-  // hiragana from 12353 to 12435 (included)
-  // katanaka from 12449 to 12531 (included)
-  for (let i = 0; i < input.length; i++)
-  {
-    const charCode = input.charCodeAt(i)
+  // In unicode, katakana is from 12449 to 12533, hiragana from 12353, 12435
 
-    if (charCode >= 12449 && charCode <= 12531)
-      output = output + String.fromCharCode(charCode - (12449 - 12353))
-    else
-      output = output + input.charAt(i)
-  }
-  return output
+  return str
+    .split("")
+    .map((c) =>
+    {
+      const codePoint = c.codePointAt(0)
+      if (codePoint && codePoint >= 12449 && codePoint <= 12534)
+        return String.fromCodePoint(codePoint - 96)
+      else
+        return c
+    })
+    .join("")
 }
 
 // converts romaji to hiragana and katakana to hiragana

@@ -37,23 +37,6 @@ export function uniq(arr: any[]): any[]
     }, [])
 }
 
-export function katakanaToHiragana(str: string)
-{
-  // In unicode, katakana is from 12449 to 12533, hiragana from 12353, 12435
-
-  return str
-    .split("")
-    .map((c) =>
-    {
-      const codePoint = c.codePointAt(0)
-      if (codePoint && codePoint >= 12449 && codePoint <= 12534)
-        return String.fromCodePoint(codePoint - 96)
-      else
-        return c
-    })
-    .join("")
-}
-
 export function to<T>(value: T): T { return value; }
 
 export async function bulkify<T>(

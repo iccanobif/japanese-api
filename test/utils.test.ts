@@ -1,6 +1,5 @@
 import {
   addToDictionaryOfLists,
-  katakanaToHiragana,
   addToDictionaryOfSets,
   uniq
 } from "../src/utils"
@@ -46,14 +45,6 @@ describe("utils", function () {
       addToDictionaryOfSets(dictionary, "key", "value1")
       addToDictionaryOfSets(dictionary, "key", "value1")
       assert.deepStrictEqual(Array.from(dictionary["key"]), ["value1"])
-    })
-  })
-  describe("katakanaToHiragana()", () => {
-    it("should convert all katakana in a sentence to hiragana", () => {
-      assert.equal(katakanaToHiragana("English 漢字　カタカナ　ひらがな"), "English 漢字　かたかな　ひらがな")
-      let allKatakana = "ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶ"
-      let allHiragana = "ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのはばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんゔゕゖ"
-      assert.equal(katakanaToHiragana(allKatakana + allHiragana), allHiragana + allHiragana)
     })
   })
 })

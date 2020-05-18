@@ -19,4 +19,12 @@ describe("kana-tools", function ()
     expect(toHiragana("tubo")).to.equal("つぼ")
     expect(toHiragana("tsubo")).to.equal("つぼ")
   })
+  describe("katakanaToHiragana()", () => {
+    it("should convert all katakana in a sentence to hiragana", () => {
+      expect(toHiragana("漢字　カタカナ　ひらがな")).to.equal("漢字　かたかな　ひらがな")
+      let allKatakana = "ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶ"
+      let allHiragana = "ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのはばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんゔゕゖ"
+      expect(toHiragana(allKatakana + allHiragana)).to.equal(allHiragana + allHiragana)
+    })
+  })
 })
