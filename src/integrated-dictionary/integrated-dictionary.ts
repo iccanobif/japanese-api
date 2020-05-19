@@ -55,6 +55,8 @@ export function injectJavascript(pageContent: ArrayBuffer, targetOrigin: string)
   const scriptNode = document.createElement("script")
   scriptNode.appendChild(document.createTextNode(javascriptToInject))
 
+  // Todo: use targetOrigin
+
   document.head.appendChild(scriptNode)
 
   return dom.serialize()

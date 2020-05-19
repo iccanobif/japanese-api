@@ -8,13 +8,14 @@ describe("integrated dictionary", function ()
 {
   it("can inject the script", async () =>
   {
-    const htmlWithInjection = injectJavascript("<html><head></head><body></body></html>", "")
+    
+    const htmlWithInjection = injectJavascript((new TextEncoder()).encode("<html><head></head><body></body></html>"), "")
     expect(htmlWithInjection).to.contain("<script>" + javascriptToInject + "</script>")
   })
   it("converts the encoding to utf-8", async () =>
   {
     // I just remove all <meta> tags from <head> and let the http headers do the talking, when it comes to character encoding
-    const htmlWithInjection = injectJavascript("<html><head profile=\"http://gmpg.org/xfn/11\"><META http-equiv=\"Content-Type\" content=\"text/html; charset=Shift_JIS\"></head><body></body></html>", "")
+    const htmlWithInjection = injectJavascript((new TextEncoder()).encode("<html><head profile=\"http://gmpg.org/xfn/11\"><META http-equiv=\"Content-Type\" content=\"text/html; charset=Shift_JIS\"></head><body></body></html>"), "")
     expect(htmlWithInjection).to.contain("<html><head profile=\"http://gmpg.org/xfn/11\"><script>" + javascriptToInject + "</script></head><body></body></html>")
   })
 })
