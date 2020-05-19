@@ -22,7 +22,7 @@ function get(path: string): Promise<ChaiHttp.Response>
 
 let client: MongoClient
 
-describe("app.js", function()
+describe("app.js", function ()
 {
   this.timeout(10000)
   before(async () =>
@@ -99,6 +99,12 @@ describe("app.js", function()
       const response = await get("/word/" + encodeURIComponent("テスト"))
       expect(response).to.have.status(200)
       expect(response.body).to.have.lengthOf(1)
+    })
+    it("can find word ロボット by offset", async () =>
+    {
+      const response = await get("/word/" + encodeURIComponent("ロボット") + "/1")
+      expect(response).to.have.status(200)
+      expect(response.body).not.to.have.lengthOf(0)
     })
   })
 

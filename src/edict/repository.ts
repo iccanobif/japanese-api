@@ -46,7 +46,7 @@ export async function getEntriesForWordInOffset(dictionary: Collection<Dictionar
     facets[word] = [{ $match: { allKeys: toHiragana(word) } }]
 
   const cursor = dictionary.aggregate([
-    { $match: { allKeys: { $in: splits } } },
+    { $match: { allKeys: { $in: splits.map(s => toHiragana(s)) } } },
     {
       $facet: facets
     }
