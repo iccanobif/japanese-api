@@ -9,12 +9,11 @@ export default async function handleIntegratedDictionary(req: express.Request, r
   try
   {
     const targetUrlRaw = req.path.replace(/^\/integrated-dictionary\//, "")
-    console.log(req.path)
-    console.log(req.query)
     const targetUrl = url.parse(targetUrlRaw)
     const targetOrigin = targetUrl.protocol + "//" + targetUrl.host
     const response = await axios.get(targetUrl.href, {
-      params: req.query
+      params: req.query,
+      responseType: 'arraybuffer'
     })
 
     // to replace in all href and src:
@@ -41,12 +40,12 @@ export default async function handleIntegratedDictionary(req: express.Request, r
   }
 }
 
-export function injectJavascript(pageContent: string, targetOrigin: string): string
+export function injectJavascript(pageContent: ArrayBuffer, targetOrigin: string): string
 {
   const javascriptToInject = readFileSync("src/integrated-dictionary/javascript-to-inject.js", { encoding: "utf8" })
   const dom = new JSDOM(pageContent)
   const document = dom.window.document
-  
+
   // Remove all <meta> tags (this is mostly so we can ignore the original encoding and use UTF8 for everything)
   for (const node of document.head.childNodes)
     if (node.nodeName.toUpperCase() == "META")

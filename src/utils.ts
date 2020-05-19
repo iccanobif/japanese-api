@@ -57,5 +57,4 @@ export async function bulkify<T>(
     }
   }
   bulkOperation(buffer)
-
 }
