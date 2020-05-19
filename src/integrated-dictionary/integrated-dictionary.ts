@@ -2,6 +2,7 @@ import express from "express"
 import axios from "axios"
 import url from "url"
 import { readFileSync } from "fs"
+import { JSDOM } from "jsdom"
 
 export default async function handleIntegratedDictionary(req: express.Request, res: express.Response) 
 {
@@ -42,18 +43,20 @@ export default async function handleIntegratedDictionary(req: express.Request, r
 
 export function injectJavascript(pageContent: string, targetOrigin: string): string
 {
-  let output = ""
-  output = pageContent.replace(/(href|src)\s*=\s*(["'])\//ig, "$1=$2/integrated-dictionary/" + targetOrigin + "/");
-
-  // TODO: move readFileSync() outside of this function, on top of this file
   const javascriptToInject = readFileSync("src/integrated-dictionary/javascript-to-inject.js", { encoding: "utf8" })
-
-  // PROVA AD USARE https://developer.mozilla.org/ja/docs/Web/API/DOMParser
-
-  // remove all <meta> tags inside <head>
-  output = output.replace(/(<head(| .*?)>.*)<meta .*?>(.*<\/head>)/ig, "$1$2")
-
-  output = output.replace(/<head(| .*?)>/i, "<head$1><script>" + javascriptToInject + "</script>")
+  const dom = new JSDOM(pageContent)
+  const document = dom.window.document
   
-  return output
+  // Remove all <meta> tags (this is mostly so we can ignore the original encoding and use UTF8 for everything)
+  for (const node of document.head.childNodes)
+    if (node.nodeName.toUpperCase() == "META")
+      document.head.removeChild(node)
+
+  // Inject custom javascript
+  const scriptNode = document.createElement("script")
+  scriptNode.appendChild(document.createTextNode(javascriptToInject))
+
+  document.head.appendChild(scriptNode)
+
+  return dom.serialize()
 }
