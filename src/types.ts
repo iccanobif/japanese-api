@@ -1,4 +1,5 @@
 import { ObjectID } from "mongodb";
+import { isEnglishGloss } from "./utils";
 
 export interface Lemma
 {
@@ -54,8 +55,8 @@ export class ApiWordOutput
     const allDaijirinGlosses = entry.daijirinArticles.map(d => d.glosses).flat()
 
     this.lemmas = entry.lemmas.filter(l => !l.isConjugated).map(l => l.kanji + "（" + l.reading + "）")
-    this.japaneseGlosses = allDaijirinGlosses.filter(g => !g.endsWith("→英和"))
-    this.englishGlosses = entry.edictGlosses.concat(allDaijirinGlosses.filter(g => g.endsWith("→英和")))
+    this.japaneseGlosses = allDaijirinGlosses.filter(g => !isEnglishGloss(g))
+    this.englishGlosses = entry.edictGlosses.concat(allDaijirinGlosses.filter(g => isEnglishGloss(g)))
   }
 }
 

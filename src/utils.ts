@@ -58,3 +58,13 @@ export async function bulkify<T>(
   }
   bulkOperation(buffer)
 }
+
+export function isEnglishGloss(gloss: string): boolean
+{
+  if (gloss.endsWith("→英和"))
+    return true
+  if (gloss.match(/^[\x00-\x7F]*$/))
+    return true
+
+  return false
+}
