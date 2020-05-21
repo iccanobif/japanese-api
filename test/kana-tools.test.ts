@@ -18,6 +18,7 @@ describe("kana-tools", function ()
     expect(toHiragana("yuuto")).to.equal("ゆうと")
     expect(toHiragana("tubo")).to.equal("つぼ")
     expect(toHiragana("tsubo")).to.equal("つぼ")
+    expect(toHiragana("lolita")).to.equal("ろりた")
   })
   describe("katakanaToHiragana()", () => {
     it("should convert all katakana in a sentence to hiragana", () => {
