@@ -43,6 +43,8 @@ export default async function handleIntegratedDictionary(req: express.Request, r
 export function injectJavascript(pageContent: ArrayBuffer, targetOrigin: string): string
 {
   const javascriptToInject = readFileSync("src/integrated-dictionary/javascript-to-inject.js", { encoding: "utf8" })
+  const htmlToInject = readFileSync("src/integrated-dictionary/html-to-inject.html", { encoding: "utf8" })
+
   const dom = new JSDOM(pageContent)
   const document = dom.window.document
 
@@ -54,10 +56,14 @@ export function injectJavascript(pageContent: ArrayBuffer, targetOrigin: string)
   // Inject custom javascript
   const scriptNode = document.createElement("script")
   scriptNode.appendChild(document.createTextNode(javascriptToInject))
+  document.head.appendChild(scriptNode)
+
+  // Inject custom html
+  const customHtmlNode = new JSDOM(htmlToInject)
+  document.body.appendChild(customHtmlNode.window.document.body)
 
   // Todo: use targetOrigin
 
-  document.head.appendChild(scriptNode)
 
   return dom.serialize()
 }
