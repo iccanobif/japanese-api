@@ -36,7 +36,7 @@ app.get("/", (req: express.Request, res: express.Response) =>
 app.get("/word/:query", async (req: express.Request, res: express.Response) =>
 {
   const dictionary = db.collection<DictionaryEntryInDb>("dictionary")
-  const query = req.params.query
+  const query = decodeURIComponent(req.params.query)
   const entries = await getDictionaryEntries(dictionary, query)
   res.json(entries)
 })
@@ -60,7 +60,7 @@ app.get("/word/:query/:offset", async (req: express.Request, res: express.Respon
 app.get("/sentence/:query/", async (req: express.Request, res: express.Response) => 
 {
   const dictionary = db.collection<DictionaryEntryInDb>("dictionary")
-  const query = req.params.query
+  const query = decodeURIComponent(req.params.query)
   const entries = await getEntriesForSentence(dictionary, query)
   res.json(entries)
 })
