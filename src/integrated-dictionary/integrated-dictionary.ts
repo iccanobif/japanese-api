@@ -50,7 +50,7 @@ export function injectJavascript(pageContent: ArrayBuffer, targetOrigin: string)
 
   // Remove all <meta> tags (this is mostly so we can ignore the original encoding and use UTF8 for everything)
   for (const node of document.head.childNodes)
-    if (node.nodeName.toUpperCase() == "META")
+    if (node.nodeName.toUpperCase() == "META" || node.nodeName.toUpperCase() == "BASE")
       document.head.removeChild(node)
 
   // Inject custom javascript
@@ -60,9 +60,31 @@ export function injectJavascript(pageContent: ArrayBuffer, targetOrigin: string)
 
   // Inject custom html
   const customHtmlNode = new JSDOM(htmlToInject)
-  document.body.appendChild(customHtmlNode.window.document.body)
+  document.body.appendChild(customHtmlNode.window.document.body);
 
-  // Todo: use targetOrigin
+
+
+
+  // Todo: replace all absolute urls
+  // const it = document.createNodeIterator(document)
+  // let nodeIteration
+  // while (nodeIteration = it.nextNode())
+  // {
+  //   console.log(nodeIteration)
+  //   console.log(nodeIteration.parentElement)
+
+  // }
+
+  [...document.getElementsByTagName("*")].forEach(el =>
+  {
+    if (el.hasAttribute("href"))
+    {
+      // document.head.getElementsByTagName("link")[0].attributes.href.value = "ciao"
+      console.log(el.getAttribute("href"))
+      el.setAttribute("href", "cacca")
+    }
+  }
+  )
 
 
   return dom.serialize()
