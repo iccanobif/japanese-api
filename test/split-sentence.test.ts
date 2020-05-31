@@ -87,4 +87,17 @@ describe("getSubstrings", function ()
         'cdefg',
       ])
   })
+  it("counts whitespace and punctuation marks as word separators", () => 
+  {
+    for (const separator of ['.', ',', '。', '、', ' '])
+    {
+      expect(getSubstringsIncludingPosition(`abc${separator}def`, 0).sort()).to.deep.equal(['abc', 'ab', 'a'].sort());
+      expect(getSubstringsIncludingPosition(`abc${separator}def`, 1).sort()).to.deep.equal(['abc', 'ab', 'bc', 'b'].sort());
+      expect(getSubstringsIncludingPosition(`abc${separator}def`, 2).sort()).to.deep.equal(['abc', 'bc', 'c'].sort());
+      expect(getSubstringsIncludingPosition(`abc${separator}def`, 3).sort()).to.deep.equal([].sort());
+      expect(getSubstringsIncludingPosition(`abc${separator}def`, 4).sort()).to.deep.equal(['def', 'de', 'd'].sort());
+      expect(getSubstringsIncludingPosition(`abc${separator}def`, 5).sort()).to.deep.equal(['def', 'de', 'ef', 'e'].sort());
+      expect(getSubstringsIncludingPosition(`abc${separator}def`, 6).sort()).to.deep.equal(['def', 'ef', 'f'].sort());
+    }
+  })
 })

@@ -62,14 +62,18 @@ export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>,
 // returns all possible substrings of "string" containing the character at position "positionToInclude"
 export function getSubstringsIncludingPosition(sentence: string, positionToInclude: number)
 {
-    const maxLength = 25
-    const slices = []
-    for (let a = positionToInclude; a >= 0 && a > positionToInclude - maxLength; a--)
+  const maxLength = 25
+  const slices = []
+  for (let a = positionToInclude; a >= 0 && a > positionToInclude - maxLength; a--)
+  {
+    if (sentence[a].match(/[\s.。、,]/))
+        break
+    for (let b = positionToInclude + 1; b - a < maxLength + 1 && b <= sentence.length; b++)
     {
-        for (let b = positionToInclude + 1; b - a < maxLength + 1 && b <= sentence.length; b++)
-        {
-            slices.push(sentence.slice(a, b))
-        }
+      if (sentence[b-1].match(/[\s.。、,]/))
+        break
+      slices.push(sentence.slice(a, b))
     }
-    return slices
+  }
+  return slices
 }
