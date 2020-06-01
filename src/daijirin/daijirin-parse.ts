@@ -1,19 +1,25 @@
 import fs from "fs"
-import { DaijirinEntryFromOriginalFile, DaijirinEntryFromIntermediateFile } from "../types";
+import { DaijirinEntryFromIntermediateFile } from "../types";
 import { printError, log, mobiFilesParse } from "../utils";
 import { EOL } from "os"
 
 const datasetsDirectory = "datasets/daijirin"
 
-async function* daijirinParse()
+async function buildDaijirinIntermediateFile()
 {
-  for await (const entry of mobiFilesParse(datasetsDirectory))
+  log("Parsing entries...")
+  const allEntries = await mobiFilesParse(datasetsDirectory)
+
+  log("Writing intermediate file...")
+  const outputFile = fs.openSync("datasets/daijirin-intermediate-file", "w")
+
+  for (const entry of allEntries)
   {
-    const output: DaijirinEntryFromOriginalFile = {
-      key: entry.title
-        .replace("=", "")
-        .replace("＝", ""),
-      lemma: entry.contentLines[0],
+    // Ignore entries for stuff that's not a japanese word, to save disk space
+    if (entry.titles.some(k => k.match(/[a-zA-Z]/)))
+      continue
+
+    const output: DaijirinEntryFromIntermediateFile = {
       glosses: entry.contentLines.splice(1)
         .reduce((acc: string[], val: string) =>
         {
@@ -24,44 +30,13 @@ async function* daijirinParse()
             acc.push(val)
           return acc
         }, []),
+      keys: entry.titles.map(t => t
+        .replace("=", "")
+        .replace("＝", "")),
+      lemma: entry.contentLines[0],
     }
 
-    yield output
-  }
-}
-
-function generateKey(entry: DaijirinEntryFromOriginalFile): string
-{
-  return "KEYSTRT" + entry.lemma + "KEYEND" + entry.glosses.join("GL")
-}
-
-async function buildDaijirinIntermediateFile()
-{
-  const allEntries: Record<string, DaijirinEntryFromIntermediateFile> = {}
-  log("Parsing entries...")
-  for await (const entry of daijirinParse())
-  {
-    const key = generateKey(entry)
-    if (allEntries[key] === undefined)
-      allEntries[key] = {
-        glosses: entry.glosses,
-        keys: [entry.key],
-        lemma: entry.lemma,
-      }
-    else
-      allEntries[key].keys.push(entry.key)
-  }
-
-  log("Writing intermediate file...")
-  const outputFile = fs.openSync("datasets/daijirin-intermediate-file", "w")
-
-  for (const entry of Object.values(allEntries))
-  {
-    // Ignore entries for stuff that's not a japanese word, to save disk space
-    if (entry.keys.some(k => k.match(/[a-zA-Z]/)))
-      continue
-
-    fs.writeSync(outputFile, JSON.stringify(entry) + EOL, null, "utf8")
+    fs.writeSync(outputFile, JSON.stringify(output) + EOL, null, "utf8")
   }
   log("Done.")
 }

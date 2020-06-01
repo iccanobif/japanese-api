@@ -74,7 +74,7 @@ export function isEnglishGloss(gloss: string): boolean
   return false
 }
 
-export async function* mobiFilesParse(datasetsDirectory: string)
+export async function mobiFilesParse(datasetsDirectory: string): Promise<MobiFileEntry[]>
 {
   const files: string[] = await new Promise((resolve, reject) =>
   {
@@ -86,6 +86,8 @@ export async function* mobiFilesParse(datasetsDirectory: string)
         resolve(files)
     })
   })
+
+  const allEntries: Record<string, MobiFileEntry> = {}
 
   for (const fileName of files)
   {
@@ -106,18 +108,21 @@ export async function* mobiFilesParse(datasetsDirectory: string)
       }
       else if (trimmedLine.startsWith("</idx:entry>"))
       {
+        const title = entryLines[1]
+          .replace("</idx:orth>", "")
+          .replace(/^<idx:orth.*?>/, "")
 
-        // We just hit </idx:entry>. Time to parse!
-        const output: MobiFileEntry = {
-          // Key is the text inside the <idx:orth> tag
-          title: entryLines[1]
-            .replace("</idx:orth>", "")
-            .replace(/^<idx:orth.*?>/, ""),
-          // glosses is the rest of the lines (excluded the first line) outside of the <h2> tag
-          contentLines: entryLines.splice(3),
-        }
+        const contentLines = entryLines.splice(3)
 
-        yield output
+        const key = contentLines.join("GL")
+
+        if (allEntries[key] === undefined)
+          allEntries[key] = {
+            titles: [title],
+            contentLines
+          }
+        else
+          allEntries[key].titles.push(title)
       }
       else
       {
@@ -126,4 +131,5 @@ export async function* mobiFilesParse(datasetsDirectory: string)
       }
     }
   }
+  return Object.values(allEntries)
 }

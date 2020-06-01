@@ -77,6 +77,11 @@ export interface MobiFileEntry
   // it seems that the content of the "value" attribute and
   // the data between the tags is always the same except for 
   // capitalization inconsistencies
-  title: string, 
+  titles: string[], 
   contentLines: string[]
+}
+
+export interface AccentDictionaryEntry
+{
+  
 }
