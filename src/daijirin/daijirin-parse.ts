@@ -1,74 +1,32 @@
-import fs, { createReadStream } from "fs"
-import readline from "readline";
+import fs from "fs"
 import { DaijirinEntryFromOriginalFile, DaijirinEntryFromIntermediateFile } from "../types";
-import { join } from "path";
-import { printError, log } from "../utils";
+import { printError, log, mobiFilesParse } from "../utils";
 import { EOL } from "os"
 
 const datasetsDirectory = "datasets/daijirin"
 
 async function* daijirinParse()
 {
-
-  const files: string[] = await new Promise((resolve, reject) =>
+  for await (const entry of mobiFilesParse(datasetsDirectory))
   {
-    fs.readdir(datasetsDirectory, (err, files) =>
-    {
-      if (err)
-        reject(err)
-      else
-        resolve(files)
-    })
-  })
-
-  for (const fileName of files)
-  {
-    let entryLines: string[] = []
-    const fileStream = createReadStream(join(datasetsDirectory, fileName))
-    const rl = readline.createInterface({
-      input: fileStream,
-      crlfDelay: Infinity
-    })
-
-    for await (const line of rl)
-    {
-      const trimmedLine = line.trim().replace("<br/>", "")
-
-      if (trimmedLine.startsWith("<idx:entry"))
-      {
-        entryLines = []
-      }
-      else if (trimmedLine.startsWith("</idx:entry>"))
-      {
-        // We just hit </idx:entry>. Time to parse!
-        const output: DaijirinEntryFromOriginalFile = {
-          // Key is the text inside the <idx:orth> tag
-          key: entryLines[1]
-            .replace("</idx:orth>", "")
-            .replace(/^<idx:orth.*?>/, "")
-            .replace("=", "")
-            .replace("＝", ""),
-          // lemma is the first line outside of the <h2> tag
-          lemma: entryLines[3],
-          // glosses is the rest of the lines (excluded the first line) outside of the <h2> tag
-          glosses: entryLines.splice(4),
-        }
-
-        yield output
-      }
-      else
-      {
-        if (trimmedLine.startsWith("→"))
+    const output: DaijirinEntryFromOriginalFile = {
+      key: entry.title
+        .replace("=", "")
+        .replace("＝", ""),
+      lemma: entry.contentLines[0],
+      glosses: entry.contentLines.splice(1)
+        .reduce((acc: string[], val: string) =>
         {
           // Lines that start with → are actually part of the previous gloss
-          entryLines[entryLines.length - 1]
-            = entryLines[entryLines.length - 1] + trimmedLine
-        }
-        else
-          if (trimmedLine) // Ignore whitespace only lines
-            entryLines.push(trimmedLine)
-      }
+          if (val.startsWith("→"))
+            acc[acc.length - 1] = acc[acc.length - 1] + val
+          else
+            acc.push(val)
+          return acc
+        }, []),
     }
+
+    yield output
   }
 }
 

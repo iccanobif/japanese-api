@@ -71,3 +71,12 @@ export interface KanjidicEntry
   strokeCount: number
 }
 
+export interface MobiFileEntry
+{
+  // The title is x in <idx:orth value="x">x</idx:orth>
+  // it seems that the content of the "value" attribute and
+  // the data between the tags is always the same except for 
+  // capitalization inconsistencies
+  title: string, 
+  contentLines: string[]
+}
