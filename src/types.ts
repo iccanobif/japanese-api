@@ -42,6 +42,7 @@ export interface DictionaryEntryInDb
   allKeys: string[],
   allUnconjugatedKeys: string[],
   allConjugatedKeys: string[],
+  accents: string[]
 }
 
 export class ApiWordOutput
@@ -83,5 +84,6 @@ export interface MobiFileEntry
 
 export interface AccentDictionaryEntry
 {
-  
+  keys: string[],
+  pronounciations: string[],
 }

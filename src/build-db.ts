@@ -2,9 +2,10 @@ import { MongoClient } from "mongodb";
 import { environment } from "./environment";
 import { edictXmlParse } from "./edict/edict-parse";
 import { log, printError, bulkify } from "./utils";
-import { DictionaryEntryInDb, Lemma, DaijirinEntryFromIntermediateFile } from "./types";
+import { DictionaryEntryInDb, Lemma, DaijirinEntryFromIntermediateFile, AccentDictionaryEntry } from "./types";
 import { daijirinReadIntermediateFile } from "./daijirin/scan-intermediate-file";
 import { toHiragana } from "./kana-tools";
+import { accentDictionaryReadIntermediateFile } from "./compiled-accent-dictionary/scan-intermediate-file";
 
 const EDICT_INSERT_BUFFER_LENGTH = 10000
 const DAIJIRIN_UPSERT_BUFFER_LENGTH = 8000
@@ -116,6 +117,35 @@ export async function buildEdictDB()
     }
     log("Creating allKeys index on dictionary...")
     await dictionary.createIndex({ allKeys: 1 })
+
+    log("Pitch accent")
+    await bulkify(8000,
+      accentDictionaryReadIntermediateFile(),
+      x => x,
+      async (arr: AccentDictionaryEntry[]) =>
+      {
+        const bulkOp = dictionary.initializeUnorderedBulkOp()
+        for (const accentItem of arr)
+        {
+          bulkOp
+            .find({
+              allUnconjugatedKeys: {
+                $all: accentItem.keys.map(k => ({ $elemMatch: { $eq: k } }))
+              }
+            })
+            .update({
+              $addToSet:
+              {
+                accents: {$each: accentItem.pronounciations}
+              }
+            })
+        }
+        log("Bulk accent upsert")
+        await bulkOp.execute()
+      }
+    )
+
+
     log("finish")
   }
   finally
