@@ -1,7 +1,7 @@
-import { DictionaryEntryInDb, ApiWordOutput, ApiSentenceOutput } from "../types";
+import { DictionaryEntryInDb, ApiWordOutput, ApiSentenceOutput } from "./types";
 import { Collection } from "mongodb";
-import { toHiragana } from "../kana-tools";
-import { splitSentence, getSubstringsIncludingPosition } from "../split-sentence";
+import { toHiragana } from "./kana-tools";
+import { splitSentence, getSubstringsIncludingPosition } from "./split-sentence";
 
 export async function getDictionaryEntries(dictionary: Collection<DictionaryEntryInDb>, query: string)
   : Promise<ApiWordOutput[]>

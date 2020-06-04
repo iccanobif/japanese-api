@@ -1,4 +1,4 @@
-import { getDictionaryEntries } from "../src/edict/repository"
+import { getDictionaryEntries } from "../src/repository"
 import { expect } from "chai"
 import { MongoClient, Collection } from "mongodb"
 import { environment } from "../src/environment"
