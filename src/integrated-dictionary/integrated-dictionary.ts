@@ -21,7 +21,6 @@ export default async function handleIntegratedDictionary(req: express.Request, r
     // - urls starting with the target domain (replace it with /integrated-dictionary/{targetOrigin})
 
     const contentType: string = response.headers["content-type"]
-    console.log(targetUrlRaw, contentType)
     let output = ""
     if (contentType.startsWith("text/html"))
     {
@@ -62,29 +61,17 @@ export function injectJavascript(pageContent: ArrayBuffer, targetOrigin: string)
   const customHtmlNode = new JSDOM(htmlToInject)
   document.body.appendChild(customHtmlNode.window.document.body);
 
-
-
-
-  // Todo: replace all absolute urls
-  // const it = document.createNodeIterator(document)
-  // let nodeIteration
-  // while (nodeIteration = it.nextNode())
-  // {
-  //   console.log(nodeIteration)
-  //   console.log(nodeIteration.parentElement)
-
-  // }
-
   [...document.getElementsByTagName("*")].forEach(el =>
   {
-    if (el.hasAttribute("href"))
-    {
-      // document.head.getElementsByTagName("link")[0].attributes.href.value = "ciao"
-      const originalHref = el.getAttribute("href")
-      console.log(originalHref)
-      if (originalHref && originalHref.startsWith("/"))
-        el.setAttribute("href", targetOrigin + originalHref)
-    }
+    ["href", "src"].forEach(attributeName => {
+
+      if (el.hasAttribute(attributeName))
+      {
+        const originalHref = el.getAttribute(attributeName)
+        if (originalHref && originalHref.startsWith("/"))
+        el.setAttribute(attributeName, targetOrigin + originalHref)
+      }
+    })
   }
   )
 
