@@ -80,8 +80,10 @@ export function injectJavascript(pageContent: ArrayBuffer, targetOrigin: string)
     if (el.hasAttribute("href"))
     {
       // document.head.getElementsByTagName("link")[0].attributes.href.value = "ciao"
-      console.log(el.getAttribute("href"))
-      el.setAttribute("href", "cacca")
+      const originalHref = el.getAttribute("href")
+      console.log(originalHref)
+      if (originalHref && originalHref.startsWith("/"))
+        el.setAttribute("href", targetOrigin + originalHref)
     }
   }
   )
