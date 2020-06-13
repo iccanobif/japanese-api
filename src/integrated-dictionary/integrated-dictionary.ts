@@ -68,7 +68,7 @@ export function injectJavascript(pageContent: ArrayBuffer, targetOrigin: string)
       if (el.hasAttribute(attributeName))
       {
         const originalHref = el.getAttribute(attributeName)
-        if (originalHref && originalHref.startsWith("/"))
+        if (originalHref && originalHref.startsWith("/") && !originalHref.startsWith("//"))
         el.setAttribute(attributeName, targetOrigin + originalHref)
       }
     })
