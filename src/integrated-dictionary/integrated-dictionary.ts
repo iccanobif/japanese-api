@@ -48,8 +48,10 @@ export function injectJavascript(pageContent: ArrayBuffer, targetOrigin: string)
   const document = dom.window.document
 
   // Remove all <meta> tags (this is mostly so we can ignore the original encoding and use UTF8 for everything)
-  for (const node of document.head.childNodes)
-    if (node.nodeName.toUpperCase() == "META" || node.nodeName.toUpperCase() == "BASE")
+  for (const node of document.head.children)
+    if (node.nodeName.toUpperCase() == "BASE"
+    || (node.nodeName.toUpperCase() == "META" && node.attributes.hasOwnProperty("charset"))
+    || (node.nodeName.toUpperCase() == "META" && node.attributes.getNamedItem("content")?.textContent?.match(/charset/)))
       document.head.removeChild(node)
 
   // Inject custom javascript
