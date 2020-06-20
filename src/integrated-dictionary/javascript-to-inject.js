@@ -33,8 +33,16 @@ document.addEventListener("selectionchange", async (event) => {
   const selection = window.getSelection();
   if (!selection.isCollapsed) return;
 
-  const text = selection.anchorNode.textContent;
-  const offset = selection.anchorOffset;
+  let text = selection.anchorNode.textContent;
+  let offset = selection.anchorOffset;
+
+  if (offset > 50) {
+    text = text.substring(offset - 25, offset + 25);
+    offset = 25;
+  }
+  else {
+    text = text.substring(0, 100)
+  }
 
   const response = await fetch(
     "/word/" + encodeURIComponent(text) + "/" + offset
@@ -47,10 +55,10 @@ document.addEventListener("selectionchange", async (event) => {
     json.map((word) =>
       word.dictionaryEntries.map(
         (entry) =>
-          entry.lemmas.join(" ") 
-          + "<br />" 
-          + (entry.accents && entry.accents.join(" ") || "")
-          + listify(entry.japaneseGlosses.concat(entry.englishGlosses))
+          entry.lemmas.join(" ") +
+          "<br />" +
+          ((entry.accents && entry.accents.join(" ")) || "") +
+          listify(entry.japaneseGlosses.concat(entry.englishGlosses))
       )
     )
   );
