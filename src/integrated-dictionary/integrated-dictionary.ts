@@ -65,6 +65,8 @@ export function injectJavascript(pageContent: ArrayBuffer, contentType: string, 
     document.body.style.backgroundColor = "black"
     document.body.style.color = "white"
     document.body.style.overflowWrap = "break-word"
+    document.body.style.fontSize = "larger"
+
     const metaViewportNode = document.createElement("meta")
     metaViewportNode.setAttribute("name", "viewport")
     metaViewportNode.setAttribute("content", "width=device-width, initial-scale=1")
