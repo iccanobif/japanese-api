@@ -19,7 +19,8 @@
       z-index: 2147483647;
 
       /* I don't know why in some pages all: revert doesn't set text-align to its default */
-      text-align: left; 
+      text-align: left;
+      white-space: normal;
     }
     #integrated-japanese-dictionary-popup * {
       all: revert;
@@ -28,6 +29,9 @@
   <div id="integrated-japanese-dictionary-popup">
     <button onclick="japaneseDictionaryHidePopup()">閉じる</button>
     <button onclick="japaneseDictionaryBack()">戻る</button>
+    <span id="integrated-japanese-dictionary-popup-yomikomichuu">
+      読み込み中・・・
+    </span>
     <span id="integrated-japanese-dictionary-popup-text"></span>
   </div>
 </div>

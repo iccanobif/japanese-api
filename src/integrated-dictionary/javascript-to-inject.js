@@ -1,5 +1,4 @@
 const japaneseDictionaryResultHistory = [];
-let japaneseDictionaryResultHistoryIndex = null;
 
 function japaneseDictionaryHidePopup() {
   document.getElementById(
@@ -7,29 +6,40 @@ function japaneseDictionaryHidePopup() {
   ).style.display = "none";
 }
 
-function japaneseDictionaryDisplayPopup(htmlToDisplay) {
-  document.getElementById(
-    "integrated-japanese-dictionary-popup"
-  ).style.display = "block";
+function japaneseDictionaryDisplayPopup() {
+  const popup = document.getElementById("integrated-japanese-dictionary-popup");
 
+  popup.style.display = "block";
+
+  document.getElementById(
+    "integrated-japanese-dictionary-popup-yomikomichuu"
+  ).style.display = "inline";
+}
+
+function japaneseDictionarySetPopupContents(htmlToDisplay) {
   document.getElementById(
     "integrated-japanese-dictionary-popup-text"
   ).innerHTML = htmlToDisplay;
+
+  document.getElementById(
+    "integrated-japanese-dictionary-popup-yomikomichuu"
+  ).style.display = "none";
 }
 
 function japaneseDictionaryBack() {
-  if (japaneseDictionaryResultHistoryIndex == 0) {
+  if (japaneseDictionaryResultHistory.length <= 1) {
     alert("これ以上戻りは出来ません。");
     return;
   }
-  japaneseDictionaryResultHistoryIndex--;
 
-  japaneseDictionaryDisplayPopup(
-    japaneseDictionaryResultHistory[japaneseDictionaryResultHistoryIndex]
+  japaneseDictionaryResultHistory.pop();
+  japaneseDictionarySetPopupContents(
+    japaneseDictionaryResultHistory[japaneseDictionaryResultHistory.length - 1]
   );
 }
 
 document.addEventListener("selectionchange", async (event) => {
+  japaneseDictionaryDisplayPopup();
   const selection = window.getSelection();
   if (!selection.isCollapsed) return;
 
@@ -39,9 +49,8 @@ document.addEventListener("selectionchange", async (event) => {
   if (offset > 50) {
     text = text.substring(offset - 25, offset + 25);
     offset = 25;
-  }
-  else {
-    text = text.substring(0, 100)
+  } else {
+    text = text.substring(0, 100);
   }
 
   const response = await fetch(
@@ -64,8 +73,8 @@ document.addEventListener("selectionchange", async (event) => {
   );
 
   japaneseDictionaryResultHistory.push(stringifiedResults);
-  japaneseDictionaryResultHistoryIndex =
-    japaneseDictionaryResultHistory.length - 1;
 
-  japaneseDictionaryDisplayPopup(stringifiedResults);
+  console.log(japaneseDictionaryResultHistory);
+
+  japaneseDictionarySetPopupContents(stringifiedResults);
 });

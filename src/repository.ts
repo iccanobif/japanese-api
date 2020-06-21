@@ -40,6 +40,8 @@ export async function getEntriesForWordInOffset(dictionary: Collection<Dictionar
   : Promise<ApiSentenceOutput[]>
 {
   const splits = getSubstringsIncludingPosition(sentence, offset)
+  if (splits.length == 0)
+    return []
 
   const facets: { [key: string]: any } = {}
   for (const word of splits)
