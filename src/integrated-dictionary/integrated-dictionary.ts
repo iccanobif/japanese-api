@@ -61,7 +61,7 @@ export function injectJavascript(pageContent: ArrayBuffer, contentType: string, 
   // If the page was originally a text/plain, add some styling
   if (contentType.toLowerCase().startsWith("text/plain"))
   {
-    document.body.style.whiteSpace = "break-spaces"
+    document.body.style.whiteSpace = "pre-wrap"
     document.body.style.backgroundColor = "black"
     document.body.style.color = "white"
     document.body.style.overflowWrap = "break-word"
