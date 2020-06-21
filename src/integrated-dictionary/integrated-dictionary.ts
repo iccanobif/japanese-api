@@ -49,12 +49,28 @@ export function injectJavascript(pageContent: ArrayBuffer, contentType: string, 
   const dom = new JSDOM(pageContent, { contentType: contentType.toLowerCase().replace("text/plain", "text/html") })
   const document = dom.window.document
 
-  // Remove all <meta> tags (this is mostly so we can ignore the original encoding and use UTF8 for everything)
+  
+  // Remove all <base> tags to make all urls relative
+  // Remove <meta> tags that specify a charset (the output will always be UTF-8)
   for (const node of document.head.children)
     if (node.nodeName.toUpperCase() == "BASE"
       || (node.nodeName.toUpperCase() == "META" && node.attributes.hasOwnProperty("charset"))
       || (node.nodeName.toUpperCase() == "META" && node.attributes.getNamedItem("content")?.textContent?.match(/charset/)))
       document.head.removeChild(node)
+
+  // If the page was originally a text/plain, add some styling
+  if (contentType.toLowerCase().startsWith("text/plain"))
+  {
+    document.body.style.whiteSpace = "break-spaces"
+    document.body.style.backgroundColor = "black"
+    document.body.style.color = "white"
+    document.body.style.overflowWrap = "break-word"
+    const metaViewportNode = document.createElement("meta")
+    metaViewportNode.setAttribute("name", "viewport")
+    metaViewportNode.setAttribute("content", "width=device-width, initial-scale=1")
+    document.head.appendChild(metaViewportNode)
+  }
+
 
   // Inject custom javascript
   const scriptNode = document.createElement("script")
@@ -79,14 +95,6 @@ export function injectJavascript(pageContent: ArrayBuffer, contentType: string, 
     })
   })
 
-  // If the page was originally a text/plain, add some styling
-  if (contentType.toLowerCase().startsWith("text/plain"))
-  {
-    document.body.style.whiteSpace = "break-spaces"
-    document.body.style.backgroundColor = "black"
-    document.body.style.color = "white"
-    document.body.style.overflowWrap = "break-word"
-  }
 
   return dom.serialize()
 }
