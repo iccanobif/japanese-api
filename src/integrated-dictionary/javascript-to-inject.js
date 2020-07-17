@@ -13,5 +13,5 @@ document.addEventListener("selectionchange", async (event) => {
   }
 
   const popup = document.getElementById("integrated-japanese-dictionary-popup")
-  popup.contentWindow.postMessage({ text, offset }, "https://japanese-ebook-reader.herokuapp.com")
+  popup.contentWindow.postMessage({ text, offset }, "DICTIONARY_IFRAME_URL")
 });

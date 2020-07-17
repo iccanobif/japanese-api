@@ -4,10 +4,8 @@ import url from "url"
 import { readFileSync } from "fs"
 import { JSDOM } from "jsdom"
 
-export default async function handleIntegratedDictionary(req: express.Request, res: express.Response) 
-{
-  try
-  {
+export default async function handleIntegratedDictionary(req: express.Request, res: express.Response) {
+  try {
     const targetUrlRaw = req.path.replace(/^\/integrated-dictionary\//, "")
     const targetUrl = url.parse(targetUrlRaw)
     const targetOrigin = targetUrl.protocol + "//" + targetUrl.host
@@ -22,34 +20,32 @@ export default async function handleIntegratedDictionary(req: express.Request, r
 
     const contentType: string = response.headers["content-type"]
     let output = ""
-    if (contentType.startsWith("text/html") || contentType.startsWith("text/plain"))
-    {
+    if (contentType.startsWith("text/html") || contentType.startsWith("text/plain")) {
       output = injectJavascript(response.data, contentType, targetOrigin)
 
       res.type("text/html; charset=UTF-8")
     }
-    else
-    {
+    else {
       output = response.data
       res.type(contentType)
     }
 
     res.send(output)
-  } catch (error)
-  {
+  } catch (error) {
     res.send(error)
   }
 }
 
-export function injectJavascript(pageContent: ArrayBuffer, contentType: string, targetOrigin: string): string
-{
+export function injectJavascript(pageContent: ArrayBuffer, contentType: string, targetOrigin: string): string {
   const javascriptToInject = readFileSync("src/integrated-dictionary/javascript-to-inject.js", { encoding: "utf8" })
+    .replace("DICTIONARY_IFRAME_URL", process.env.DICTIONARY_IFRAME_URL as string)
   const htmlToInject = readFileSync("src/integrated-dictionary/html-to-inject.html", { encoding: "utf8" })
+    .replace("DICTIONARY_IFRAME_URL", process.env.DICTIONARY_IFRAME_URL as string)
 
   const dom = new JSDOM(pageContent, { contentType: contentType.toLowerCase().replace("text/plain", "text/html") })
   const document = dom.window.document
 
-  
+
   // Remove all <base> tags to make all urls relative
   // Remove <meta> tags that specify a charset (the output will always be UTF-8)
   for (const node of document.head.children)
@@ -59,8 +55,7 @@ export function injectJavascript(pageContent: ArrayBuffer, contentType: string, 
       document.head.removeChild(node)
 
   // If the page was originally a text/plain, add some styling
-  if (contentType.toLowerCase().startsWith("text/plain"))
-  {
+  if (contentType.toLowerCase().startsWith("text/plain")) {
     document.body.style.whiteSpace = "pre-wrap"
     document.body.style.backgroundColor = "black"
     document.body.style.color = "white"
@@ -83,12 +78,9 @@ export function injectJavascript(pageContent: ArrayBuffer, contentType: string, 
   const customHtmlNode = new JSDOM(htmlToInject)
   document.body.appendChild(customHtmlNode.window.document.body.firstChild as ChildNode);
 
-  [...document.getElementsByTagName("*")].forEach(el =>
-  {
-    ["href", "src"].forEach(attributeName =>
-    {
-      if (el.hasAttribute(attributeName))
-      {
+  [...document.getElementsByTagName("*")].forEach(el => {
+    ["href", "src"].forEach(attributeName => {
+      if (el.hasAttribute(attributeName)) {
         const originalHref = el.getAttribute(attributeName)
         if (originalHref && originalHref.startsWith("/") && !originalHref.startsWith("//"))
           el.setAttribute(attributeName, targetOrigin + originalHref)

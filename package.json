@@ -20,7 +20,7 @@
     "yarn": "^1.22.4"
   },
   "scripts": {
-    "dev": "ts-node-dev --respawn src/index.ts",
+    "dev": "cross-env DICTIONARY_IFRAME_URL=http://localhost:3007 ts-node-dev --respawn src/index.ts",
     "build": "npx tsc",
     "start": "node build/src/index.js",
     "test": "mocha -r ts-node/register test/*.ts",
@@ -36,6 +36,7 @@
     "@types/node": "^13.1.1",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
+    "cross-env": "^7.0.2",
     "file-readline": "^1.0.1",
     "mocha": "^7.0.0",
     "ts-node": "^8.5.4",
