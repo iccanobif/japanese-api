@@ -1,37 +1,16 @@
 <div>
   <style>
     #integrated-japanese-dictionary-popup {
-      all: revert;
       box-sizing: border-box;
       position: fixed;
-      display: none;
       top: 50%;
       left: 0px;
       width: 100%;
       height: 50%;
-      background-color: white;
       border-top: solid 2px;
-      overflow: auto;
-      font-size: large;
-      padding: 15px;
-      color: #ebdddc;
-      background-color: #151319;
       z-index: 2147483647;
-
-      /* I don't know why in some pages all: revert doesn't set text-align to its default */
-      text-align: left;
-      white-space: normal;
-    }
-    #integrated-japanese-dictionary-popup * {
-      all: revert;
     }
   </style>
-  <div id="integrated-japanese-dictionary-popup">
-    <button onclick="japaneseDictionaryHidePopup()">閉じる</button>
-    <button onclick="japaneseDictionaryBack()">戻る</button>
-    <span id="integrated-japanese-dictionary-popup-yomikomichuu">
-      読み込み中・・・
-    </span>
-    <span id="integrated-japanese-dictionary-popup-text"></span>
-  </div>
+  <iframe id="integrated-japanese-dictionary-popup" src="https://japanese-ebook-reader.herokuapp.com">
+  </iframe>
 </div>

@@ -87,7 +87,6 @@ export function injectJavascript(pageContent: ArrayBuffer, contentType: string, 
   {
     ["href", "src"].forEach(attributeName =>
     {
-
       if (el.hasAttribute(attributeName))
       {
         const originalHref = el.getAttribute(attributeName)
