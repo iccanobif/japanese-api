@@ -3,7 +3,9 @@ import { injectJavascript } from "../src/integrated-dictionary/integrated-dictio
 import { readFileSync } from "fs"
 
 const javascriptToInject = readFileSync("src/integrated-dictionary/javascript-to-inject.js", { encoding: "utf8" })
+  .replace("DICTIONARY_IFRAME_URL", process.env.DICTIONARY_IFRAME_URL as string)
 const htmlToInject = readFileSync("src/integrated-dictionary/html-to-inject.html", { encoding: "utf8" })
+  .replace("DICTIONARY_IFRAME_URL", process.env.DICTIONARY_IFRAME_URL as string)
 
 describe("integrated dictionary", function ()
 {
