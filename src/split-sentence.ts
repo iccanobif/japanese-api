@@ -2,22 +2,19 @@ import { DictionaryEntryInDb } from "./types";
 import { Collection } from "mongodb";
 import { toHiragana } from "./kana-tools";
 
-export async function wordExists(dictionary: Collection<DictionaryEntryInDb>, word: string)
-{
+export async function wordExists(dictionary: Collection<DictionaryEntryInDb>, word: string) {
   const result = await dictionary.findOne({ allKeys: word })
   return !(result === null)
 }
 
-export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>, sentence: string): Promise<string[]>
-{
+export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>, sentence: string): Promise<string[]> {
   if (sentence == "")
     return []
   if (sentence.length == 1)
     return [sentence]
 
   const splitsByWhitespaceAndPunctuation = sentence.split(/[\s.,。、]/)
-  if (splitsByWhitespaceAndPunctuation.length > 1)
-  {
+  if (splitsByWhitespaceAndPunctuation.length > 1) {
     const wordSplitsPromises = splitsByWhitespaceAndPunctuation
       .map(s => splitSentence(dictionary, s))
     const wordSplits = await Promise.all(wordSplitsPromises)
@@ -27,8 +24,7 @@ export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>,
   const allFirstWordPossibilities = []
   const facets: { [key: number]: any } = {}
 
-  for (let i = 1; i <= sentence.length; i++)
-  {
+  for (let i = 1; i <= sentence.length; i++) {
     const word = toHiragana(sentence.substr(0, i))
     allFirstWordPossibilities.push(word)
     facets[i] = [{ $match: { allKeys: word } }, { $limit: 1 }, { $project: { lemmas: 1 } }]
@@ -45,8 +41,7 @@ export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>,
   // Find longest result
   let firstWord = ""
   for (let i = sentence.length; i >= 1; i--)
-    if (results[i].length > 0)
-    {
+    if (results[i].length > 0) {
       firstWord = sentence.substr(0, i)
       break
     }
@@ -60,19 +55,32 @@ export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>,
 }
 
 // returns all possible substrings of "string" containing the character at position "positionToInclude"
-export function getSubstringsIncludingPosition(sentence: string, positionToInclude: number)
-{
+// Sorted by position (substrings occuring earlier in the string come first) and length (longest substrings first)
+export function getSubstringsIncludingPosition(sentence: string, positionToInclude: number) {
   const separatorsRegex = /[\s.。、,・「」【】]/
   const maxLength = 25
   const slices = []
-  for (let a = positionToInclude; a >= 0 && a > positionToInclude - maxLength; a--)
-  {
-    if (sentence[a].match(separatorsRegex))
-      break
-    for (let b = positionToInclude + 1; b - a < maxLength + 1 && b <= sentence.length; b++)
-    {
-      if (sentence[b - 1].match(separatorsRegex))
-        break
+
+  // maybe can be rewritten using reduce()?
+  const leftmostPosition = (() => {
+    let i = positionToInclude
+    while (i > 0
+      && i > positionToInclude - maxLength
+      && !sentence[i - 1].match(separatorsRegex))
+      i--
+    return i
+  })()
+  const rightmostPosition = (() => {
+    let i = positionToInclude
+    while (i < sentence.length
+      && i < positionToInclude + maxLength
+      && !sentence[i].match(separatorsRegex))
+      i++
+    return i
+  })()
+
+  for (let a = leftmostPosition; a <= positionToInclude; a++) {
+    for (let b = rightmostPosition; b >= positionToInclude + 1; b--) {
       slices.push(sentence.slice(a, b))
     }
   }

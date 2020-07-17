@@ -110,10 +110,16 @@ describe("app.js", function ()
     {
       const response = await get("/word/" + encodeURIComponent("見出し"))
       expect(response).to.have.status(200)
-      expect(response.body).not.to.have.lengthOf(0)
       const a = response.body[0] as ApiWordOutput
       expect(a.lemmas).to.include("見出し（みだし）")
     })
+    it("sort results by offset", async () =>
+    {
+      const response = await get("/word/" + encodeURIComponent("死体が散乱していた") + "/4")
+      const results = response.body as ApiSentenceOutput[]
+      expect(results[0].word).to.equal("散乱")
+    })
+
   })
 
   describe("sentence", () =>
