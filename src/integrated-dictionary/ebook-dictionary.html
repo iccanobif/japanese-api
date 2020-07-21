@@ -69,10 +69,10 @@
     %EBOOK-TEXT%
   </div>
   <div class="button-bar">
-    <button onmousedown="pageUp()" onmouseup="stopScrolling()" style="flex-grow: 1;">⇑</button>
-    <button onmousedown="scrollUp()" onmouseup="stopScrolling()" style="flex-grow: 4;">↑</button>
-    <button onmousedown="scrollDown()" onmouseup="stopScrolling()" style="flex-grow: 4;">↓</button>
-    <button onmousedown="pageDown()" onmouseup="stopScrolling()" style="flex-grow: 1;">⇓</button>
+    <button id="btnPageUp" style="flex-grow: 1;">⇑</button>
+    <button id="btnScrollUp" style="flex-grow: 4;">↑</button>
+    <button id="btnScrollDown" style="flex-grow: 4;">↓</button>
+    <button id="btnPageDown" style="flex-grow: 1;">⇓</button>
   </div>
   <div id="completion-indicator">
   </div>
@@ -83,16 +83,40 @@
     const popup = document.getElementById("integrated-japanese-dictionary-popup")
     const viewer = document.getElementById("ebook-viewer");
     const completionIndicator = document.getElementById("completion-indicator");
+    const btnPageUp = document.getElementById("btnPageUp")
+    const btnScrollUp = document.getElementById("btnScrollUp")
+    const btnScrollDown = document.getElementById("btnScrollDown")
+    const btnPageDown = document.getElementById("btnPageDown")
 
     let scrollSpeed = 0;
     let scrollFramesToSkip = 3;
+    
+    const pageUp = (ev) => { ev.preventDefault(); scroll(scrollSpeed = -200); }
+    const scrollUp = (ev) => { ev.preventDefault(); scroll(scrollSpeed = -20); }
+    const scrollDown = (ev) => { ev.preventDefault(); scroll(scrollSpeed = 20); }
+    const pageDown = (ev) => { ev.preventDefault(); scroll(scrollSpeed = 200); }
+    const stopScrolling = (ev) =>  { ev.preventDefault(); scrollSpeed = 0; scrollFramesToSkip = 3; }
 
-    const pageUp = () => scroll(scrollSpeed = -200);
-    const scrollUp = () => scroll(scrollSpeed = -20);
-    const scrollDown = () => scroll(scrollSpeed = 20);
-    const pageDown = () => scroll(scrollSpeed = 200);
-    const stopScrolling = () => { scrollSpeed = 0; scrollFramesToSkip = 3; }
+    btnPageUp.addEventListener("touchstart", pageUp);
+    btnPageUp.addEventListener("mousedown", pageUp);
+    btnPageUp.addEventListener("touchend", stopScrolling)
+    btnPageUp.addEventListener("mouseup", stopScrolling)
 
+    btnScrollUp.addEventListener("touchstart", scrollUp);
+    btnScrollUp.addEventListener("mousedown", scrollUp);
+    btnScrollUp.addEventListener("touchend", stopScrolling)
+    btnScrollUp.addEventListener("mouseup", stopScrolling)
+
+    btnScrollDown.addEventListener("touchstart", scrollDown);
+    btnScrollDown.addEventListener("mousedown", scrollDown);
+    btnScrollDown.addEventListener("touchend", stopScrolling)
+    btnScrollDown.addEventListener("mouseup", stopScrolling)
+
+    btnPageDown.addEventListener("touchstart", pageDown);
+    btnPageDown.addEventListener("mousedown", pageDown);
+    btnPageDown.addEventListener("touchend", stopScrolling)
+    btnPageDown.addEventListener("mouseup", stopScrolling)
+    
     function scroll(amount)
     {
       viewer.scrollBy({ top: amount, left: 0 });
