@@ -69,10 +69,10 @@
     %EBOOK-TEXT%
   </div>
   <div class="button-bar">
-    <button onclick="pageUp()" style="flex-grow: 1;">⇑</button>
-    <button onclick="scrollUp()" style="flex-grow: 4;">↑</button>
-    <button onclick="scrollDown()" style="flex-grow: 4;">↓</button>
-    <button onclick="pageDown()" style="flex-grow: 1;">⇓</button>
+    <button onmousedown="pageUp()" onmouseup="stopScrolling()" style="flex-grow: 1;">⇑</button>
+    <button onmousedown="scrollUp()" onmouseup="stopScrolling()" style="flex-grow: 4;">↑</button>
+    <button onmousedown="scrollDown()" onmouseup="stopScrolling()" style="flex-grow: 4;">↓</button>
+    <button onmousedown="pageDown()" onmouseup="stopScrolling()" style="flex-grow: 1;">⇓</button>
   </div>
   <div id="completion-indicator">
   </div>
@@ -84,25 +84,30 @@
     const viewer = document.getElementById("ebook-viewer");
     const completionIndicator = document.getElementById("completion-indicator");
 
-    function pageUp() {
-      viewer.scrollBy({ top: -200, left: 0 });
-      updateCompletionIndictator();
+    let scrollSpeed = 0;
+    let scrollFramesToSkip = 3;
+
+    const pageUp = () => scroll(scrollSpeed = -200);
+    const scrollUp = () => scroll(scrollSpeed = -20);
+    const scrollDown = () => scroll(scrollSpeed = 20);
+    const pageDown = () => scroll(scrollSpeed = 200);
+    const stopScrolling = () => { scrollSpeed = 0; scrollFramesToSkip = 3; }
+
+    function scroll(amount)
+    {
+      viewer.scrollBy({ top: amount, left: 0 });
     }
 
-    function scrollUp() {
-      viewer.scrollBy({ top: -20, left: 0 });
-      updateCompletionIndictator();
-    }
-
-    function scrollDown() {
-      viewer.scrollBy({ top: 20, left: 0 });
-      updateCompletionIndictator();
-    }
-    
-    function pageDown() {
-      viewer.scrollBy({ top: 200, left: 0 });
-      updateCompletionIndictator();
-    }
+    setInterval(() => {
+      if (scrollSpeed != 0) {
+        if (scrollFramesToSkip > 0)
+          scrollFramesToSkip--
+        else {
+          scroll(scrollSpeed)
+          updateCompletionIndictator();
+        }
+      }
+    }, 50)
 
     function updateCompletionIndictator() {
       completionIndicator.innerText = Math.round((viewer.scrollTop / viewer.scrollHeight) * 1000, 1) / 10 + "%"
