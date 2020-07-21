@@ -4,7 +4,10 @@ import url from "url"
 import { readFileSync } from "fs"
 import { JSDOM } from "jsdom"
 
-export default async function handleIntegratedDictionary(req: express.Request, res: express.Response) {
+export async function handleEbookDictionary(req: express.Request, res: express.Response) {
+}
+
+export async function handleIntegratedDictionary(req: express.Request, res: express.Response) {
   try {
     const targetUrlRaw = req.path.replace(/^\/integrated-dictionary\//, "")
     const targetUrl = url.parse(targetUrlRaw)

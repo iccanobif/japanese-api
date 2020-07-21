@@ -6,8 +6,7 @@ import { getDictionaryEntries, getEntriesForSentence, getEntriesForWordInOffset 
 import { searchKanjiByRadicalDescriptions } from "./radical-search";
 import { DictionaryEntryInDb } from "./types";
 import { Db } from "mongodb";
-
-import handleIntegratedDictionary from "./integrated-dictionary/integrated-dictionary"
+import { handleIntegratedDictionary, handleEbookDictionary } from "./integrated-dictionary/integrated-dictionary";
 
 let db: Db
 
@@ -72,6 +71,8 @@ app.get("/kanji-by-radical/:query", async (req: express.Request, res: express.Re
 })
 
 app.get("/integrated-dictionary/*", handleIntegratedDictionary)
+
+app.get("/ebook-dictionary/*", handleEbookDictionary)
 
 export default app
 

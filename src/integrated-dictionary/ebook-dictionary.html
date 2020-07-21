@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Ebook reader</title>
+    <script>
+      function scrollUp() {
+        const viewer = document.getElementById("ebook-viewer");
+        viewer.scrollBy({ top: -20, left: 0 });
+      }
+
+      function scrollDown() {
+        const viewer = document.getElementById("ebook-viewer");
+        viewer.scrollBy({ top: 20, left: 0 });
+      }
+
+      function selectionChanged() {
+        const selection = window.getSelection();
+
+        let text = selection.anchorNode.textContent;
+        let offset = selection.anchorOffset;
+
+        if (offset > 50) {
+          text = text.substring(offset - 25, offset + 25);
+          offset = 25;
+        } else {
+          text = text.substring(0, 100);
+        }
+
+        alert(text, offset);
+      }
+    </script>
+  </head>
+  <body>
+  <div id="ebook-viewer" onclick="selectionChanged()">
+    %EBOOK-TEXT%
+  </div>
+  <button className="floating-button" onclick="scrollUp()">su</button>
+  <button className="floating-button" onclick="scrollDown()">giu</button>
+  </body>
+</html>
