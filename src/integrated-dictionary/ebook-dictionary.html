@@ -2,6 +2,7 @@
 
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ebook reader</title>
   <style>
     body {
@@ -12,7 +13,7 @@
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
 
-      background-color: #282c34;
+      background-color: #000000;
       color: white;
     }
 
@@ -26,10 +27,24 @@
       height: 50%;
       overflow: hidden;
       z-index: -1;
+      font-size: larger;
     }
 
-    .floating-button {
-      float: right;
+    .button-bar {
+      display: flex;
+      flex-direction: column;
+      height: 50%;
+      width: 30px;
+      position: fixed;
+      right: 0;
+      top: 0;
+    }
+
+    #completion-indicator {
+      position: fixed;
+      top: 0;
+      right: 30px;
+      background-color: black;
     }
 
     #integrated-japanese-dictionary-popup {
@@ -47,15 +62,50 @@
       background-color: black;
     }
   </style>
+</head>
+
+<body>
+  <div id="ebook-viewer" onclick="selectionChanged()">
+    %EBOOK-TEXT%
+  </div>
+  <div class="button-bar">
+    <button onclick="pageUp()" style="flex-grow: 1;">⇑</button>
+    <button onclick="scrollUp()" style="flex-grow: 4;">↑</button>
+    <button onclick="scrollDown()" style="flex-grow: 4;">↓</button>
+    <button onclick="pageDown()" style="flex-grow: 1;">⇓</button>
+  </div>
+  <div id="completion-indicator">
+  </div>
+  <iframe id="integrated-japanese-dictionary-popup" src="DICTIONARY_IFRAME_URL">
+  </iframe>
+
   <script>
+    const popup = document.getElementById("integrated-japanese-dictionary-popup")
+    const viewer = document.getElementById("ebook-viewer");
+    const completionIndicator = document.getElementById("completion-indicator");
+
+    function pageUp() {
+      viewer.scrollBy({ top: -200, left: 0 });
+      updateCompletionIndictator();
+    }
+
     function scrollUp() {
-      const viewer = document.getElementById("ebook-viewer");
       viewer.scrollBy({ top: -20, left: 0 });
+      updateCompletionIndictator();
     }
 
     function scrollDown() {
-      const viewer = document.getElementById("ebook-viewer");
       viewer.scrollBy({ top: 20, left: 0 });
+      updateCompletionIndictator();
+    }
+    
+    function pageDown() {
+      viewer.scrollBy({ top: 200, left: 0 });
+      updateCompletionIndictator();
+    }
+
+    function updateCompletionIndictator() {
+      completionIndicator.innerText = Math.round((viewer.scrollTop / viewer.scrollHeight) * 1000, 1) / 10 + "%"
     }
 
     function selectionChanged() {
@@ -71,21 +121,15 @@
         text = text.substring(0, 100);
       }
 
-      const popup = document.getElementById("integrated-japanese-dictionary-popup")
       popup.contentWindow.postMessage({ text, offset }, "DICTIONARY_IFRAME_URL")
     }
+
+    viewer.addEventListener("keypress", (ev) => {
+      console.log(ev)
+    })
+
+    updateCompletionIndictator()
   </script>
-</head>
-
-<body>
-  <div id="ebook-viewer" onclick="selectionChanged()">
-    %EBOOK-TEXT%
-  </div>
-  <button class="floating-button" onclick="scrollUp()">su</button>
-  <button class="floating-button" onclick="scrollDown()">giu</button>
-  <iframe id="integrated-japanese-dictionary-popup" src="DICTIONARY_IFRAME_URL">
-  </iframe>
-
 </body>
 
 </html>
