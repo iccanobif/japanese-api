@@ -1,40 +1,91 @@
 <!DOCTYPE html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Ebook reader</title>
-    <script>
-      function scrollUp() {
-        const viewer = document.getElementById("ebook-viewer");
-        viewer.scrollBy({ top: -20, left: 0 });
+
+<head>
+  <meta charset="utf-8" />
+  <title>Ebook reader</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+
+      background-color: #282c34;
+      color: white;
+    }
+
+    #ebook-viewer {
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    .floating-button {
+      float: right;
+    }
+
+    #integrated-japanese-dictionary-popup {
+      box-sizing: border-box;
+      position: fixed;
+      top: 50%;
+      left: 0px;
+      width: 100%;
+      height: 50%;
+      border-top: solid 2px;
+      border-left: 0;
+      border-bottom: 0;
+      border-right: 0;
+      z-index: 2147483647;
+      background-color: black;
+    }
+  </style>
+  <script>
+    function scrollUp() {
+      const viewer = document.getElementById("ebook-viewer");
+      viewer.scrollBy({ top: -20, left: 0 });
+    }
+
+    function scrollDown() {
+      const viewer = document.getElementById("ebook-viewer");
+      viewer.scrollBy({ top: 20, left: 0 });
+    }
+
+    function selectionChanged() {
+      const selection = window.getSelection();
+
+      let text = selection.anchorNode.textContent;
+      let offset = selection.anchorOffset;
+
+      if (offset > 50) {
+        text = text.substring(offset - 25, offset + 25);
+        offset = 25;
+      } else {
+        text = text.substring(0, 100);
       }
 
-      function scrollDown() {
-        const viewer = document.getElementById("ebook-viewer");
-        viewer.scrollBy({ top: 20, left: 0 });
-      }
+      const popup = document.getElementById("integrated-japanese-dictionary-popup")
+      popup.contentWindow.postMessage({ text, offset }, "DICTIONARY_IFRAME_URL")
+    }
+  </script>
+</head>
 
-      function selectionChanged() {
-        const selection = window.getSelection();
-
-        let text = selection.anchorNode.textContent;
-        let offset = selection.anchorOffset;
-
-        if (offset > 50) {
-          text = text.substring(offset - 25, offset + 25);
-          offset = 25;
-        } else {
-          text = text.substring(0, 100);
-        }
-
-        alert(text, offset);
-      }
-    </script>
-  </head>
-  <body>
+<body>
   <div id="ebook-viewer" onclick="selectionChanged()">
     %EBOOK-TEXT%
   </div>
-  <button className="floating-button" onclick="scrollUp()">su</button>
-  <button className="floating-button" onclick="scrollDown()">giu</button>
-  </body>
+  <button class="floating-button" onclick="scrollUp()">su</button>
+  <button class="floating-button" onclick="scrollDown()">giu</button>
+  <iframe id="integrated-japanese-dictionary-popup" src="DICTIONARY_IFRAME_URL">
+  </iframe>
+
+</body>
+
 </html>

@@ -4,7 +4,25 @@ import url from "url"
 import { readFileSync } from "fs"
 import { JSDOM } from "jsdom"
 
+
 export async function handleEbookDictionary(req: express.Request, res: express.Response) {
+  try {
+    const targetUrlRaw = req.path.replace(/^\/ebook-dictionary\//, "")
+    const targetUrl = url.parse(targetUrlRaw)
+    const response = await axios.get(targetUrl.href, {
+      params: req.query,
+      responseType: "text"
+    })
+
+    const html = readFileSync("src/integrated-dictionary/ebook-dictionary.html", { encoding: "utf8" })
+      .replace("%EBOOK-TEXT%", response.data)
+      .replace(/DICTIONARY_IFRAME_URL/g, process.env.DICTIONARY_IFRAME_URL as string)
+
+    res.type("text/html; charset=UTF-8")
+    res.send(html)
+  } catch (error) {
+    res.send(error)
+  }
 }
 
 export async function handleIntegratedDictionary(req: express.Request, res: express.Response) {
