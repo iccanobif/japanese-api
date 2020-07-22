@@ -138,6 +138,7 @@
 
     function scroll(amount) {
       viewer.scrollBy({ top: amount, left: 0 });
+      window.localStorage.setItem(window.location, viewer.scrollTop)
     }
 
     setInterval(() => {
@@ -171,6 +172,9 @@
       popup.contentWindow.postMessage({ text, offset }, "DICTIONARY_IFRAME_URL")
     }
 
+    const scrollPositionFromStorage = window.localStorage.getItem(window.location)
+    if (scrollPositionFromStorage)
+    viewer.scrollBy({ top: scrollPositionFromStorage, left: 0 });
 
     updateCompletionIndictator()
   </script>
