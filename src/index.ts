@@ -13,6 +13,6 @@ client.connect().then(() =>
 {
   setAppDatabase(client.db())
   app.listen(environment.httpPort, "0.0.0.0")
-  log("Server running on port " + environment.httpPort)
+  log("Server running on http://localhost:" + environment.httpPort)
 })
   .catch(console.error)

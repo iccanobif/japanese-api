@@ -90,12 +90,12 @@
 
     let scrollSpeed = 0;
     let scrollFramesToSkip = 3;
-    
+
     const pageUp = (ev) => { ev.preventDefault(); scroll(scrollSpeed = -200); }
     const scrollUp = (ev) => { ev.preventDefault(); scroll(scrollSpeed = -20); }
     const scrollDown = (ev) => { ev.preventDefault(); scroll(scrollSpeed = 20); }
     const pageDown = (ev) => { ev.preventDefault(); scroll(scrollSpeed = 200); }
-    const stopScrolling = (ev) =>  { ev.preventDefault(); scrollSpeed = 0; scrollFramesToSkip = 3; }
+    const stopScrolling = (ev) => { ev.preventDefault(); scrollSpeed = 0; scrollFramesToSkip = 3; }
 
     btnPageUp.addEventListener("touchstart", pageUp);
     btnPageUp.addEventListener("mousedown", pageUp);
@@ -116,9 +116,22 @@
     btnPageDown.addEventListener("mousedown", pageDown);
     btnPageDown.addEventListener("touchend", stopScrolling)
     btnPageDown.addEventListener("mouseup", stopScrolling)
-    
-    function scroll(amount)
-    {
+
+    window.addEventListener("keydown", (ev) => {
+      if (ev.repeat) return
+      switch (ev.key) {
+        case "ArrowDown": scrollDown(ev); break;
+        case "ArrowUp": scrollUp(ev); break;
+        case "PageDown": pageDown(ev); break;
+        case "PageUp": pageUp(ev); break;
+      }
+    })
+
+    window.addEventListener("keyup", (ev) => {
+      stopScrolling(ev);
+    })
+
+    function scroll(amount) {
       viewer.scrollBy({ top: amount, left: 0 });
     }
 
@@ -153,9 +166,6 @@
       popup.contentWindow.postMessage({ text, offset }, "DICTIONARY_IFRAME_URL")
     }
 
-    viewer.addEventListener("keypress", (ev) => {
-      console.log(ev)
-    })
 
     updateCompletionIndictator()
   </script>
