@@ -174,7 +174,7 @@
 
     const scrollPositionFromStorage = window.localStorage.getItem(window.location)
     if (scrollPositionFromStorage)
-    viewer.scrollBy({ top: scrollPositionFromStorage, left: 0 });
+      viewer.scrollTo({ top: scrollPositionFromStorage, left: 0 });
 
     updateCompletionIndictator()
   </script>
