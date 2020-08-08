@@ -41,9 +41,10 @@ export async function getEntriesForWordInOffset(dictionary: Collection<Dictionar
   if (splits.length == 0)
     return []
 
-  const facets: { [key: string]: any } = {}
-  for (const word of splits)
-    facets[word] = [{ $match: { allKeys: toHiragana(word) } }]
+  const facets: { [key: number]: any } = {}
+  // for (const word of splits)
+  for (let i = 0; i < splits.length; i++)
+    facets[i] = [{ $match: { allKeys: toHiragana(splits[i]) } }]
 
   const cursor = dictionary.aggregate([
     { $match: { allKeys: { $in: splits.map(s => toHiragana(s)) } } },
@@ -55,23 +56,18 @@ export async function getEntriesForWordInOffset(dictionary: Collection<Dictionar
   const results = (await cursor.toArray())[0] as any
   const output: ApiSentenceOutput[] = []
 
-  for (const word in results) {
-    if (results[word].length > 0)
+  // Ensure that the results are returned in the same order as the words
+  // returned by getSubstringsIncludingPosition()
+  for (const wordIndex in Object.keys(results).sort()) {
+    if (results[wordIndex].length > 0)
       output.push({
-        word: word,
-        dictionaryEntries: sortByRelevance(results[word] as DictionaryEntryInDb[], word)
+        word: splits[wordIndex],
+        dictionaryEntries: sortByRelevance(results[wordIndex] as DictionaryEntryInDb[], splits[wordIndex])
           .map(r => new ApiWordOutput(r))
       })
   }
 
-  // TODO sort by word length
-  output.sort((a, b) => {
-
-    return b.word.length - a.word.length
-  })
-
   return output
-
 }
 
 function sortByRelevance(entries: DictionaryEntryInDb[], word: string) {

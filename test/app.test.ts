@@ -116,6 +116,7 @@ describe("app.js", function ()
     it("sort results by offset", async () =>
     {
       const response = await get("/word/" + encodeURIComponent("死体が散乱していた") + "/4")
+      expect(response).to.have.status(200)
       const results = response.body as ApiSentenceOutput[]
       expect(results[0].word).to.equal("散乱")
     })
