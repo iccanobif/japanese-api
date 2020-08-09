@@ -47,5 +47,9 @@ describe("radical-search", function ()
     const results2 = searchKanjiByRadicalDescriptions("woman,pig,")
 
     expect(results1).to.deep.equal(results2)
+  }),
+  it("can find 潜", async () => {
+    const results = searchKanjiByRadicalDescriptions("water,big,day")
+    expect(results).to.include("潜")
   })
 })
