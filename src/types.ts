@@ -47,7 +47,7 @@ export interface DictionaryEntryInDb
 
 export class ApiWordOutput
 {
-  public lemmas: string[];
+  public lemmas: { kanji: string, reading: string }[];
   public englishGlosses: string[];
   public japaneseGlosses: string[];
   public accents: string[];
@@ -56,7 +56,7 @@ export class ApiWordOutput
   {
     const allDaijirinGlosses = entry.daijirinArticles.map(d => d.glosses).flat()
 
-    this.lemmas = entry.lemmas.filter(l => !l.isConjugated).map(l => l.kanji + "（" + l.reading + "）")
+    this.lemmas = entry.lemmas.filter(l => !l.isConjugated).map(l => ({ kanji: l.kanji, reading: l.reading }))
     this.japaneseGlosses = allDaijirinGlosses.filter(g => !isEnglishGloss(g))
     this.englishGlosses = entry.edictGlosses.concat(allDaijirinGlosses.filter(g => isEnglishGloss(g)))
     this.accents = entry.accents;
@@ -80,7 +80,7 @@ export interface MobiFileEntry
   // it seems that the content of the "value" attribute and
   // the data between the tags is always the same except for 
   // capitalization inconsistencies
-  titles: string[], 
+  titles: string[],
   contentLines: string[]
 }
 

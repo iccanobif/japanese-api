@@ -76,7 +76,14 @@ describe("app.js", function ()
       const body = response.body as ApiWordOutput[]
       expect(body).to.have.lengthOf(1)
       expect(body[0].lemmas)
-        .to.be.deep.equal(["食べる（たべる）", "喰べる（たべる）"])
+        .to.be.deep.equal([{
+          "kanji": "食べる",
+          "reading": "たべる"
+        },
+        {
+          "kanji": "喰べる",
+          "reading": "たべる"
+        }])
     })
     it("can find searching by romaji (taberu)", async () =>
     {
@@ -111,7 +118,7 @@ describe("app.js", function ()
       const response = await get("/word/" + encodeURIComponent("見出し"))
       expect(response).to.have.status(200)
       const a = response.body[0] as ApiWordOutput
-      expect(a.lemmas).to.include("見出し（みだし）")
+      expect(a.lemmas).to.deep.include({ kanji: '見出し', reading: 'みだし' })
     })
     it("sort results by offset", async () =>
     {
