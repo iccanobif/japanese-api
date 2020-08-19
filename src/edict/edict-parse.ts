@@ -3,6 +3,7 @@ import { createReadStream } from "fs";
 import { EdictEntryFromFile, Lemma } from "../types";
 import xml from "xml2js";
 import { conjugate } from "./conjugate";
+import { uniq } from "../utils";
 
 export async function* edictXmlParse() {
   const fileStream = createReadStream("datasets/JMdict_e")
@@ -40,7 +41,7 @@ export async function* edictXmlParse() {
       const glosses = result.entry.gloss.map((g: any) => g._ ? g._ : g) as string[]
       const kanjiElements = result.entry.keb as string[] // Some entries don't have kanjiElements (eg. ヽ)
       const onlyReadingElements = result.entry.r_ele.map((r: any) => r.reb).flat() as string[]
-      const partOfSpeechList = result.entry.pos as string[]
+      const partOfSpeechList = uniq(result.entry.pos) as string[] // using uniq() because there might be more than one <sense> for the same entry, each with its own list of pos
       const readingElements = result.entry.r_ele as { reb: string[], re_restr: string[] }[]
 
       const unconjugatedReadingLinks: Lemma[] =

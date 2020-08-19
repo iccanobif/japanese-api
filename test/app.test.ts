@@ -127,13 +127,20 @@ describe("app.js", function ()
       const results = response.body as ApiSentenceOutput[]
       expect(results[0].word).to.equal("散乱")
     })
-    it("has 'part of speech' info", async () => {
+    it("has 'part of speech' info", async () =>
+    {
       const response = await get("/word/" + encodeURIComponent("食べる"))
       expect(response).to.have.status(200)
       const results = response.body[0] as ApiWordOutput
       expect(results.partOfSpeech).to.deep.equal(["v1", "vt"])
     })
-
+    it("has no duplicate or redundant lemmas", async () =>
+    {
+      const response = await get("/word/" + encodeURIComponent("嘘"))
+      expect(response).to.have.status(200)
+      const results = response.body[0] as ApiWordOutput
+      expect(results.lemmas).to.deep.equal([{ kanji: "嘘", reading: "うそ" }])
+    })
   })
 
   describe("sentence", () =>
@@ -181,14 +188,17 @@ describe("app.js", function ()
     })
   })
 
-  describe("accents", () => {
-    it("doesn't include sample sentences in the accents list", async () => {
+  describe("accents", () =>
+  {
+    it("doesn't include sample sentences in the accents list", async () =>
+    {
       const response = await get("/word/" + encodeURIComponent("あやふや"))
       expect(response).to.have.status(200)
       const a = response.body[0] as ApiWordOutput
       expect(a.accents).to.deep.equal(["アヤフヤ [0]"])
     })
-    it("populates example sentences list", async () => {
+    it("populates example sentences list", async () =>
+    {
       const response = await get("/word/" + encodeURIComponent("あやふや"))
       expect(response).to.have.status(200)
       const a = response.body[0] as ApiWordOutput
