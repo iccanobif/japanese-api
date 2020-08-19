@@ -63,7 +63,7 @@ export async function buildEdictDB()
       },
       async insertBuffer =>
       {
-        log("Bulk writing edict")
+        log("Bulk writing edict...")
         await dictionary.insertMany(insertBuffer)
       })
     log("Creating allUnconjugatedKeys index on dictionary...")
@@ -111,14 +111,14 @@ export async function buildEdictDB()
                 }
               })
           }
-          log("Bulk daijirin upsert")
+          log("Bulk daijirin upsert...")
           await bulkOp.execute()
         })
     }
     log("Creating allKeys index on dictionary...")
     await dictionary.createIndex({ allKeys: 1 })
 
-    log("Pitch accent")
+    log("Pitch accent...")
     await bulkify(8000,
       accentDictionaryReadIntermediateFile(),
       x => x,
@@ -140,13 +140,12 @@ export async function buildEdictDB()
               }
             })
         }
-        log("Bulk accent upsert")
+        log("Bulk accent upsert...")
         await bulkOp.execute()
       }
     )
 
-
-    log("finish")
+    log("Done.")
   }
   finally
   {

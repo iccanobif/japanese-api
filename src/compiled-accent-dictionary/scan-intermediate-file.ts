@@ -17,7 +17,8 @@ export async function* accentDictionaryReadIntermediateFile()
       keys: data.titles,
       pronounciations: data.contentLines
         .splice(1)
-        .filter(l => !l.startsWith("例文:") && !l.startsWith("出典："))
+        .filter(l => !l.startsWith("例文:") && !l.startsWith("出典：")),
+      exampleSentences: []
     }
     yield output
   }
