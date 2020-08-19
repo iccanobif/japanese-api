@@ -39,6 +39,9 @@ export async function buildEdictDB()
       edictXmlParse(),
       edictItem =>
       {
+        const conjugatedLemmas = edictItem.lemmas.filter(l => l.isConjugated)
+        const unconjugatedLemmas = edictItem.lemmas.filter(l => !l.isConjugated)
+
         return {
           lemmas: edictItem.lemmas,
           edictGlosses: edictItem.glosses,
@@ -47,17 +50,13 @@ export async function buildEdictDB()
             .map(l => toHiragana(l.kanji))
             .concat(edictItem.lemmas
               .map(l => toHiragana(l.reading))),
-          allConjugatedKeys: edictItem.lemmas
-            .filter(l => l.isConjugated)
+          allConjugatedKeys: conjugatedLemmas
             .map(l => l.kanji)
-            .concat(edictItem.lemmas
-              .filter(l => l.isConjugated)
+            .concat(conjugatedLemmas
               .map(l => l.reading)),
-          allUnconjugatedKeys: edictItem.lemmas
-            .filter(l => !l.isConjugated)
+          allUnconjugatedKeys: unconjugatedLemmas
             .map(l => l.kanji)
-            .concat(edictItem.lemmas
-              .filter(l => !l.isConjugated)
+            .concat(unconjugatedLemmas
               .map(l => l.reading)),
           partOfSpeech: edictItem.partOfSpeech
         };
@@ -138,8 +137,8 @@ export async function buildEdictDB()
             .update({
               $addToSet:
               {
-                accents: {$each: accentItem.pronounciations},
-                sampleSentences: {$each: accentItem.sampleSentences}
+                accents: { $each: accentItem.pronounciations },
+                sampleSentences: { $each: accentItem.sampleSentences }
               }
             })
         }

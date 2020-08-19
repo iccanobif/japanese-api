@@ -5,7 +5,8 @@ import xml from "xml2js";
 import { conjugate } from "./conjugate";
 import { uniq } from "../utils";
 
-export async function* edictXmlParse() {
+export async function* edictXmlParse()
+{
   const fileStream = createReadStream("datasets/JMdict_e")
   const rl = readline.createInterface({
     input: fileStream,
@@ -14,12 +15,15 @@ export async function* edictXmlParse() {
 
   let xmlLines: string[] = []
 
-  for await (const line of rl) {
-    if (!line.startsWith("</entry>")) {
-      if (line.match(/^<\/?keb>|^<\/?reb>|^<\/?re_restr>|^<\/?r_ele>|^<\/?pos>|^<entry>|^<ent_seq>|^<\/?gloss/g))
+  for await (const line of rl)
+  {
+    if (!line.startsWith("</entry>"))
+    {
+      if (line.match(/^<\/?keb>|^<\/?reb>|^<\/?re_restr>|^<\/?r_ele>|^<\/?pos>|^<entry>|^<ent_seq>|^<\/?gloss|<re_nokanji/g))
         xmlLines.push(line)
     }
-    else {
+    else
+    {
 
       const entryXml = xmlLines
         .join("\n")
@@ -28,9 +32,11 @@ export async function* edictXmlParse() {
 
       xmlLines = []
 
-      const result: any = await new Promise((resolve, reject) => {
+      const result: any = await new Promise((resolve, reject) =>
+      {
         xml.parseString(entryXml,
-          (err, result) => {
+          (err, result) =>
+          {
             if (err) reject(err)
             else (resolve(result))
           })
@@ -40,13 +46,13 @@ export async function* edictXmlParse() {
       // When a tag has attributes, xml.parseString puts the inner text into a field called "_". I have no idea why.
       const glosses = result.entry.gloss.map((g: any) => g._ ? g._ : g) as string[]
       const kanjiElements = result.entry.keb as string[] // Some entries don't have kanjiElements (eg. ヽ)
-      const onlyReadingElements = result.entry.r_ele.map((r: any) => r.reb).flat() as string[]
       const partOfSpeechList = uniq(result.entry.pos) as string[] // using uniq() because there might be more than one <sense> for the same entry, each with its own list of pos
-      const readingElements = result.entry.r_ele as { reb: string[], re_restr: string[] }[]
+      const readingElements = result.entry.r_ele as { reb: string[], re_restr: string[], re_nokanji: string[] }[]
 
       const unconjugatedReadingLinks: Lemma[] =
-        !kanjiElements
-          ? onlyReadingElements.map(r => {
+        !kanjiElements // if kanjiElements is an empty list
+          ? readingElements.map(r => r.reb).flat().map(r =>
+          {
             const out: Lemma = {
               kanji: r,
               reading: r,
@@ -79,7 +85,8 @@ export async function* edictXmlParse() {
           .flat()
           // Remove duplicates
           .sort((a, b) => (a.kanji + a.reading).localeCompare(b.kanji + b.reading))
-          .reduce((acc, curr) => {
+          .reduce((acc, curr) =>
+          {
             const prevValue = acc[acc.length - 1]
             if (prevValue && prevValue.kanji == curr.kanji && prevValue.reading == curr.reading)
               return acc
