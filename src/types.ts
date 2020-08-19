@@ -42,7 +42,8 @@ export interface DictionaryEntryInDb
   allKeys: string[],
   allUnconjugatedKeys: string[],
   allConjugatedKeys: string[],
-  accents: string[]
+  accents: string[],
+  sampleSentences: string[],
 }
 
 export class ApiWordOutput
@@ -61,7 +62,7 @@ export class ApiWordOutput
     this.japaneseGlosses = allDaijirinGlosses.filter(g => !isEnglishGloss(g))
     this.englishGlosses = entry.edictGlosses.concat(allDaijirinGlosses.filter(g => isEnglishGloss(g)))
     this.accents = entry.accents;
-    this.sampleSentences = []
+    this.sampleSentences = entry.sampleSentences;
   }
 }
 
@@ -90,5 +91,5 @@ export interface AccentDictionaryEntry
 {
   keys: string[],
   pronounciations: string[],
-  exampleSentences: string[],
+  sampleSentences: string[],
 }

@@ -186,7 +186,7 @@ describe("app.js", function ()
       const response = await get("/word/" + encodeURIComponent("あやふや"))
       expect(response).to.have.status(200)
       const a = response.body[0] as ApiWordOutput
-      expect(a.sampleSentences).not.to.be.empty
+      expect(a.sampleSentences).to.deep.equal(["アヤフヤナ返事"])
     })
   })
 

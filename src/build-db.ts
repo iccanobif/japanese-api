@@ -136,7 +136,8 @@ export async function buildEdictDB()
             .update({
               $addToSet:
               {
-                accents: {$each: accentItem.pronounciations}
+                accents: {$each: accentItem.pronounciations},
+                sampleSentences: {$each: accentItem.sampleSentences}
               }
             })
         }
