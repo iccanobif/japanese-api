@@ -127,6 +127,12 @@ describe("app.js", function ()
       const results = response.body as ApiSentenceOutput[]
       expect(results[0].word).to.equal("散乱")
     })
+    it("has 'part of speech' info", async () => {
+      const response = await get("/word/" + encodeURIComponent("食べる"))
+      expect(response).to.have.status(200)
+      const results = response.body[0] as ApiWordOutput
+      expect(results.partOfSpeech).to.deep.equal(["v1", "vt"])
+    })
 
   })
 

@@ -59,6 +59,7 @@ export async function buildEdictDB()
             .concat(edictItem.lemmas
               .filter(l => !l.isConjugated)
               .map(l => l.reading)),
+          partOfSpeech: edictItem.partOfSpeech
         };
       },
       async insertBuffer =>
@@ -107,7 +108,8 @@ export async function buildEdictDB()
                   edictGlosses: [],
                   allKeys: daijirinItem.keys.map(k => toHiragana(k)),
                   allUnconjugatedKeys: daijirinItem.keys,
-                  allConjugatedKeys: []
+                  allConjugatedKeys: [],
+                  partOfSpeech: [],
                 }
               })
           }

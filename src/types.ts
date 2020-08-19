@@ -44,6 +44,7 @@ export interface DictionaryEntryInDb
   allConjugatedKeys: string[],
   accents: string[],
   sampleSentences: string[],
+  partOfSpeech: string[],
 }
 
 export class ApiWordOutput
@@ -53,6 +54,7 @@ export class ApiWordOutput
   public japaneseGlosses: string[];
   public accents: string[];
   public sampleSentences: string[];
+  public partOfSpeech: string[];
 
   constructor(entry: DictionaryEntryInDb)
   {
@@ -63,6 +65,7 @@ export class ApiWordOutput
     this.englishGlosses = entry.edictGlosses.concat(allDaijirinGlosses.filter(g => isEnglishGloss(g)))
     this.accents = entry.accents;
     this.sampleSentences = entry.sampleSentences;
+    this.partOfSpeech = entry.partOfSpeech;
   }
 }
 
