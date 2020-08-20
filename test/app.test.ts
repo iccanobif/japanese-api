@@ -134,12 +134,22 @@ describe("app.js", function ()
       const results = response.body[0] as ApiWordOutput
       expect(results.partOfSpeech).to.deep.equal(["v1", "vt"])
     })
-    it("has no duplicate or redundant lemmas (ignore re_nokanji reading elements from JMdict)", async () =>
+    // Comment this test for now because i'm not sure it's even correct (ignoring re_nokanji readings would be okay for 嘘,
+    // but it would break other words, that for example have only one reading which happens to be re_nokanji, like 尼羅)
+    // it("has no duplicate or redundant lemmas (ignore re_nokanji reading elements from JMdict)", async () =>
+    // {
+    //   const response = await get("/word/" + encodeURIComponent("嘘"))
+    //   expect(response).to.have.status(200)
+    //   const results = response.body[0] as ApiWordOutput
+    //   expect(results.lemmas).to.deep.equal([{ kanji: "嘘", reading: "うそ" }, { kanji: "噓", reading: "うそ" }])
+    // })
+    it("sorts items by how common the kanji that was searched was for that particular word", async () => 
     {
-      const response = await get("/word/" + encodeURIComponent("嘘"))
+      const response = await get("/word/" + encodeURIComponent("目標"))
       expect(response).to.have.status(200)
-      const results = response.body[0] as ApiWordOutput
-      expect(results.lemmas).to.deep.equal([{ kanji: "嘘", reading: "うそ" }, { kanji: "噓", reading: "うそ" }])
+      const results = response.body as ApiWordOutput[]
+      expect(results[0].lemmas).to.deep.equal([{ kanji: '目標', reading: 'もくひょう' }])
+      expect(results[1].lemmas).to.deep.include([{ kanji: '目標', reading: 'めじるし' }])
     })
   })
 
