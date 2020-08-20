@@ -27,7 +27,8 @@
     "test": "mocha -r ts-node/register test/*.ts",
     "build-db": "ts-node src/build-db.ts",
     "build-daijirin-intermediate-file": "ts-node src/daijirin/daijirin-parse.ts",
-    "build-accent-dictionary-intermediate-file": "ts-node src/compiled-accent-dictionary/compiled-accent-dictionary-parse.ts"
+    "build-accent-dictionary-intermediate-file": "ts-node src/compiled-accent-dictionary/compiled-accent-dictionary-parse.ts",
+    "find-missing-accents": "ts-node src/find-missing-accents.ts"
   },
   "devDependencies": {
     "@types/chai": "^4.2.7",
