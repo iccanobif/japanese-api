@@ -134,12 +134,12 @@ describe("app.js", function ()
       const results = response.body[0] as ApiWordOutput
       expect(results.partOfSpeech).to.deep.equal(["v1", "vt"])
     })
-    it("has no duplicate or redundant lemmas", async () =>
+    it("has no duplicate or redundant lemmas (ignore re_nokanji reading elements from JMdict)", async () =>
     {
       const response = await get("/word/" + encodeURIComponent("嘘"))
       expect(response).to.have.status(200)
       const results = response.body[0] as ApiWordOutput
-      expect(results.lemmas).to.deep.equal([{ kanji: "嘘", reading: "うそ" }])
+      expect(results.lemmas).to.deep.equal([{ kanji: "嘘", reading: "うそ" }, { kanji: "噓", reading: "うそ" }])
     })
   })
 
