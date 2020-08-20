@@ -13,7 +13,7 @@ const DAIJIRIN_UPSERT_BUFFER_LENGTH = 8000
 export async function buildEdictDB()
 {
   let client: MongoClient | null = null;
-
+  console.log(environment.mongodbUrl)
   try
   {
     client = new MongoClient(environment.mongodbUrl,
@@ -58,7 +58,8 @@ export async function buildEdictDB()
             .map(l => l.kanji)
             .concat(edictItem.lemmas
               .filter(l => !l.isConjugated)
-              .map(l => l.reading)),
+              .map(l => l.reading))
+            .map(x => toHiragana(x)),
           partOfSpeech: edictItem.partOfSpeech
         };
       },
@@ -87,7 +88,7 @@ export async function buildEdictDB()
                   // I still don't understand why "$all: daijirinItem.keys" doesn't work, 
                   // this thing with $elemMatch was copypasted from stack overflow, not really sure
                   // of how it works
-                  $all: daijirinItem.keys.map(k => ({ $elemMatch: { $eq: k } }))
+                  $all: daijirinItem.keys.map(k => ({ $elemMatch: { $eq: toHiragana(k) } }))
                 }
               })
               .upsert()
@@ -107,7 +108,7 @@ export async function buildEdictDB()
                   })),
                   edictGlosses: [],
                   allKeys: daijirinItem.keys.map(k => toHiragana(k)),
-                  allUnconjugatedKeys: daijirinItem.keys,
+                  allUnconjugatedKeys: daijirinItem.keys.map(k => toHiragana(k)),
                   allConjugatedKeys: [],
                   partOfSpeech: [],
                 }
@@ -132,14 +133,14 @@ export async function buildEdictDB()
           bulkOp
             .find({
               allUnconjugatedKeys: {
-                $all: accentItem.keys.map(k => ({ $elemMatch: { $eq: k } }))
+                $all: accentItem.keys.map(k => ({ $elemMatch: { $eq: toHiragana(k) } }))
               }
             })
             .update({
               $addToSet:
               {
-                accents: {$each: accentItem.pronounciations},
-                sampleSentences: {$each: accentItem.sampleSentences}
+                accents: { $each: accentItem.pronounciations },
+                sampleSentences: { $each: accentItem.sampleSentences }
               }
             })
         }
