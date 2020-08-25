@@ -1,0 +1,56 @@
+db.accents
+  // .explain()
+  .aggregate([
+    {
+      "$addFields": {
+        title: { $arrayElemAt: ["$contentLines", 0] },
+      }
+    }
+    , {
+      "$match": {
+        // title: {$not: /^【.*】$/}
+        title: /^【.*】$/
+      }
+    }
+    // separator: ・
+    , {
+      "$project": {
+        _id: 0,
+        titles: 1,
+        title: { $replaceAll: { input: "$title", find: "【", replacement: "" } }
+      }
+    }
+    , {
+      "$project": {
+        _id: 0,
+        titles: 1,
+        title: { $replaceAll: { input: "$title", find: "】", replacement: "" } }
+      }
+    }
+    , {
+      "$project": {
+        _id: 0,
+
+        fusion: { $setUnion : [ "$titles", { $split: ["$title", "・"] }]},
+
+        titles: 1,
+        splitTitles: { $split: ["$title", "・"] },
+        
+        titlesCount: { $size: "$titles"},
+        splitTitlesCount: { $size: { $split: ["$title", "・"] }},
+
+        gotMorelemmasWithSplitting: { $lt: [{ $size: "$titles"}, { $size:{ $setUnion : [ "$titles", { $split: ["$title", "・"] }]}}]}
+      }
+    }
+    ,{
+      "$match": {
+        gotMorelemmasWithSplitting: true
+      }
+    }
+    // , { "$count": "count"}
+
+  ]).toArray()
+
+
+// 236351 in total
+// 13530 anomalous

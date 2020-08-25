@@ -14,8 +14,20 @@ export async function* accentDictionaryReadIntermediateFile()
   {
     const data = JSON.parse(line) as MobiFileEntry
 
+    const keys = new Set(data.titles)
+
+    // Sometimes the first line of the content, if it's in the format 【key1・key2】, 
+    // it might hold additional keys that where not in data.titles. Let's add them.
+    if (data.contentLines[0].match(/^【.*】$/))
+    {
+      data.contentLines[0]
+        .replace(/[【】]/, "")
+        .split("・")
+        .forEach(k => keys.add(k))
+    }
+
     const output: AccentDictionaryEntry = {
-      keys: data.titles,
+      keys: Array.from(keys),
       pronounciations: data.contentLines
         .slice(1) // The first line contains the "title" of the lemma
         .filter(l => !l.startsWith("例文：") && !l.startsWith("出典：")),
