@@ -28,6 +28,7 @@ export interface DaijirinEntryFromIntermediateFile
   keys: string[],
   lemma: string,
   glosses: string[],
+  accents: string[],
 }
 
 export interface DictionaryEntryInDb

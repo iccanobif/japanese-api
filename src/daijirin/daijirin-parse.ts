@@ -34,6 +34,7 @@ async function buildDaijirinIntermediateFile()
         .replace("=", "")
         .replace("＝", "")),
       lemma: entry.contentLines[0],
+      accents: [],
     }
 
     fs.writeSync(outputFile, JSON.stringify(output) + EOL, null, "utf8")
