@@ -51,5 +51,9 @@ describe("radical-search", function ()
   it("can find 潜", async () => {
     const results = searchKanjiByRadicalDescriptions("water,big,day")
     expect(results).to.include("潜")
+  }),
+  it("can find 峰", async () => {
+    const results = searchKanjiByRadicalDescriptions("mounta,action")
+    expect(results).to.include("峰")
   })
 })
