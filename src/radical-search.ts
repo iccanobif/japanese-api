@@ -8,15 +8,20 @@ const radicals = JSON.parse(radicalsFileText) as { radical: string, description:
 const radicalToKanji: { [radical: string]: string[] } = {};
 readFileSync("datasets/kradfile-u", { encoding: "utf8" })
   .split("\n")
-  .forEach(line => 
-  {
+  .forEach(line => {
     if (line.startsWith("#"))
       return
     const kanji = line.split(" ")[0]
 
-    const radicals = line.substr(4).trimEnd().split("")
-    for (const radical of radicals)
-    {
+    const radicals = line
+      .substr(4)
+      .trimEnd()
+      .split("")
+      // Pretend that 攵 and 夂 are the same radical, not all fonts make that distinction
+      // and it can be hard to tell them apart anyway.
+      .map(r => r == "夂" ? "攵" : r) 
+
+    for (const radical of radicals) {
       if (radicalToKanji[radical] === undefined)
         radicalToKanji[radical] = [kanji]
       else
@@ -24,24 +29,21 @@ readFileSync("datasets/kradfile-u", { encoding: "utf8" })
     }
   })
 
-export function searchKanjiByRadicalDescriptions(query: string): string[]
-{
+export function searchKanjiByRadicalDescriptions(query: string): string[] {
   // TODO Clean up names
   const descriptions = query.split(",").map(s => s.toLowerCase().trim())
 
   const radicalsToSearch = descriptions
     .map(d => radicals.filter(r => r.description.includes(d))
-      .map(r => r.radical))
+      .map(r => r.radical == "夂" ? "攵" : r.radical))
 
   const kanjiLists = radicalsToSearch.map(radicals => radicals.map(radical => radicalToKanji[radical]))
 
   const someRandomName = kanjiLists.map(l => new Set(l.flat()))
 
-  const intersection = someRandomName.reduce((acc, val) =>
-  {
+  const intersection = someRandomName.reduce((acc, val) => {
     const output = new Set<string>()
-    for (const v of val)
-    {
+    for (const v of val) {
       if (acc.has(v))
         output.add(v)
     }
@@ -50,8 +52,7 @@ export function searchKanjiByRadicalDescriptions(query: string): string[]
 
   const allKanji = Array.from(intersection.values())
 
-  const allKanjiSorted = allKanji.sort((a, b) =>
-  {
+  const allKanjiSorted = allKanji.sort((a, b) => {
     const aKanjiData = getKanjidicEntry(a)
     const bKanjiData = getKanjidicEntry(b)
 

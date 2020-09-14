@@ -52,7 +52,10 @@ describe("radical-search", function ()
     const results = searchKanjiByRadicalDescriptions("water,big,day")
     expect(results).to.include("潜")
   }),
-  it("can find 峰", async () => {
+  it("can find 峰 using radical description 'action' instead of 'to go'", async () => {
+    // The problem here was the confusion between 攵 (action) and 夂 (to go). Even if they're technically different 
+    // radicals (see https://chinese.stackexchange.com/questions/1925/is-there-a-difference-between-%E5%A4%82-and-%E5%A4%8A), 
+    // I'll just pretend they're the same, and searching for "action" will match both 攵 and 夂.
     const results = searchKanjiByRadicalDescriptions("mounta,action")
     expect(results).to.include("峰")
   })
