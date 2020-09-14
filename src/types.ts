@@ -28,7 +28,7 @@ export interface DaijirinEntryFromIntermediateFile
   keys: string[],
   lemma: string,
   glosses: string[],
-  accents: string[],
+  // accents: string[],
 }
 
 export interface DictionaryEntryInDb
@@ -87,7 +87,7 @@ export interface MobiFileEntry
   // it seems that the content of the "value" attribute and
   // the data between the tags is always the same except for 
   // capitalization inconsistencies
-  titles: string[],
+  keys: string[],
   contentLines: string[]
 }
 

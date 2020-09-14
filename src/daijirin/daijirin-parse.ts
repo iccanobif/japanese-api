@@ -16,7 +16,7 @@ async function buildDaijirinIntermediateFile()
   for (const entry of allEntries)
   {
     // Ignore entries for stuff that's not a japanese word, to save disk space
-    if (entry.titles.some(k => k.match(/[a-zA-Z]/)))
+    if (entry.keys.some(k => k.match(/[a-zA-Z]/)))
       continue
 
     const output: DaijirinEntryFromIntermediateFile = {
@@ -30,11 +30,10 @@ async function buildDaijirinIntermediateFile()
             acc.push(val)
           return acc
         }, []),
-      keys: entry.titles.map(t => t
+      keys: entry.keys.map(t => t
         .replace("=", "")
         .replace("＝", "")),
       lemma: entry.contentLines[0],
-      accents: [],
     }
 
     fs.writeSync(outputFile, JSON.stringify(output) + EOL, null, "utf8")
@@ -43,4 +42,3 @@ async function buildDaijirinIntermediateFile()
 }
 
 buildDaijirinIntermediateFile().catch(printError)
-

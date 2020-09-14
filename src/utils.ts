@@ -118,11 +118,11 @@ export async function mobiFilesParse(datasetsDirectory: string): Promise<MobiFil
 
         if (allEntries[key] === undefined)
           allEntries[key] = {
-            titles: [title],
+            keys: [title],
             contentLines
           }
         else
-          allEntries[key].titles.push(title)
+          allEntries[key].keys.push(title)
       }
       else
       {
