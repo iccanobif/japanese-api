@@ -81,7 +81,7 @@ export async function buildEdictDB()
           const bulkOp = dictionary.initializeUnorderedBulkOp()
           for (const daijirinItem of arr)
           {
-            // const accents = daijirinItem.lemma.match(/\[\d*\]/g)
+            const accents = daijirinItem.lemma.match(/\[\d*\]/g) || []
 
             bulkOp
               .find({
@@ -99,7 +99,7 @@ export async function buildEdictDB()
                   daijirinArticles: {
                     glosses: daijirinItem.glosses,
                     lemma: daijirinItem.lemma,
-                    // accents: accents,
+                    accents: accents,
                   }
                 },
                 $setOnInsert: {
@@ -113,7 +113,7 @@ export async function buildEdictDB()
                   allUnconjugatedKeys: daijirinItem.keys.map(k => toHiragana(k)),
                   allConjugatedKeys: [],
                   partOfSpeech: [],
-                  // accents: accents,
+                  accents: accents,
                 }
               })
           }
