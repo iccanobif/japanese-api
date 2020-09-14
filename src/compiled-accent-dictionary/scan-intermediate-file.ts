@@ -14,7 +14,7 @@ export async function* accentDictionaryReadIntermediateFile()
   {
     const data = JSON.parse(line) as MobiFileEntry
 
-    const keys = new Set(data.keys)
+    const keys = new Set(data.titles)
 
     // Sometimes the first line of the content, if it's in the format 【key1・key2】,
     // might hold additional keys that where not in data.titles. Let's add them.
