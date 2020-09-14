@@ -39,9 +39,9 @@ export function searchKanjiByRadicalDescriptions(query: string): string[] {
 
   const kanjiLists = radicalsToSearch.map(radicals => radicals.map(radical => radicalToKanji[radical]))
 
-  const someRandomName = kanjiLists.map(l => new Set(l.flat()))
+  const sets = kanjiLists.map(l => new Set(l.flat()))
 
-  const intersection = someRandomName.reduce((acc, val) => {
+  const intersection = sets.reduce((acc, val) => {
     const output = new Set<string>()
     for (const v of val) {
       if (acc.has(v))
