@@ -21,7 +21,7 @@ export async function* accentDictionaryReadIntermediateFile()
     if (data.contentLines[0].match(/^【.*】$/))
     {
       data.contentLines[0]
-        .replace(/[【】]/, "")
+        .replace(/[【】]/g, "")
         .split("・")
         .forEach(k => keys.add(k))
     }
