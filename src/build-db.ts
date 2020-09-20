@@ -2,18 +2,20 @@ import { MongoClient } from "mongodb";
 import { environment } from "./environment";
 import { edictXmlParse } from "./edict/edict-parse";
 import { log, printError, bulkify } from "./utils";
-import { DictionaryEntryInDb, Lemma, DaijirinEntryFromIntermediateFile, AccentDictionaryEntry } from "./types";
+import { DictionaryEntryInDb, Lemma, DaijirinEntryFromIntermediateFile } from "./types";
 import { daijirinReadIntermediateFile } from "./daijirin/scan-intermediate-file";
 import { toHiragana } from "./kana-tools";
-import { accentDictionaryReadIntermediateFile } from "./compiled-accent-dictionary/scan-intermediate-file";
+// import { accentDictionaryReadIntermediateFile } from "./compiled-accent-dictionary/scan-intermediate-file";
 
 const EDICT_INSERT_BUFFER_LENGTH = 10000
 const DAIJIRIN_UPSERT_BUFFER_LENGTH = 8000
 
-export async function buildEdictDB() {
+export async function buildEdictDB()
+{
   let client: MongoClient | null = null;
   console.log(environment.mongodbUrl)
-  try {
+  try
+  {
     client = new MongoClient(environment.mongodbUrl,
       {
         autoReconnect: false,
@@ -25,7 +27,8 @@ export async function buildEdictDB() {
     // Drop all collections
     for (const collection of (await db.collections())
       .filter(c => ["daijirinFileEntries", "dictionary"]
-        .includes(c.collectionName))) {
+        .includes(c.collectionName)))
+    {
       await collection.drop()
     }
 
@@ -34,7 +37,8 @@ export async function buildEdictDB() {
     log("Parsing edict...")
     await bulkify(EDICT_INSERT_BUFFER_LENGTH,
       edictXmlParse(),
-      edictItem => {
+      edictItem =>
+      {
         const conjugatedLemmas = edictItem.lemmas.filter(l => l.isConjugated)
         const unconjugatedLemmas = edictItem.lemmas.filter(l => !l.isConjugated)
 
@@ -55,10 +59,11 @@ export async function buildEdictDB() {
             .concat(unconjugatedLemmas
               .map(l => l.reading))
             .map(x => toHiragana(x)),
-          partOfSpeech: edictItem.partOfSpeech
+          partOfSpeech: edictItem.partOfSpeech,
         };
       },
-      async insertBuffer => {
+      async insertBuffer =>
+      {
         log("Bulk writing edict...")
         await dictionary.insertMany(insertBuffer)
       })
@@ -71,9 +76,17 @@ export async function buildEdictDB() {
       await bulkify(DAIJIRIN_UPSERT_BUFFER_LENGTH,
         daijirinReadIntermediateFile(),
         x => x,
-        async (arr: DaijirinEntryFromIntermediateFile[]) => {
+        async (arr: DaijirinEntryFromIntermediateFile[]) =>
+        {
           const bulkOp = dictionary.initializeUnorderedBulkOp()
-          for (const daijirinItem of arr) {
+          for (const daijirinItem of arr)
+          {
+
+            const accents = daijirinItem.lemma
+              .match(/\[\d*\]/g)
+              ?.map(a => a.replace(/[\[\]]/g, ""))
+              .map(a => Number.parseInt(a)) || []
+
             bulkOp
               .find({
                 allUnconjugatedKeys: {
@@ -90,8 +103,8 @@ export async function buildEdictDB() {
                   daijirinArticles: {
                     glosses: daijirinItem.glosses,
                     lemma: daijirinItem.lemma,
+                    accents: accents,
                   },
-                  accents: daijirinItem.lemma.match(/\[\d*\]/g) || [],
                 },
                 $setOnInsert: {
                   lemmas: daijirinItem.keys.map((k: string): Lemma => ({
@@ -114,43 +127,51 @@ export async function buildEdictDB() {
     log("Creating allKeys index on dictionary...")
     await dictionary.createIndex({ allKeys: 1 })
 
-    log("Pitch accent...")
-    await bulkify(8000,
-      accentDictionaryReadIntermediateFile(),
-      x => x,
-      async (arr: AccentDictionaryEntry[]) => {
-        const bulkOp = dictionary.initializeUnorderedBulkOp()
-        for (const accentItem of arr) {
-          bulkOp
-            .find({
-              allUnconjugatedKeys: {
-                $all: accentItem.keys.map(k => ({ $elemMatch: { $eq: toHiragana(k) } }))
-              },
-              accents: [],
-            })
-            .update({
-              $addToSet:
-              {
-                accents: { $each: accentItem.pronounciations },
-                sampleSentences: { $each: accentItem.sampleSentences }
-              }
-            })
-        }
-        log("Bulk accent upsert...")
-        await bulkOp.execute()
-      }
-    )
+    // log("Pitch accent...")
+    // await bulkify(8000,
+    //   accentDictionaryReadIntermediateFile(),
+    //   x => x,
+    //   async (arr: AccentDictionaryEntry[]) => {
+    //     const bulkOp = dictionary.initializeUnorderedBulkOp()
+    //     for (const accentItem of arr) {
+
+    //       const accents = accentItem.pronounciations
+    //         .map(a => a.match(/\[\d*\]/g))
+    //         .flat()
+    //         ?.map(a => a?.replace(/[\[\]]/g, ""))
+
+    //       bulkOp
+    //         .find({
+    //           allUnconjugatedKeys: {
+    //             $all: accentItem.keys.map(k => ({ $elemMatch: { $eq: toHiragana(k) } }))
+    //           },
+    //           accents: [],
+    //         })
+    //         .update({
+    //           $addToSet:
+    //           {
+    //             accents: { $each: accents },
+    //             sampleSentences: { $each: accentItem.sampleSentences }
+    //           }
+    //         })
+    //     }
+    //     log("Bulk accent upsert...")
+    //     await bulkOp.execute()
+    //   }
+    // )
 
     log("Done.")
   }
-  finally {
+  finally
+  {
     if (client)
       await client.close()
   }
 }
 
 buildEdictDB()
-  .catch((err) => {
+  .catch((err) =>
+  {
     printError(err)
   })
 

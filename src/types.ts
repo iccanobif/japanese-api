@@ -39,6 +39,7 @@ export interface DictionaryEntryInDb
   daijirinArticles: {
     lemma: string,
     glosses: string[],
+    accents: number[],
   }[]
   allKeys: string[],
   allUnconjugatedKeys: string[],
