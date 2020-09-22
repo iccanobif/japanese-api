@@ -1,4 +1,5 @@
 import { ObjectID } from "mongodb";
+import { applyAccentToString } from "./apply-accent-to-string";
 import { isEnglishGloss } from "./utils";
 
 export interface Lemma
@@ -44,7 +45,6 @@ export interface DictionaryEntryInDb
   allKeys: string[],
   allUnconjugatedKeys: string[],
   allConjugatedKeys: string[],
-  accents: string[],
   sampleSentences: string[],
   partOfSpeech: string[],
 }
@@ -65,7 +65,7 @@ export class ApiWordOutput
     this.lemmas = entry.lemmas.filter(l => !l.isConjugated).map(l => ({ kanji: l.kanji, reading: l.reading }))
     this.japaneseGlosses = allDaijirinGlosses.filter(g => !isEnglishGloss(g))
     this.englishGlosses = entry.edictGlosses.concat(allDaijirinGlosses.filter(g => isEnglishGloss(g)))
-    this.accents = entry.accents;
+    this.accents = entry.daijirinArticles.map(a => a.accents.map(n => applyAccentToString(a.lemma, n))).flat()
     this.sampleSentences = entry.sampleSentences;
     this.partOfSpeech = entry.partOfSpeech;
   }
