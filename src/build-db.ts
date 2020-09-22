@@ -81,10 +81,13 @@ export async function buildEdictDB()
           const bulkOp = dictionary.initializeUnorderedBulkOp()
           for (const daijirinItem of arr)
           {
+            const accentMatches = daijirinItem.lemma.match(/\[\d*\]/g)
+                                  // In some cases (ex. 色) the accent isn't written in the lemma but somewhere in the glosses
+                                  || daijirinItem.glosses.join().match(/\[\d*\]/g)
+                                  || []
 
-            const accents = daijirinItem.lemma
-              .match(/\[\d*\]/g)
-              ?.map(a => a.replace(/[\[\]]/g, ""))
+            const accents = accentMatches
+              .map(a => a.replace(/[\[\]]/g, ""))
               .map(a => Number.parseInt(a)) || []
 
             bulkOp
