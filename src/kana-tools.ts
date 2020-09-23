@@ -31,8 +31,30 @@ function katakanaToHiragana(str: string)
     .join("")
 }
 
+function hiraganaToKatakana(str: string)
+{
+  // In unicode, katakana is from 12449 to 12533, hiragana from 12353, 12435
+
+  return str
+    .split("")
+    .map((c) =>
+    {
+      const codePoint = c.codePointAt(0)
+      if (codePoint && codePoint >= 12353 && codePoint <= 12435)
+        return String.fromCodePoint(codePoint + 96)
+      else
+        return c
+    })
+    .join("")
+}
+
 // converts romaji to hiragana and katakana to hiragana
 export function toHiragana(input: string): string
 {
   return katakanaToHiragana(romajiToHiragana(input))
+}
+
+export function toKatakana(input: string): string
+{
+  return hiraganaToKatakana(romajiToHiragana(input))
 }
