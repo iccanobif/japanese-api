@@ -73,15 +73,24 @@ export async function getEntriesForWordInOffset(dictionary: Collection<Dictionar
 function sortByRelevance(entries: DictionaryEntryInDb[], word: string) {
   word = toHiragana(word)
   return entries.sort((a, b) => {
-    // Put entries that match with "word" in their unconjugated form on top.
 
-    const isUnconjugatedA = !!a.lemmas.find(l => !l.isConjugated && (l.kanji == word || l.reading == word))
-    const isUnconjugatedB = !!b.lemmas.find(l => !l.isConjugated && (l.kanji == word || l.reading == word))
+    const priorityA = a.lemmas.findIndex(l => !l.isConjugated && (l.kanji == word || l.reading == word))
+    const priorityB = b.lemmas.findIndex(l => !l.isConjugated && (l.kanji == word || l.reading == word))
 
-    if (isUnconjugatedA && !isUnconjugatedB)
+    // Give priority to entries that match with "word" in their unconjugated form.
+    if (priorityA >= 0 && priorityB == -1)
       return -1
-    if (!isUnconjugatedA && isUnconjugatedB)
+    if (priorityA == -1 && priorityB >= 0)
       return 1
+
+    // Also, give priority to the articles for which the word appears first in the lemma list.
+    if (priorityA < priorityB)
+      return -1
+    if (priorityA > priorityB)
+      return 1
+
+    // If both cases are unconjugated, any order is fine (I don't know if I can trust the
+    // order in which unconjugated lemmas were inserted in the lemmas list, anyway)
 
     return 0
   })

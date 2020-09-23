@@ -149,7 +149,7 @@ describe("app.js", function ()
       expect(response).to.have.status(200)
       const results = response.body as ApiWordOutput[]
       expect(results[0].lemmas).to.deep.equal([{ kanji: '目標', reading: 'もくひょう' }])
-      expect(results[1].lemmas).to.deep.include([{ kanji: '目標', reading: 'めじるし' }])
+      expect(results[1].lemmas).to.deep.include({ kanji: '目標', reading: 'めじるし' })
     })
   })
 
