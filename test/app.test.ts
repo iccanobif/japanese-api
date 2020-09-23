@@ -235,6 +235,15 @@ describe("app.js", function ()
       const a = response.body[0] as ApiWordOutput
       expect(a.accents).to.deep.equal(["コーコ↓ーセイ [3]"])
     })
+    it("doesn't return duplicates when there's more than one daijirin article with the same accent", async () =>
+    {
+      const response = await get("/word/" + encodeURIComponent("おっさん"))
+      expect(response).to.have.status(200)
+      const a = response.body[0] as ApiWordOutput
+      expect(a.accents).to.have.lengthOf(2)
+      expect(a.accents).to.include("オッサン [0]")
+      expect(a.accents).to.include("オ↓ッサン [1]")
+    })
   })
 
   after(() =>

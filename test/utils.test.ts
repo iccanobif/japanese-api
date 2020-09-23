@@ -8,9 +8,13 @@ const assert = require("assert")
 describe("utils", function () {
   describe("uniq()", () =>
   {
-    it("should work lol", () =>
+    it("should work with numbers", () =>
     {
       assert.deepStrictEqual([1, 2, 3], uniq([2, 2, 1, 3]))
+    })
+    it("should work with strings", () =>
+    {
+      assert.deepStrictEqual(['オ↓ッサン [1]' , 'オッサン [0]'], uniq([ 'オッサン [0]', 'オッサン [0]', 'オ↓ッサン [1]' ]))
     })
   })
   describe("addToDictionaryOfLists()", () => {
