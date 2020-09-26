@@ -124,8 +124,8 @@ describe("app.js", function ()
     {
       const response = await get("/word/" + encodeURIComponent("死体が散乱していた") + "/4")
       expect(response).to.have.status(200)
-      const results = response.body as ApiSentenceOutput[]
-      expect(results[0].word).to.equal("散乱")
+      const results = response.body as ApiWordOutput[]
+      expect(results[0].lemmas).to.deep.include({kanji: "散乱", reading: "さんらん"})
     })
     it("has 'part of speech' info", async () =>
     {
@@ -150,6 +150,13 @@ describe("app.js", function ()
       const results = response.body as ApiWordOutput[]
       expect(results[0].lemmas).to.deep.equal([{ kanji: '目標', reading: 'もくひょう' }])
       expect(results[1].lemmas).to.deep.include({ kanji: '目標', reading: 'めじるし' })
+    })
+    it("doesn't return duplicate entries", async () => {
+      const response = await get("/word/" + encodeURIComponent("前回だったらドキドキしていたところだろうが今の僕は落ち着いている。") + "/25")
+      expect(response).to.have.status(200)
+      const results = response.body as ApiWordOutput[]
+      expect(results.filter(r => r.lemmas.map(l => l.kanji).includes("落ち着く")))
+        .to.have.lengthOf(1)
     })
   })
 

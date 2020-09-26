@@ -58,5 +58,10 @@ describe("radical-search", function ()
     // I'll just pretend they're the same, and searching for "action" will match both 攵 and 夂.
     const results = searchKanjiByRadicalDescriptions("mounta,action")
     expect(results).to.include("峰")
+  }),
+  it("can find kanji by searching radicals that are part of bigger radicals for that kanji", async () => {
+    // 窺 is listed as having 見 as a radical, but not 目
+    const results = searchKanjiByRadicalDescriptions("eye,roof,big")
+    expect(results).to.include("窺")
   })
 })

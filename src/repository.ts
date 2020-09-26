@@ -4,7 +4,8 @@ import { toHiragana } from "./kana-tools";
 import { splitSentence, getSubstringsIncludingPosition } from "./split-sentence";
 
 export async function getDictionaryEntries(dictionary: Collection<DictionaryEntryInDb>, query: string)
-  : Promise<ApiWordOutput[]> {
+  : Promise<ApiWordOutput[]>
+{
   const results = await dictionary.find({ allKeys: toHiragana(query) }).toArray()
 
   return sortByRelevance(results, query)
@@ -12,7 +13,8 @@ export async function getDictionaryEntries(dictionary: Collection<DictionaryEntr
 }
 
 export async function getEntriesForSentence(dictionary: Collection<DictionaryEntryInDb>, sentence: string)
-  : Promise<ApiSentenceOutput[]> {
+  : Promise<ApiSentenceOutput[]>
+{
   const splits = await splitSentence(dictionary, sentence)
   const hiraganaSplits = splits.map(s => toHiragana(s))
 
@@ -36,13 +38,14 @@ export async function getEntriesForSentence(dictionary: Collection<DictionaryEnt
 }
 
 export async function getEntriesForWordInOffset(dictionary: Collection<DictionaryEntryInDb>, sentence: string, offset: number)
-  : Promise<ApiSentenceOutput[]> {
+  : Promise<ApiWordOutput[]>
+{
   const splits = getSubstringsIncludingPosition(sentence, offset)
   if (splits.length == 0)
     return []
 
   const facets: { [key: number]: any } = {}
-  // for (const word of splits)
+
   for (let i = 0; i < splits.length; i++)
     facets[i] = [{ $match: { allKeys: toHiragana(splits[i]) } }]
 
@@ -53,26 +56,40 @@ export async function getEntriesForWordInOffset(dictionary: Collection<Dictionar
     }
   ])
 
-  const results = (await cursor.toArray())[0] as any
-  const output: ApiSentenceOutput[] = []
+  const results = (await cursor.toArray())[0] as any // TODO: use correct type.
+  const output: ApiWordOutput[] = []
+
+  // This is to prevent duplicates: for example for a word like 落ち付いている matches 
+  // both to the keys 落ち付いて and 落ち付いている, which point to the same document in the "dictionary" collection
+  const idSet = new Set<string>()
 
   // Ensure that the results are returned in the same order as the words
   // returned by getSubstringsIncludingPosition()
-  for (const wordIndex in Object.keys(results).sort()) {
+  for (const wordIndex in Object.keys(results).sort())
+  {
     if (results[wordIndex].length > 0)
-      output.push({
-        word: splits[wordIndex],
-        dictionaryEntries: sortByRelevance(results[wordIndex] as DictionaryEntryInDb[], splits[wordIndex])
-          .map(r => new ApiWordOutput(r))
-      })
+    {
+      sortByRelevance(results[wordIndex] as DictionaryEntryInDb[], splits[wordIndex])
+        .map(r => new ApiWordOutput(r))
+        .forEach(r =>
+        {
+          if (!idSet.has(r.id.toHexString()))
+          {
+            output.push(r)
+            idSet.add(r.id.toHexString())
+          }
+        })
+    }
   }
 
   return output
 }
 
-function sortByRelevance(entries: DictionaryEntryInDb[], word: string) {
+function sortByRelevance(entries: DictionaryEntryInDb[], word: string): DictionaryEntryInDb[]
+{
   word = toHiragana(word)
-  return entries.sort((a, b) => {
+  return entries.sort((a, b) =>
+  {
 
     const priorityA = a.lemmas.findIndex(l => !l.isConjugated && (l.kanji == word || l.reading == word))
     const priorityB = b.lemmas.findIndex(l => !l.isConjugated && (l.kanji == word || l.reading == word))

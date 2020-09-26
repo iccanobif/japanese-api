@@ -57,11 +57,13 @@ export class ApiWordOutput
   public accents: string[];
   public sampleSentences: string[];
   public partOfSpeech: string[];
+  public id: ObjectID;
 
   constructor(entry: DictionaryEntryInDb)
   {
     const allDaijirinGlosses = entry.daijirinArticles.map(d => d.glosses).flat()
 
+    this.id = entry._id;
     this.lemmas = entry.lemmas.filter(l => !l.isConjugated).map(l => ({ kanji: l.kanji, reading: l.reading }))
     this.japaneseGlosses = allDaijirinGlosses.filter(g => !isEnglishGloss(g))
     this.englishGlosses = entry.edictGlosses.concat(allDaijirinGlosses.filter(g => isEnglishGloss(g)))
