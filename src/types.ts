@@ -47,6 +47,7 @@ export interface DictionaryEntryInDb
   allConjugatedKeys: string[],
   sampleSentences: string[],
   partOfSpeech: string[],
+  accents: number[],
 }
 
 export class ApiWordOutput

@@ -2,10 +2,10 @@ import { MongoClient } from "mongodb";
 import { environment } from "./environment";
 import { edictXmlParse } from "./edict/edict-parse";
 import { log, printError, bulkify } from "./utils";
-import { DictionaryEntryInDb, Lemma, DaijirinEntryFromIntermediateFile } from "./types";
+import { DictionaryEntryInDb, Lemma, DaijirinEntryFromIntermediateFile, AccentDictionaryEntry } from "./types";
 import { daijirinReadIntermediateFile } from "./daijirin/scan-intermediate-file";
 import { toHiragana } from "./kana-tools";
-// import { accentDictionaryReadIntermediateFile } from "./compiled-accent-dictionary/scan-intermediate-file";
+import { accentDictionaryReadIntermediateFile } from "./compiled-accent-dictionary/scan-intermediate-file";
 
 const EDICT_INSERT_BUFFER_LENGTH = 10000
 const DAIJIRIN_UPSERT_BUFFER_LENGTH = 8000
@@ -130,38 +130,48 @@ export async function buildEdictDB()
     log("Creating allKeys index on dictionary...")
     await dictionary.createIndex({ allKeys: 1 })
 
-    // log("Pitch accent...")
-    // await bulkify(8000,
-    //   accentDictionaryReadIntermediateFile(),
-    //   x => x,
-    //   async (arr: AccentDictionaryEntry[]) => {
-    //     const bulkOp = dictionary.initializeUnorderedBulkOp()
-    //     for (const accentItem of arr) {
+    log("Pitch accent...")
 
-    //       const accents = accentItem.pronounciations
-    //         .map(a => a.match(/\[\d*\]/g))
-    //         .flat()
-    //         ?.map(a => a?.replace(/[\[\]]/g, ""))
+    // Find documents with no daijirin accents
+    // db.getCollection('dictionary').aggregate([
+    //     { $unwind : "$daijirinArticles" }, 
+    //     { $addFields: {accentCount : { $size : "$daijirinArticles.accents" } } }, 
+    //     { $group : { _id : "$_id", accentCount: { $sum : "$accentCount" }, daijirinArticles : { $push : "$daijirinArticles" } }}, 
+    //     { $match : { "accentCount" : 0 } },
+    // ], {allowDiskUse: true})
 
-    //       bulkOp
-    //         .find({
-    //           allUnconjugatedKeys: {
-    //             $all: accentItem.keys.map(k => ({ $elemMatch: { $eq: toHiragana(k) } }))
-    //           },
-    //           accents: [],
-    //         })
-    //         .update({
-    //           $addToSet:
-    //           {
-    //             accents: { $each: accents },
-    //             sampleSentences: { $each: accentItem.sampleSentences }
-    //           }
-    //         })
-    //     }
-    //     log("Bulk accent upsert...")
-    //     await bulkOp.execute()
-    //   }
-    // )
+    await bulkify(8000,
+      accentDictionaryReadIntermediateFile(),
+      x => x,
+      async (arr: AccentDictionaryEntry[]) => {
+        const bulkOp = dictionary.initializeUnorderedBulkOp()
+        for (const accentItem of arr) {
+
+          const accents = accentItem.pronounciations
+            .map(a => a.match(/\[\d*\]/g) || [])
+            .flat()
+            .map(a => a.replace(/[\[\]]/g, ""))
+            .map(a => Number.parseInt(a))
+
+          bulkOp
+            .find({
+              allUnconjugatedKeys: {
+                $all: accentItem.keys.map(k => ({ $elemMatch: { $eq: toHiragana(k) } }))
+              },
+              $where: "function() { return this.daijirinArticles.filter(a => a.accents.length > 0).length == 0 }"
+            })
+            .update({
+              $addToSet:
+              {
+                accents: { $each: accents },
+                sampleSentences: { $each: accentItem.sampleSentences }
+              }
+            })
+        }
+        log("Bulk accent upsert...")
+        await bulkOp.execute()
+      }
+    )
 
     log("Done.")
   }
