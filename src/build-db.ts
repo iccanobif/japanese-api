@@ -147,11 +147,6 @@ export async function buildEdictDB()
         const bulkOp = dictionary.initializeUnorderedBulkOp()
         for (const accentItem of arr) {
 
-          const accents = accentItem.pronounciations
-            .map(a => a.match(/\[\d*\]/g) || [])
-            .flat()
-            .map(a => a.replace(/[\[\]]/g, ""))
-            .map(a => Number.parseInt(a))
 
           bulkOp
             .find({
@@ -163,7 +158,7 @@ export async function buildEdictDB()
             .update({
               $addToSet:
               {
-                accents: { $each: accents },
+                accents: { $each: accentItem.pronounciations },
                 sampleSentences: { $each: accentItem.sampleSentences }
               }
             })

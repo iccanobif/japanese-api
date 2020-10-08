@@ -47,7 +47,7 @@ export interface DictionaryEntryInDb
   allConjugatedKeys: string[],
   sampleSentences: string[],
   partOfSpeech: string[],
-  accents: number[],
+  accents: string[],
 }
 
 export class ApiWordOutput
@@ -68,7 +68,8 @@ export class ApiWordOutput
     this.lemmas = entry.lemmas.filter(l => !l.isConjugated).map(l => ({ kanji: l.kanji, reading: l.reading }))
     this.japaneseGlosses = allDaijirinGlosses.filter(g => !isEnglishGloss(g))
     this.englishGlosses = entry.edictGlosses.concat(allDaijirinGlosses.filter(g => isEnglishGloss(g)))
-    this.accents = uniq(entry.daijirinArticles.map(a => a.accents.map(n => applyAccentToString(a.lemma, n))).flat())
+    const daijirinAccents = entry.daijirinArticles.map(a => a.accents.map(n => applyAccentToString(a.lemma, n))).flat()
+    this.accents = uniq(daijirinAccents.concat(entry.accents || []))
     this.sampleSentences = entry.sampleSentences;
     this.partOfSpeech = entry.partOfSpeech;
   }
