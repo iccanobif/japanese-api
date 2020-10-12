@@ -146,8 +146,6 @@ export async function buildEdictDB()
       async (arr: AccentDictionaryEntry[]) => {
         const bulkOp = dictionary.initializeUnorderedBulkOp()
         for (const accentItem of arr) {
-
-
           bulkOp
             .find({
               allUnconjugatedKeys: {

@@ -57,11 +57,12 @@ export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>,
 // returns all possible substrings of "string" containing the character at position "positionToInclude"
 // Sorted by position (substrings occuring earlier in the string come first) and length (longest substrings first)
 export function getSubstringsIncludingPosition(sentence: string, positionToInclude: number) {
+
   const separatorsRegex = /[\s.。、,・「」【】]/
   const maxLength = 25
   const slices = []
 
-  // maybe can be rewritten using reduce()?
+  // maybe can be rewritten using reduce()? I'm not sure it'd be particularly simpler.
   const leftmostPosition = (() => {
     let i = positionToInclude
     while (i > 0
@@ -70,6 +71,7 @@ export function getSubstringsIncludingPosition(sentence: string, positionToInclu
       i--
     return i
   })()
+
   const rightmostPosition = (() => {
     let i = positionToInclude
     while (i < sentence.length
@@ -84,5 +86,6 @@ export function getSubstringsIncludingPosition(sentence: string, positionToInclu
       slices.push(sentence.slice(a, b))
     }
   }
+  
   return slices
 }

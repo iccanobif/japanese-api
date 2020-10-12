@@ -214,13 +214,6 @@ describe("app.js", function ()
       const a = response.body[0] as ApiWordOutput
       expect(a.accents).to.deep.equal(["アヤフヤ [0]"])
     })
-    it("populates example sentences list", async () =>
-    {
-      const response = await get("/word/" + encodeURIComponent("あやふや"))
-      expect(response).to.have.status(200)
-      const a = response.body[0] as ApiWordOutput
-      expect(a.sampleSentences).to.deep.equal(["アヤフヤナ返事"])
-    })
     it("returns correct accent for 雨 (ア↓メ [1])", async () =>
     {
       const response = await get("/word/" + encodeURIComponent("雨"))

@@ -1,4 +1,4 @@
-import { getDictionaryEntries } from "../src/repository"
+import { getDictionaryEntries, getEntriesForWordInOffset } from "../src/repository"
 import { expect } from "chai"
 import { MongoClient, Collection } from "mongodb"
 import { environment } from "../src/environment"
@@ -51,6 +51,11 @@ describe("edict-repository", function ()
         expect(japaneseGloss).not.to.match(/agonized/)
     }
     expect(entries[0].englishGlosses).to.include("be agonized.")
+  })
+  it("can search words in sentence by offset ignoring furigana", async () => {
+    const query = "俺が朝目覚めて夜｜眠《ねむ》るまでのこのフツーな世界に比べて"
+    const entries = await getEntriesForWordInOffset(dictionary, query, 10)
+    expect(entries[0].lemmas.map(l => l.kanji)).to.include("眠る")
   })
   after(() => (client.close()))
 })
