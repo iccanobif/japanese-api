@@ -10,7 +10,7 @@ import { accentDictionaryReadIntermediateFile } from "./compiled-accent-dictiona
 const EDICT_INSERT_BUFFER_LENGTH = 10000
 const DAIJIRIN_UPSERT_BUFFER_LENGTH = 8000
 
-export async function buildEdictDB()
+async function buildEdictDB()
 {
   let client: MongoClient | null = null;
   console.log(environment.mongodbUrl)
@@ -33,6 +33,7 @@ export async function buildEdictDB()
     }
 
     const dictionary = db.collection<DictionaryEntryInDb>("dictionary")
+
 
     log("Parsing edict...")
     await bulkify(EDICT_INSERT_BUFFER_LENGTH,
@@ -69,6 +70,7 @@ export async function buildEdictDB()
       })
     log("Creating allUnconjugatedKeys index on dictionary...")
     await dictionary.createIndex({ allUnconjugatedKeys: 1 })
+
 
     log("Parsing daijirin...")
     // versione bulk
@@ -139,7 +141,7 @@ export async function buildEdictDB()
     //     { $group : { _id : "$_id", accentCount: { $sum : "$accentCount" }, daijirinArticles : { $push : "$daijirinArticles" } }}, 
     //     { $match : { "accentCount" : 0 } },
     // ], {allowDiskUse: true})
-
+    if (true) {
     await bulkify(8000,
       accentDictionaryReadIntermediateFile(),
       x => x,
@@ -166,6 +168,8 @@ export async function buildEdictDB()
       }
     )
 
+
+  }
     log("Done.")
   }
   finally

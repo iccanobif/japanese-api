@@ -61,7 +61,7 @@ export async function bulkify<T>(
       buffer = []
     }
   }
-  bulkOperation(buffer)
+  await bulkOperation(buffer)
 }
 
 export function isEnglishGloss(gloss: string): boolean

@@ -5,7 +5,7 @@ import { DictionaryEntryInDb } from "./types";
 import { accentDictionaryReadIntermediateFile } from "./compiled-accent-dictionary/scan-intermediate-file";
 import { toHiragana } from "./kana-tools";
 
-export async function buildEdictDB()
+async function buildEdictDB()
 {
   let client: MongoClient | null = null;
   console.log(environment.mongodbUrl)
