@@ -41,7 +41,7 @@ export async function getEntriesForWordInOffset(dictionary: Collection<Dictionar
   : Promise<ApiWordOutput[]>
 {
   const splits = getSubstringsIncludingPosition(sentence, offset)
-    .map(s => s.replace(/《.*?》/g, "")) // This is for ignoring furigana in Aozorabunko-style e-books
+    .map(s => s.replace(/《.*?》/g, "").replace("｜", "")) // This is for ignoring furigana in Aozorabunko-style e-books
   if (splits.length == 0)
     return []
 
