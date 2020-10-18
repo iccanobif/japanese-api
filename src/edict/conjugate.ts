@@ -41,6 +41,7 @@ export function conjugate(kanjiWord: string,
       add("すぎ") // too much
       add("そう") // looks like it's...
       add("さ") // nominalization
+      add("き") // obsolete 連体形
       break;
     case "adj-ix":
       add("よくない", 2) // negative
