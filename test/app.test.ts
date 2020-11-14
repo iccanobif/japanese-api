@@ -244,6 +244,13 @@ describe("app.js", function ()
       expect(a.accents).to.include("オッサン [0]")
       expect(a.accents).to.include("オ↓ッサン [1]")
     })
+    it("accents possibilities are in correct order", async () =>
+    {
+      const response = await get("/word/" + encodeURIComponent("意外"))
+      expect(response).to.have.status(200)
+      const a = response.body[0] as ApiWordOutput
+      expect(a.accents).to.deep.equal(["イガイ [0]", "イ↓ガイ [1]"])
+    })
   })
 
   after(() =>
