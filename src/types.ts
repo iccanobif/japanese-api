@@ -1,6 +1,6 @@
 import { ObjectID } from "mongodb";
 import { applyAccentToString } from "./apply-accent-to-string";
-import { isEnglishGloss, uniq } from "./utils";
+import { isEnglishGloss, uniqWithoutSort } from "./utils";
 
 export interface Lemma
 {
@@ -69,7 +69,7 @@ export class ApiWordOutput
     this.japaneseGlosses = allDaijirinGlosses.filter(g => !isEnglishGloss(g))
     this.englishGlosses = entry.edictGlosses.concat(allDaijirinGlosses.filter(g => isEnglishGloss(g)))
     const daijirinAccents = entry.daijirinArticles.map(a => a.accents.map(n => applyAccentToString(a.lemma, n))).flat()
-    this.accents = uniq(daijirinAccents.concat(entry.accents || []))
+    this.accents = uniqWithoutSort(daijirinAccents.concat(entry.accents || []))
     this.sampleSentences = entry.sampleSentences;
     this.partOfSpeech = entry.partOfSpeech;
   }

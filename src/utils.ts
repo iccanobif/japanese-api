@@ -32,8 +32,12 @@ export function addToDictionaryOfSets(dictionary: any, key: any, value: any)
 
 export function uniq(arr: any[]): any[]
 {
+  return uniqWithoutSort(arr.sort())
+}
+
+export function uniqWithoutSort(arr: any[]): any[]
+{
   return arr
-    .sort()
     .reduce((acc, val) =>
     {
       if (acc[acc.length - 1] != val)
