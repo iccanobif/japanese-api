@@ -1,4 +1,4 @@
-import { getDictionaryEntries, getEntriesForWordInOffset } from "../src/repository"
+import { getDictionaryEntries, getEntriesForWordInOffset } from "../src/services"
 import { expect } from "chai"
 import { MongoClient, Collection } from "mongodb"
 import { environment } from "../src/environment"

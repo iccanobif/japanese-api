@@ -2,7 +2,7 @@ import express from "express"
 const app: express.Application = express()
 
 const bodyParser = require("body-parser");
-import { getDictionaryEntries, getEntriesForSentence, getEntriesForWordInOffset } from "./repository";
+import { getDictionaryEntries, getEntriesForSentence, getEntriesForWordInOffset } from "./services";
 import { searchKanjiByRadicalDescriptions } from "./radical-search";
 import { DictionaryEntryInDb } from "./types";
 import { Db } from "mongodb";
