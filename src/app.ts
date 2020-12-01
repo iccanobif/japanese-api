@@ -4,11 +4,11 @@ const app: express.Application = express()
 const bodyParser = require("body-parser");
 import { getDictionaryEntries, getEntriesForSentence, getEntriesForWordInOffset } from "./services";
 import { searchKanjiByRadicalDescriptions } from "./radical-search";
-import { DictionaryEntryInDb } from "./types";
 import { Db } from "mongodb";
 import { handleIntegratedDictionary, handleEbookDictionary } from "./integrated-dictionary/integrated-dictionary";
+import { Repository } from "./repository";
 
-let db: Db
+let repository: Repository
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -34,18 +34,16 @@ app.get("/", (req: express.Request, res: express.Response) =>
 
 app.get("/word/:query", async (req: express.Request, res: express.Response) =>
 {
-  const dictionary = db.collection<DictionaryEntryInDb>("dictionary")
   const query = decodeURIComponent(req.params.query)
-  const entries = await getDictionaryEntries(dictionary, query)
+  const entries = await getDictionaryEntries(repository, query)
   res.json(entries)
 })
 
 app.get("/word/:query/:offset", async (req: express.Request, res: express.Response) => {
   try {
-    const dictionary = db.collection<DictionaryEntryInDb>("dictionary")
     const query = decodeURIComponent(req.params.query)
     const offset = Number.parseInt(req.params.offset)
-    const entries = await getEntriesForWordInOffset(dictionary, query, offset)
+    const entries = await getEntriesForWordInOffset(repository, query, offset)
     res.json(entries)
   } catch (error)
   {
@@ -57,9 +55,8 @@ app.get("/word/:query/:offset", async (req: express.Request, res: express.Respon
 
 app.get("/sentence/:query/", async (req: express.Request, res: express.Response) => 
 {
-  const dictionary = db.collection<DictionaryEntryInDb>("dictionary")
   const query = decodeURIComponent(req.params.query)
-  const entries = await getEntriesForSentence(dictionary, query)
+  const entries = await getEntriesForSentence(repository, query)
   res.json(entries)
 })
 
@@ -78,5 +75,5 @@ export default app
 
 export function setAppDatabase(appDb: Db)
 {
-  db = appDb;
+  repository = new Repository(appDb)
 }

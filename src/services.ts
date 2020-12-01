@@ -1,28 +1,28 @@
 import { DictionaryEntryInDb, ApiWordOutput, ApiSentenceOutput } from "./types";
-import { Collection } from "mongodb";
 import { toHiragana } from "./kana-tools";
 import { splitSentence, getSubstringsIncludingPosition } from "./split-sentence";
+import { Repository } from "./repository";
 
-export async function getDictionaryEntries(dictionary: Collection<DictionaryEntryInDb>, query: string)
+export async function getDictionaryEntries(repository: Repository, query: string)
   : Promise<ApiWordOutput[]>
 {
-  const results = await dictionary.find({ allKeys: toHiragana(query) }).toArray()
+  const results = await repository.dictionary.find({ allKeys: toHiragana(query) }).toArray()
 
   return sortByRelevance(results, query)
     .map(r => new ApiWordOutput(r))
 }
 
-export async function getEntriesForSentence(dictionary: Collection<DictionaryEntryInDb>, sentence: string)
+export async function getEntriesForSentence(repository: Repository, sentence: string)
   : Promise<ApiSentenceOutput[]>
 {
-  const splits = await splitSentence(dictionary, sentence)
+  const splits = await splitSentence(repository.dictionary, sentence)
   const hiraganaSplits = splits.map(s => toHiragana(s))
 
   const facets: { [key: string]: any } = {}
   for (let i = 0; i < splits.length; i++)
     facets[i] = [{ $match: { allKeys: hiraganaSplits[i] } }]
 
-  const cursor = dictionary.aggregate([
+  const cursor = repository.dictionary.aggregate([
     { $match: { allKeys: { $in: hiraganaSplits } } },
     { $facet: facets }
   ])
@@ -37,7 +37,7 @@ export async function getEntriesForSentence(dictionary: Collection<DictionaryEnt
   return output
 }
 
-export async function getEntriesForWordInOffset(dictionary: Collection<DictionaryEntryInDb>, sentence: string, offset: number)
+export async function getEntriesForWordInOffset(repository: Repository, sentence: string, offset: number)
   : Promise<ApiWordOutput[]>
 {
   const splits = getSubstringsIncludingPosition(sentence, offset)
@@ -50,7 +50,7 @@ export async function getEntriesForWordInOffset(dictionary: Collection<Dictionar
   for (let i = 0; i < splits.length; i++)
     facets[i] = [{ $match: { allKeys: toHiragana(splits[i]) } }]
 
-  const cursor = dictionary.aggregate([
+  const cursor = repository.dictionary.aggregate([
     { $match: { allKeys: { $in: splits.map(s => toHiragana(s)) } } },
     {
       $facet: facets
