@@ -63,5 +63,9 @@ describe("radical-search", function ()
     // 窺 is listed as having 見 as a radical, but not 目
     const results = searchKanjiByRadicalDescriptions("eye,roof,big")
     expect(results).to.include("窺")
+  }),
+  it("person", async () => {
+    const results = searchKanjiByRadicalDescriptions("person,one")
+    expect(results).to.include("今")
   })
 })
