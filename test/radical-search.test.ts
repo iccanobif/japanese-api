@@ -68,4 +68,17 @@ describe("radical-search", function ()
     const results = searchKanjiByRadicalDescriptions("person,one")
     expect(results).to.include("今")
   })
+  it("刊", async () => {
+    const results = searchKanjiByRadicalDescriptions("sword,ten")
+    expect(results).to.include("刊")
+  })
+  it("艶", async () => {
+    const results = searchKanjiByRadicalDescriptions("wrap,cylinder,mouth")
+    expect(results).to.include("艶")
+  })
+  it("search by kanji", async () => {
+    const results = searchKanjiByRadicalDescriptions("女")
+    expect(results).to.include("女")
+    expect(results).to.include("安")
+  })
 })

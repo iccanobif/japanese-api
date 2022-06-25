@@ -34,7 +34,7 @@ export function searchKanjiByRadicalDescriptions(query: string): string[] {
   const descriptions = query.split(",").map(s => s.toLowerCase().trim())
 
   const radicalsToSearch = descriptions
-    .map(d => radicals.filter(r => r.description.includes(d))
+    .map(d => radicals.filter(r => r.description.includes(d) || r.radical == d)
       .map(r => r.radical == "夂" ? "攵" : r.radical))
 
   const kanjiLists = radicalsToSearch.map(radicals => radicals.map(radical => radicalToKanji[radical]))
