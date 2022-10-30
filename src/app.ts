@@ -45,7 +45,7 @@ app.get("/word/:query/:offset", async (req: express.Request, res: express.Respon
     const offset = Number.parseInt(req.params.offset)
     const entries = await getEntriesForWordInOffset(repository, query, offset)
     res.json(entries)
-  } catch (error)
+  } catch (error: any)
   {
     console.error(error)
     res.status(500)

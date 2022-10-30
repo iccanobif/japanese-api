@@ -1,0 +1,7 @@
+this has never been actually tested:
+
+- install mongo db
+- yarn build-daijirin-intermediate-file
+- yarn build-accent-dictionary-intermediate-file
+- yarn build-db
+- ...

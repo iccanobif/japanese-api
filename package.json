@@ -15,10 +15,6 @@
     "mongodb": "^3.4.1",
     "xml2js": "^0.4.23"
   },
-  "engines": {
-    "node": "^14.17.0",
-    "yarn": "^1.22.4"
-  },
   "scripts": {
     "dev": "cross-env DICTIONARY_IFRAME_URL=http://localhost:3007 ts-node-dev --respawn src/index.ts",
     "dev-remote-iframe": "cross-env DICTIONARY_IFRAME_URL=https://japanese-dictionary-iframe.herokuapp.com ts-node-dev --respawn src/index.ts",
