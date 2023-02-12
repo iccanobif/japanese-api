@@ -29,6 +29,11 @@ export async function handleEbookDictionary(req: express.Request, res: express.R
   }
 }
 
+export async function handleBooksPage(req: express.Request, res: express.Response)
+{
+  
+}
+
 export async function handleIntegratedDictionary(req: express.Request, res: express.Response) {
   try {
     const targetUrlRaw = req.path.replace(/^\/integrated-dictionary\//, "")
@@ -67,7 +72,7 @@ export function injectJavascript(pageContent: ArrayBuffer, contentType: string, 
   const htmlToInject = readFileSync("src/integrated-dictionary/html-to-inject.html", { encoding: "utf8" })
     .replace("DICTIONARY_IFRAME_URL", process.env.DICTIONARY_IFRAME_URL as string)
 
-  const dom = new JSDOM(pageContent, { contentType: contentType.toLowerCase().replace("text/plain", "text/html") })
+  const dom = new JSDOM(pageContent, { contentType: "text/html" })
   const document = dom.window.document
 
 

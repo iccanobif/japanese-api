@@ -4,11 +4,7 @@ import { MongoClient, Collection } from "mongodb"
 import { environment } from "../src/environment"
 import { DictionaryEntryInDb } from "../src/types"
 
-let client: MongoClient = new MongoClient(environment.mongodbUrl,
-  {
-    autoReconnect: false,
-    useUnifiedTopology: true
-  })
+let client: MongoClient = new MongoClient(environment.mongodbUrl)
 
 describe("split sentence", function () {
   let dictionary: Collection<DictionaryEntryInDb>

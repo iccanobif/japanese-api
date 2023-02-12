@@ -3,11 +3,7 @@ import { log } from "./utils"
 import { environment } from "./environment"
 import { MongoClient } from "mongodb"
 
-let client: MongoClient = new MongoClient(environment.mongodbUrl,
-  {
-    autoReconnect: false,
-    useUnifiedTopology: true
-  })
+const client: MongoClient = new MongoClient(environment.mongodbUrl)
 
 client.connect().then(() =>
 {

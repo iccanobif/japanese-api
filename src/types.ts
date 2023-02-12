@@ -1,4 +1,4 @@
-import { ObjectID } from "mongodb";
+import { ObjectId } from "mongodb";
 import { applyAccentToString } from "./apply-accent-to-string";
 import { isEnglishGloss, uniqWithoutSort } from "./utils";
 
@@ -34,7 +34,7 @@ export interface DaijirinEntryFromIntermediateFile
 
 export interface DictionaryEntryInDb
 {
-  _id: ObjectID,
+  _id: ObjectId,
   lemmas: Lemma[],
   edictGlosses: string[],
   daijirinArticles: {
@@ -58,7 +58,7 @@ export class ApiWordOutput
   public accents: string[];
   public sampleSentences: string[];
   public partOfSpeech: string[];
-  public id: ObjectID;
+  public id: ObjectId;
 
   constructor(entry: DictionaryEntryInDb)
   {

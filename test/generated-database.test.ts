@@ -3,11 +3,7 @@ import { expect } from "chai"
 import { MongoClient, Collection } from "mongodb";
 import { environment } from "../src/environment";
 
-let client: MongoClient = new MongoClient(environment.mongodbUrl,
-  {
-    autoReconnect: false,
-    useUnifiedTopology: true
-  })
+let client: MongoClient = new MongoClient(environment.mongodbUrl)
 describe("database tests", function ()
 {
   let dictionary: Collection<DictionaryEntryInDb>

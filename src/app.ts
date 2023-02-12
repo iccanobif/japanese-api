@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 import { getDictionaryEntries, getEntriesForSentence, getEntriesForWordInOffset } from "./services";
 import { searchKanjiByRadicalDescriptions } from "./radical-search";
 import { Db } from "mongodb";
-import { handleIntegratedDictionary, handleEbookDictionary } from "./integrated-dictionary/integrated-dictionary";
+import { handleIntegratedDictionary, handleEbookDictionary, handleBooksPage } from "./integrated-dictionary/integrated-dictionary";
 import { Repository } from "./repository";
 
 let repository: Repository
@@ -70,6 +70,8 @@ app.get("/kanji-by-radical/:query", async (req: express.Request, res: express.Re
 app.get("/integrated-dictionary/*", handleIntegratedDictionary)
 
 app.get("/ebook-dictionary/*", handleEbookDictionary)
+
+app.get("/ebooks", handleBooksPage)
 
 export default app
 

@@ -4,11 +4,7 @@ import { MongoClient } from "mongodb"
 import { environment } from "../src/environment"
 import { Repository } from "../src/repository"
 
-let client: MongoClient = new MongoClient(environment.mongodbUrl,
-  {
-    autoReconnect: false,
-    useUnifiedTopology: true
-  })
+let client: MongoClient = new MongoClient(environment.mongodbUrl)
 
 describe("edict-repository", function ()
 {

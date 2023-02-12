@@ -27,11 +27,7 @@ describe("app.js", function ()
   this.timeout(10000)
   before(async () =>
   {
-    client = new MongoClient(environment.mongodbUrl,
-      {
-        autoReconnect: false,
-        useUnifiedTopology: true
-      })
+    client = new MongoClient(environment.mongodbUrl)
     await client.connect()
     setAppDatabase(client.db())
   })

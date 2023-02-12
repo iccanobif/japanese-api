@@ -16,11 +16,7 @@ async function buildEdictDB()
   console.log(environment.mongodbUrl)
   try
   {
-    client = new MongoClient(environment.mongodbUrl,
-      {
-        autoReconnect: false,
-        useUnifiedTopology: true
-      })
+    client = new MongoClient(environment.mongodbUrl)
     await client.connect()
     const db = client.db()
 
