@@ -17,7 +17,7 @@
   },
   "scripts": {
     "dev": "cross-env DICTIONARY_IFRAME_URL=http://localhost:3007 ts-node-dev --respawn src/index.ts",
-    "dev-remote-iframe": "cross-env DICTIONARY_IFRAME_URL=https://japanese-dictionary-iframe.herokuapp.com ts-node-dev --respawn src/index.ts",
+    "dev-remote-iframe": "cross-env DICTIONARY_IFRAME_URL=https://janus1.iccan.us/japanese-dictionary-iframe ts-node-dev --respawn src/index.ts",
     "build": "npx tsc",
     "start": "node build/src/index.js",
     "test": "mocha -r ts-node/register test/*.ts",
