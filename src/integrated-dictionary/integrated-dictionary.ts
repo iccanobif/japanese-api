@@ -4,13 +4,24 @@ import url from "url"
 import { readdirSync, readFileSync } from "fs"
 import { JSDOM } from "jsdom"
 import path from "path"
+import chardet from "chardet"
 
 
 export async function handleEbookDictionary(bookId: string, res: express.Response)
 {
   try
   {
-    const ebookText = readFileSync("uploaded-books/" + bookId, { encoding: "utf8" })
+    const ebookBuffer = readFileSync("uploaded-books/" + bookId)
+    const encoding = chardet.detect(ebookBuffer)
+
+    if (!encoding)
+    {
+      res.send("can't detect encoding");
+      return;
+    }
+
+    const decoder = new TextDecoder(encoding)
+    const ebookText = decoder.decode(ebookBuffer)
 
     const html = readFileSync("src/integrated-dictionary/ebook-dictionary.html", { encoding: "utf8" })
       .replace("%EBOOK-TEXT%", ebookText)
