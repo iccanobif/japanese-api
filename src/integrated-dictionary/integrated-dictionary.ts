@@ -1,41 +1,49 @@
 import express from "express"
 import axios from "axios"
 import url from "url"
-import { readFileSync } from "fs"
+import { readdirSync, readFileSync } from "fs"
 import { JSDOM } from "jsdom"
+import path from "path"
 
 
-export async function handleEbookDictionary(req: express.Request, res: express.Response) {
-  try {
-    const targetUrlRaw = req.path.replace(/^\/ebook-dictionary\//, "")
-
-    const targetUrl = url.parse(targetUrlRaw).href
-      // nginx replaces double slashes with a single slash, so I reconstruct the full url replacing http:/blahblah with http://blahblah
-      .replace(/http(s)?:\/(\w)/, "http$1://$2")
-
-    const response = await axios.get(targetUrl, {
-      params: req.query,
-      responseType: "text"
-    })
+export async function handleEbookDictionary(bookId: string, res: express.Response)
+{
+  try
+  {
+    const ebookText = readFileSync("uploaded-books/" + bookId, { encoding: "utf8" })
 
     const html = readFileSync("src/integrated-dictionary/ebook-dictionary.html", { encoding: "utf8" })
-      .replace("%EBOOK-TEXT%", response.data)
+      .replace("%EBOOK-TEXT%", ebookText)
       .replace(/DICTIONARY_IFRAME_URL/g, process.env.DICTIONARY_IFRAME_URL as string)
 
     res.type("text/html; charset=UTF-8")
     res.send(html)
-  } catch (error) {
+  }
+  catch (error)
+  {
     res.send(error)
   }
 }
 
-export async function handleBooksPage(req: express.Request, res: express.Response)
+interface Book
 {
-  
+  id: string,
+  name: string
 }
 
-export async function handleIntegratedDictionary(req: express.Request, res: express.Response) {
-  try {
+export async function handleBooksPage(req: express.Request, res: express.Response)
+{
+  const dir = readdirSync("uploaded-books")
+  // const books: Book[] = [{ id: "a77c7cce-47c2-4f55-8816-28d55018d8bc", name: "haruhi" }]
+  const books: Book[] = dir.map(d => ({ id: d, name: d }))
+  
+  res.render(path.join(__dirname, "books.ejs"), { books })
+}
+
+export async function handleIntegratedDictionary(req: express.Request, res: express.Response)
+{
+  try
+  {
     const targetUrlRaw = req.path.replace(/^\/integrated-dictionary\//, "")
     const targetUrl = url.parse(targetUrlRaw)
     const targetOrigin = targetUrl.protocol + "//" + targetUrl.host
@@ -50,23 +58,27 @@ export async function handleIntegratedDictionary(req: express.Request, res: expr
 
     const contentType: string = response.headers["content-type"]
     let output = ""
-    if (contentType.startsWith("text/html") || contentType.startsWith("text/plain")) {
+    if (contentType.startsWith("text/html") || contentType.startsWith("text/plain"))
+    {
       output = injectJavascript(response.data, contentType, targetOrigin)
 
       res.type("text/html; charset=UTF-8")
     }
-    else {
+    else
+    {
       output = response.data
       res.type(contentType)
     }
 
     res.send(output)
-  } catch (error) {
+  } catch (error)
+  {
     res.send(error)
   }
 }
 
-export function injectJavascript(pageContent: ArrayBuffer, contentType: string, targetOrigin: string): string {
+export function injectJavascript(pageContent: ArrayBuffer, contentType: string, targetOrigin: string): string
+{
   const javascriptToInject = readFileSync("src/integrated-dictionary/javascript-to-inject.js", { encoding: "utf8" })
     .replace("DICTIONARY_IFRAME_URL", process.env.DICTIONARY_IFRAME_URL as string)
   const htmlToInject = readFileSync("src/integrated-dictionary/html-to-inject.html", { encoding: "utf8" })
@@ -85,7 +97,8 @@ export function injectJavascript(pageContent: ArrayBuffer, contentType: string, 
       document.head.removeChild(node)
 
   // If the page was originally a text/plain, add some styling
-  if (contentType.toLowerCase().startsWith("text/plain")) {
+  if (contentType.toLowerCase().startsWith("text/plain"))
+  {
     document.body.style.whiteSpace = "pre-wrap"
     document.body.style.backgroundColor = "black"
     document.body.style.color = "white"
@@ -108,9 +121,12 @@ export function injectJavascript(pageContent: ArrayBuffer, contentType: string, 
   const customHtmlNode = new JSDOM(htmlToInject)
   document.body.appendChild(customHtmlNode.window.document.body.firstChild as ChildNode);
 
-  [...document.getElementsByTagName("*")].forEach(el => {
-    ["href", "src"].forEach(attributeName => {
-      if (el.hasAttribute(attributeName)) {
+  [...document.getElementsByTagName("*")].forEach(el =>
+  {
+    ["href", "src"].forEach(attributeName =>
+    {
+      if (el.hasAttribute(attributeName))
+      {
         const originalHref = el.getAttribute(attributeName)
         if (originalHref && originalHref.startsWith("/") && !originalHref.startsWith("//"))
           el.setAttribute(attributeName, targetOrigin + originalHref)

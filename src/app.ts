@@ -11,6 +11,7 @@ import { Repository } from "./repository";
 let repository: Repository
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.set('view engine', 'ejs');
 
 app.use((req, res, next) =>
 {
@@ -69,9 +70,9 @@ app.get("/kanji-by-radical/:query", async (req: express.Request, res: express.Re
 
 app.get("/integrated-dictionary/*", handleIntegratedDictionary)
 
-app.get("/ebook-dictionary/*", handleEbookDictionary)
+app.get("/books", handleBooksPage)
 
-app.get("/ebooks", handleBooksPage)
+app.get("/books/:bookId", (req, res) => handleEbookDictionary(req.params.bookId, res))
 
 export default app
 
