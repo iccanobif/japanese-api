@@ -8,8 +8,12 @@ import { JSDOM } from "jsdom"
 export async function handleEbookDictionary(req: express.Request, res: express.Response) {
   try {
     const targetUrlRaw = req.path.replace(/^\/ebook-dictionary\//, "")
-    const targetUrl = url.parse(targetUrlRaw)
-    const response = await axios.get(targetUrl.href, {
+
+    const targetUrl = url.parse(targetUrlRaw).href
+      // nginx replaces double slashes with a single slash, so I reconstruct the full url replacing http:/blahblah with http://blahblah
+      .replace(/http(s)?:\/(\w)/, "http$1://$2")
+
+    const response = await axios.get(targetUrl, {
       params: req.query,
       responseType: "text"
     })
