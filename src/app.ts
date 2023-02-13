@@ -12,6 +12,7 @@ let repository: Repository
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.set('view engine', 'ejs');
+// app.set('views', path.join(__dirname, '/integrated-dictionary'));
 
 app.use((req, res, next) =>
 {

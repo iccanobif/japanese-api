@@ -3,15 +3,16 @@ import axios from "axios"
 import url from "url"
 import { readdirSync, readFileSync } from "fs"
 import { JSDOM } from "jsdom"
-import path from "path"
 import chardet from "chardet"
+import { environment } from "../environment"
+import path from "path"
 
 
 export async function handleEbookDictionary(bookId: string, res: express.Response)
 {
   try
   {
-    const ebookBuffer = readFileSync("uploaded-books/" + bookId)
+    const ebookBuffer = readFileSync(path.join(environment.bookDirectory, bookId))
     const encoding = chardet.detect(ebookBuffer)
 
     if (!encoding)
@@ -25,7 +26,7 @@ export async function handleEbookDictionary(bookId: string, res: express.Respons
 
     const html = readFileSync("src/integrated-dictionary/ebook-dictionary.html", { encoding: "utf8" })
       .replace("%EBOOK-TEXT%", ebookText)
-      .replace(/DICTIONARY_IFRAME_URL/g, process.env.DICTIONARY_IFRAME_URL as string)
+      .replace(/DICTIONARY_IFRAME_URL/g, environment.dictionaryIframeUrl)
 
     res.type("text/html; charset=UTF-8")
     res.send(html)
@@ -44,11 +45,18 @@ interface Book
 
 export async function handleBooksPage(req: express.Request, res: express.Response)
 {
-  const dir = readdirSync("uploaded-books")
-  // const books: Book[] = [{ id: "a77c7cce-47c2-4f55-8816-28d55018d8bc", name: "haruhi" }]
-  const books: Book[] = dir.map(d => ({ id: d, name: d }))
-  
-  res.render(path.join(__dirname, "books.ejs"), { books })
+  try
+  {
+    const dir = readdirSync(environment.bookDirectory)
+    console.log(dir)
+    // const books: Book[] = [{ id: "a77c7cce-47c2-4f55-8816-28d55018d8bc", name: "haruhi" }]
+    const books: Book[] = dir.map(d => ({ id: d, name: d }))
+
+    res.render("books", { books })
+  } catch (error)
+  {
+    res.send(error)
+  }
 }
 
 export async function handleIntegratedDictionary(req: express.Request, res: express.Response)
@@ -91,13 +99,12 @@ export async function handleIntegratedDictionary(req: express.Request, res: expr
 export function injectJavascript(pageContent: ArrayBuffer, contentType: string, targetOrigin: string): string
 {
   const javascriptToInject = readFileSync("src/integrated-dictionary/javascript-to-inject.js", { encoding: "utf8" })
-    .replace("DICTIONARY_IFRAME_URL", process.env.DICTIONARY_IFRAME_URL as string)
+    .replace("DICTIONARY_IFRAME_URL", environment.dictionaryIframeUrl)
   const htmlToInject = readFileSync("src/integrated-dictionary/html-to-inject.html", { encoding: "utf8" })
-    .replace("DICTIONARY_IFRAME_URL", process.env.DICTIONARY_IFRAME_URL as string)
+    .replace("DICTIONARY_IFRAME_URL", environment.dictionaryIframeUrl)
 
   const dom = new JSDOM(pageContent, { contentType: "text/html" })
   const document = dom.window.document
-
 
   // Remove all <base> tags to make all urls relative
   // Remove <meta> tags that specify a charset (the output will always be UTF-8)

@@ -11,8 +11,8 @@ client.connect().then(() =>
   // Accept connections only from localhost, since normally I want to
   // connect to the node.js process via a reverse proxy, at least for SSL offloading.
   app.listen(environment.httpPort, "localhost", () => {
-    console.log("app.listen() callback")
+    log("Server running on http://localhost:" + environment.httpPort)
   })
-  log("Server running on http://localhost:" + environment.httpPort)
+  log("Starting...")
 })
   .catch(console.error)

@@ -1,11 +1,12 @@
 import { expect } from "chai"
 import { injectJavascript } from "../src/integrated-dictionary/integrated-dictionary"
 import { readFileSync } from "fs"
+import { environment } from "../src/environment"
 
 const javascriptToInject = readFileSync("src/integrated-dictionary/javascript-to-inject.js", { encoding: "utf8" })
-  .replace("DICTIONARY_IFRAME_URL", process.env.DICTIONARY_IFRAME_URL as string)
+  .replace("DICTIONARY_IFRAME_URL", environment.dictionaryIframeUrl)
 const htmlToInject = readFileSync("src/integrated-dictionary/html-to-inject.html", { encoding: "utf8" })
-  .replace("DICTIONARY_IFRAME_URL", process.env.DICTIONARY_IFRAME_URL as string)
+  .replace("DICTIONARY_IFRAME_URL", environment.dictionaryIframeUrl)
 
 describe("integrated dictionary", function ()
 {
