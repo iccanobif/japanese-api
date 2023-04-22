@@ -2,7 +2,8 @@ name: deploy
 # run-name: ${{ github.actor }} is learning GitHub Actions
 on:
   push:
-    - CI-PROD
+    branches:
+      - CI-PROD
 jobs:
   check-bats-version:
     runs-on: ubuntu-latest
