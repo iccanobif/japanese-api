@@ -24,8 +24,10 @@ export async function handleEbookDictionary(bookId: string, res: express.Respons
     const decoder = new TextDecoder(encoding)
     const ebookText = decoder.decode(ebookBuffer)
 
+    const ebookTextSplitByParagraphs = "<span>" + ebookText.replace(/\n/g, "</span><span>") + "</span>"
+
     const html = readFileSync("src/integrated-dictionary/ebook-dictionary.html", { encoding: "utf8" })
-      .replace("%EBOOK-TEXT%", ebookText)
+      .replace("%EBOOK-TEXT%", ebookTextSplitByParagraphs)
       .replace(/DICTIONARY_IFRAME_URL/g, environment.dictionaryIframeUrl)
 
     res.type("text/html; charset=UTF-8")
