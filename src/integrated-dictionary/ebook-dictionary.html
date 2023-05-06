@@ -138,6 +138,7 @@
 
     function scroll(amount) {
       viewer.scrollBy({ top: amount, left: 0 });
+      updateCompletionIndicator();
       window.localStorage.setItem(window.location, viewer.scrollTop)
     }
 
@@ -147,13 +148,17 @@
           scrollFramesToSkip--
         else {
           scroll(scrollSpeed)
-          updateCompletionIndictator();
+          updateCompletionIndicator();
         }
       }
     }, 50)
 
-    function updateCompletionIndictator() {
-      completionIndicator.innerText = Math.round((viewer.scrollTop / viewer.scrollHeight) * 1000, 1) / 10 + "%"
+    function updateCompletionIndicator() {
+
+      const tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+      const localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+
+      completionIndicator.innerText = localISOTime + " " + Math.round((viewer.scrollTop / viewer.scrollHeight) * 1000, 1) / 10 + "%"
     }
 
     function selectionChanged() {
@@ -177,7 +182,7 @@
       if (scrollPositionFromStorage)
         viewer.scrollTo({ top: scrollPositionFromStorage, left: 0 });
 
-      updateCompletionIndictator()
+      updateCompletionIndicator()
     })
 
     // forse inutile
