@@ -49,6 +49,14 @@ export async function handleBooksPage(req: express.Request, res: express.Respons
 {
   try
   {
+    // Ensure that there is no trailing slash in the url so that the relative links
+    // in books.ejs don't break
+    if (req.url.endsWith("/"))
+    {
+      res.redirect("../books")
+      return
+    }
+
     const dir = readdirSync(environment.bookDirectory)
     console.log(dir)
     // const books: Book[] = [{ id: "a77c7cce-47c2-4f55-8816-28d55018d8bc", name: "haruhi" }]
