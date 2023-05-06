@@ -142,17 +142,6 @@
       window.localStorage.setItem(window.location, viewer.scrollTop)
     }
 
-    setInterval(() => {
-      if (scrollSpeed != 0) {
-        if (scrollFramesToSkip > 0)
-          scrollFramesToSkip--
-        else {
-          scroll(scrollSpeed)
-          updateCompletionIndicator();
-        }
-      }
-    }, 50)
-
     function updateCompletionIndicator() {
 
       const tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
@@ -183,6 +172,18 @@
         viewer.scrollTo({ top: scrollPositionFromStorage, left: 0 });
 
       updateCompletionIndicator()
+
+      setInterval(() => {
+        if (scrollSpeed != 0) {
+          if (scrollFramesToSkip > 0)
+            scrollFramesToSkip--
+          else {
+            scroll(scrollSpeed)
+            updateCompletionIndicator();
+          }
+        }
+      }, 50)
+
     })
 
     // forse inutile
