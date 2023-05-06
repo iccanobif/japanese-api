@@ -172,11 +172,28 @@
       popup.contentWindow.postMessage({ text, offset }, "DICTIONARY_IFRAME_URL")
     }
 
-    const scrollPositionFromStorage = window.localStorage.getItem(window.location)
-    if (scrollPositionFromStorage)
-      viewer.scrollTo({ top: scrollPositionFromStorage, left: 0 });
+    window.addEventListener("load", () => {
+      const scrollPositionFromStorage = window.localStorage.getItem(window.location)
+      if (scrollPositionFromStorage)
+        viewer.scrollTo({ top: scrollPositionFromStorage, left: 0 });
 
-    updateCompletionIndictator()
+      updateCompletionIndictator()
+    })
+
+    // forse inutile
+    function findFirstVisibleSpan()
+    {
+      const iframeHeight = document.documentElement.clientHeight / 2 
+
+      const spans = document.getElementsByTagName("span")
+      // TODO Usare ricerca binaria
+      for (let span of spans)
+      {
+        const a = span.getBoundingClientRect()
+        if (a.y - iframeHeight >= 0)
+          return span.previousSibling()
+      }
+    }
   </script>
 </body>
 
