@@ -163,6 +163,16 @@ describe("app.js", function ()
       .that.satisfies((arr: ApiWordOutput[]) =>
         arr.some(entry => entry.lemmas.some(l => l.kanji == "禎子"))) 
     })
+    it("enamdict entires always after other entries", async () =>
+    {
+      const response = await get("/word/" + encodeURIComponent("山田"))
+      expect(response).to.have.status(200)
+      const results = response.body as ApiWordOutput[]
+      expect(results).to.be.an("array").of.length.above(1)
+      // Expect that the first result is the daijirin entry
+      expect(results[0].japaneseGlosses).to.contain("山にある田。山間の田。")
+    })
+
   })
 
   describe("sentence", () =>

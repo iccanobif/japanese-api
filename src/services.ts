@@ -91,6 +91,13 @@ function sortByRelevance(entries: DictionaryEntryInDb[], word: string): Dictiona
   word = toHiragana(word)
   return entries.sort((a, b) =>
   {
+    // Always put names at the end
+    if (a.isEnamdictEntry && b.isEnamdictEntry)
+      return 0
+    if (a.isEnamdictEntry && !b.isEnamdictEntry)
+      return 1
+    if (!a.isEnamdictEntry && b.isEnamdictEntry)
+      return 1
 
     const priorityA = a.lemmas.findIndex(l => !l.isConjugated && (l.kanji == word || l.reading == word))
     const priorityB = b.lemmas.findIndex(l => !l.isConjugated && (l.kanji == word || l.reading == word))
