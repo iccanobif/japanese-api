@@ -154,6 +154,15 @@ describe("app.js", function ()
       expect(results.filter(r => r.lemmas.map(l => l.kanji).includes("落ち着く")))
         .to.have.lengthOf(1)
     })
+    it("finds enamdict entries", async () =>
+    {
+      const response = await get("/word/" + encodeURIComponent("禎子"))
+      expect(response).to.have.status(200)
+      const results = response.body as ApiWordOutput[]
+      expect(results).to.be.an("array")
+      .that.satisfies((arr: ApiWordOutput[]) =>
+        arr.some(entry => entry.lemmas.some(l => l.kanji == "禎子"))) 
+    })
   })
 
   describe("sentence", () =>

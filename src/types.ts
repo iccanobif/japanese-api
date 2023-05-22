@@ -44,10 +44,10 @@ export interface DictionaryEntryInDb
   }[]
   allKeys: string[],
   allUnconjugatedKeys: string[],
-  allConjugatedKeys: string[],
   sampleSentences: string[],
   partOfSpeech: string[],
   accents: string[],
+  isEnamdictEntry: boolean,
 }
 
 export class ApiWordOutput
@@ -84,6 +84,13 @@ export interface ApiSentenceOutput
 export interface KanjidicEntry
 {
   strokeCount: number
+}
+
+export interface EnamdictEntry
+{
+  kanji: string
+  reading: string
+  romaji: string
 }
 
 export interface MobiFileEntry
