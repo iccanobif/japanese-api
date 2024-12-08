@@ -6,6 +6,8 @@ const radicals = JSON.parse(radicalsFileText) as { radical: string, description:
 
 // KRADFILE parsing
 const radicalToKanji: { [radical: string]: string[] } = {};
+const kanjiToRadicals: { [kanji: string]: string[] } = {};
+
 readFileSync("datasets/kradfile-u", { encoding: "utf8" })
   .split("\n")
   .forEach(line => {
@@ -26,6 +28,11 @@ readFileSync("datasets/kradfile-u", { encoding: "utf8" })
         radicalToKanji[radical] = [kanji]
       else
         radicalToKanji[radical].push(kanji)
+
+      if (kanjiToRadicals[kanji] === undefined)
+        kanjiToRadicals[kanji] = [radical]
+      else
+        kanjiToRadicals[kanji].push(radical)
     }
   })
 
@@ -69,4 +76,8 @@ export function searchKanjiByRadicalDescriptions(query: string): string[] {
   })
 
   return allKanjiSorted
+}
+
+export function getRadicalsForKanji(kanji: string): string[] {
+  return kanjiToRadicals[kanji] ?? []
 }

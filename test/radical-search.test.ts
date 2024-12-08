@@ -1,5 +1,5 @@
 import { expect } from "chai"
-import { searchKanjiByRadicalDescriptions } from "../src/radical-search"
+import { getRadicalsForKanji, searchKanjiByRadicalDescriptions } from "../src/radical-search"
 import { getKanjidicEntry } from "../src/kanjidic"
 
 describe("radical-search", function ()
@@ -80,5 +80,10 @@ describe("radical-search", function ()
     const results = searchKanjiByRadicalDescriptions("女")
     expect(results).to.include("女")
     expect(results).to.include("安")
+  })
+  it("get radicals from kanji", async () => {
+    const results = getRadicalsForKanji("家")
+    expect(results).to.include("宀")
+    expect(results).to.include("豕")
   })
 })

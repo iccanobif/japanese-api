@@ -3,7 +3,7 @@ const app: express.Application = express()
 
 const bodyParser = require("body-parser");
 import { getDictionaryEntries, getEntriesForSentence, getEntriesForWordInOffset } from "./services";
-import { searchKanjiByRadicalDescriptions } from "./radical-search";
+import { getRadicalsForKanji, searchKanjiByRadicalDescriptions } from "./radical-search";
 import { Db } from "mongodb";
 import { handleIntegratedDictionary, handleEbookDictionary, handleBooksPage } from "./integrated-dictionary/integrated-dictionary";
 import { Repository } from "./repository";
@@ -66,6 +66,19 @@ app.get("/kanji-by-radical/:query", async (req: express.Request, res: express.Re
 {
   const query = req.params.query
   const output = await searchKanjiByRadicalDescriptions(query)
+  res.json(output)
+})
+
+app.get("/radical-by-kanji/:query", async (req: express.Request, res: express.Response) =>
+{
+  const kanji = req.params.query
+  if (kanji.length != 1)
+  {
+    res.status(400)
+    res.end("Please input a single kanji")
+    return
+  }
+  const output = await getRadicalsForKanji(kanji)
   res.json(output)
 })
 
