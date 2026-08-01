@@ -1,5 +1,4 @@
 import { MongoClient } from "mongodb";
-import { environment } from "./environment";
 import { edictXmlParse } from "./edict/edict-parse";
 import { log, printError, bulkify } from "./utils";
 import { DictionaryEntryInDb, Lemma, DaijirinEntryFromIntermediateFile, AccentDictionaryEntry } from "./types";
@@ -12,13 +11,13 @@ const EDICT_INSERT_BUFFER_LENGTH = 10000
 const DAIJIRIN_UPSERT_BUFFER_LENGTH = 8000
 const ENAMDICT_UPSERT_BUFFER_LENGTH = 8000
 
-async function buildEdictDB()
+async function buildEdictDB(mongodbUrl: string)
 {
   let client: MongoClient | null = null;
-  console.log(environment.mongodbUrl)
+  console.log("Building edict database. DB URL: " + mongodbUrl)
   try
   {
-    client = new MongoClient(environment.mongodbUrl)
+    client = new MongoClient(mongodbUrl)
     await client.connect()
     const db = client.db()
 
@@ -193,5 +192,6 @@ async function buildEdictDB()
   }
 }
 
-buildEdictDB().catch(printError)
+const mongodbUrl = process.argv[2] || "mongodb://localhost:27017/japaneseapi"
+buildEdictDB(mongodbUrl).catch(printError)
 

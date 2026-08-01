@@ -1,0 +1,29 @@
+services:
+  mongo:
+    image: mongo:6
+    # restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    command: mongod
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      - PORT=8085
+      - MONGODB_URI=mongodb://localhost:27017/japaneseapi
+    ports:
+      - "8085:8085"
+    # restart: unless-stopped
+
+volumes:
+  mongo-data:

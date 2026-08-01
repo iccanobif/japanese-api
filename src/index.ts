@@ -10,7 +10,7 @@ client.connect().then(() =>
   setAppDatabase(client.db())
   // Accept connections only from localhost, since normally I want to
   // connect to the node.js process via a reverse proxy, at least for SSL offloading.
-  app.listen(environment.httpPort, "localhost", () => {
+  app.listen(environment.httpPort, "0.0.0.0", () => {
     log("Server running on http://localhost:" + environment.httpPort)
   })
   log("Starting...")
