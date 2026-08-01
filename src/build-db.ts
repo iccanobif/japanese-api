@@ -11,7 +11,7 @@ const EDICT_INSERT_BUFFER_LENGTH = 10000
 const DAIJIRIN_UPSERT_BUFFER_LENGTH = 8000
 const ENAMDICT_UPSERT_BUFFER_LENGTH = 8000
 
-async function buildEdictDB(mongodbUrl: string)
+async function buildDB(mongodbUrl: string)
 {
   let client: MongoClient | null = null;
   console.log("Building edict database. DB URL: " + mongodbUrl)
@@ -38,14 +38,27 @@ async function buildEdictDB(mongodbUrl: string)
       {
         const unconjugatedLemmas = edictItem.lemmas.filter(l => !l.isConjugated)
 
+        const japaneseKeys = edictItem.lemmas
+            .map(l => toHiragana(l.kanji))
+            .concat(edictItem.lemmas
+              .map(l => toHiragana(l.reading)))
+
+        const englishKeys = edictItem.glosses
+          // remove all text enclosed in parentheses (eg. "to do (something)" -> "to do")
+          .map(g => g.replace(/\([^)]*\)/g, ""))
+          // remove all non alphabetic characters
+          .map(g => g.replace(/[^a-zA-Z\s]/g, " "))
+          // split on whitespace and flatten the array
+          .map(g => g.split(/[\s]+/))
+          .flat()
+          // remove excessively common words in english (and, to...)
+          .filter(g => !["a", "an", "the", "to", "and", "etc", "or", "of", "in", "on", "at", "for", "with", "by", "from"].includes(g.toLowerCase()))
+
         return {
           lemmas: edictItem.lemmas,
           edictGlosses: edictItem.glosses,
           daijirinArticles: [],
-          allKeys: edictItem.lemmas
-            .map(l => toHiragana(l.kanji))
-            .concat(edictItem.lemmas
-              .map(l => toHiragana(l.reading))),
+          allKeys: japaneseKeys.concat(englishKeys),
           allUnconjugatedKeys: unconjugatedLemmas
             .map(l => l.kanji)
             .concat(unconjugatedLemmas
@@ -193,5 +206,5 @@ async function buildEdictDB(mongodbUrl: string)
 }
 
 const mongodbUrl = process.argv[2] || "mongodb://localhost:27017/japaneseapi"
-buildEdictDB(mongodbUrl).catch(printError)
+buildDB(mongodbUrl).catch(printError)
 
