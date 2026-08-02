@@ -53,6 +53,7 @@ async function buildDB(mongodbUrl: string)
           .flat()
           // remove excessively common words in english (and, to...)
           .filter(g => !["a", "an", "the", "to", "and", "etc", "or", "of", "in", "on", "at", "for", "with", "by", "from"].includes(g.toLowerCase()))
+          .filter(g => g.length > 0)
 
         return {
           lemmas: edictItem.lemmas,
