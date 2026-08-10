@@ -15,7 +15,7 @@
     "html-entities": "^2.3.3",
     "jsdom": "^21.1.0",
     "mongodb": "^5.0.1",
-    "xml2js": "^0.4.23"
+    "xml2js": "^0.5.0"
   },
   "scripts": {
     "dev": "cross-env DICTIONARY_IFRAME_URL=http://localhost:3007 ts-node-dev --respawn src/index.ts",
