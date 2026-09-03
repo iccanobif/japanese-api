@@ -1,3 +1,5 @@
+name: japanese-api
+
 services:
   mongo:
     image: mongo:6
