@@ -4,14 +4,22 @@ import { printError, log, mobiFilesParse } from "../utils";
 import { EOL } from "os"
 
 const datasetsDirectory = "datasets/daijirin"
+const intermediateFilePath = "datasets/daijirin-intermediate-file"
 
 async function buildDaijirinIntermediateFile()
 {
   log("Parsing entries...")
   const allEntries = await mobiFilesParse(datasetsDirectory)
 
+  // If intermediate file is already present, skip rebuilding it
+  if (fs.existsSync(intermediateFilePath))
+  {
+    log("Intermediate file already exists, skipping rebuild.")
+    return
+  }
+
   log("Writing intermediate file...")
-  const outputFile = fs.openSync("datasets/daijirin-intermediate-file", "w")
+  const outputFile = fs.openSync(intermediateFilePath, "w")
 
   for (const entry of allEntries)
   {

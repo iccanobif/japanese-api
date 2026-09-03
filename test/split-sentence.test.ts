@@ -43,6 +43,10 @@ describe("split sentence", function () {
     const results = await splitSentence(dictionary, "ウケ狙い")
     expect(results).to.deep.equal(["ウケ狙い"])
   })
+  it("recognizes english words as well", async () => {
+    const results = await splitSentence(dictionary, "anal")
+    expect(results).to.deep.equal(["anal"])
+  })
   // it("prioritize は for splitting", async () =>
   // {
   //   const results = await splitSentence(dictionary, "ご注文はうさぎですか")

@@ -5,3 +5,5 @@ GET http://localhost:8085/sentence/%E3%83%86%E3%82%B9%E3%83%88
 ### eng
 GET http://localhost:8085/sentence/anal
 
+### eng
+https://janus1.iccan.us/japanese-api/sentence/color

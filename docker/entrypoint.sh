@@ -10,8 +10,6 @@ echo "Using MongoDB at ${MONGODB_URI}..."
 echo "Running DB initialization scripts..."
 echo "Parsing Daijirin..."
 node build/src/daijirin/daijirin-parse.js
-echo "Parsing Enamdict..."
-node build/src/compiled-accent-dictionary/scan-intermediate-file.js
 echo "Building database..."
 node build/src/build-db.js ${MONGODB_URI}
 

@@ -21,10 +21,18 @@ async function buildDB(mongodbUrl: string)
     await client.connect()
     const db = client.db()
 
-    // Drop all collections
-    for (const collection of (await db.collections())
-      .filter(c => ["daijirinFileEntries", "dictionary"]
-        .includes(c.collectionName)))
+    const preExistingCollections = (await db.collections())
+      .filter(c => ["daijirinFileEntries", "dictionary"].includes(c.collectionName))
+
+    // If there are pre-existing collections, skip DB build
+    if (preExistingCollections.length > 0)
+    {
+      log("Pre-existing collections found, skipping DB build.")
+      return
+    }
+
+    // Drop all pre-existing collections
+    for (const collection of preExistingCollections)
     {
       await collection.drop()
     }
