@@ -25,9 +25,10 @@ export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>,
   const facets: { [key: number]: any } = {}
 
   for (let i = 1; i <= sentence.length; i++) {
-    const word = toHiragana(sentence.substr(0, i))
-    allFirstWordPossibilities.push(word)
-    facets[i] = [{ $match: { allKeys: word } }, { $limit: 1 }, { $project: { lemmas: 1 } }]
+    // TODO: if it's romaji, add the romaji version as well, so that it can be found in the dictionary
+    const hiraganaWord = toHiragana(sentence.substr(0, i))
+    allFirstWordPossibilities.push(hiraganaWord)
+    facets[i] = [{ $match: { allKeys: hiraganaWord } }, { $limit: 1 }, { $project: { lemmas: 1 } }]
   }
 
   const cursor = dictionary.aggregate([
