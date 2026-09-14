@@ -38,10 +38,14 @@ export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>,
   const cursor = dictionary.aggregate([
     // $match stage to force index scan on relevant documents
     { $match: { allKeys: { $in: allFirstWordPossibilities } } },
+    // for each possible first word, create a facet to check if it exists in the dictionary
     { $facet: facets },
   ])
 
-  const results = (await cursor.toArray())[0] as any
+  // convert to string the query, so we can log it
+  console.log(JSON.stringify(cursor.pipeline))
+
+  const results = (await cursor.toArray())[0] as { [key: number]: { dummy: number }[] }
 
   // Find longest result
   let firstWord = ""
