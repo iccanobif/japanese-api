@@ -26,7 +26,7 @@ export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>,
 
   for (let i = 1; i <= sentence.length; i++) {
     // TODO: if it's romaji, add the romaji version as well, so that it can be found in the dictionary
-    const hiraganaWord = toHiragana(sentence.substr(0, i))
+    const hiraganaWord = toHiragana(sentence.slice(0, i))
     allFirstWordPossibilities.push(hiraganaWord)
     facets[i] = [{ $match: { allKeys: hiraganaWord } }, { $limit: 1 }, { $project: { lemmas: 1 } }]
   }
@@ -43,7 +43,7 @@ export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>,
   let firstWord = ""
   for (let i = sentence.length; i >= 1; i--)
     if (results[i].length > 0) {
-      firstWord = sentence.substr(0, i)
+      firstWord = sentence.slice(0, i)
       break
     }
 
