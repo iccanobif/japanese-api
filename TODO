@@ -1,3 +1,4 @@
 # TODO
 
-find a way to make tests run within docker
+- [ ] find a way to make tests run within docker
+- [ ] GET http://localhost:8085/sentence/anal riesce correttamente a trovare "anal" del dizionario, ma restituisce una lista vuota in dictionaryEntries

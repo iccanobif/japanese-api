@@ -25,11 +25,21 @@ export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>,
   const facets: { [key: number]: any } = {}
 
   for (let i = 1; i <= sentence.length; i++) {
-    // TODO: if it's romaji, add the romaji version as well, so that it can be found in the dictionary
-    const hiraganaWord = toHiragana(sentence.slice(0, i))
+    const thisSlice = sentence.slice(0, i)
+
+    // romajiWord contains the value of thisSlice, converted to lowercase, if it consists of only a-zA-Z characters, null otherwise
+    const isRomajiSlice = !/[^a-zA-Z]/.test(thisSlice)
+    const romajiWord = thisSlice.toLowerCase()
+    const hiraganaWord = toHiragana(thisSlice)
+
     allFirstWordPossibilities.push(hiraganaWord)
+    if (isRomajiSlice)
+      allFirstWordPossibilities.push(romajiWord)
+
+    const filter = isRomajiSlice ? [hiraganaWord, romajiWord] : [hiraganaWord]
+
     facets[i] = [
-      { $match: { allKeys: hiraganaWord } },
+      { $match: { allKeys: { $in: filter } } },
       { $limit: 1 },
       { $project: { dummy: { $literal: 1 } } },
     ]
@@ -41,9 +51,6 @@ export async function splitSentence(dictionary: Collection<DictionaryEntryInDb>,
     // for each possible first word, create a facet to check if it exists in the dictionary
     { $facet: facets },
   ])
-
-  // convert to string the query, so we can log it
-  console.log(JSON.stringify(cursor.pipeline))
 
   const results = (await cursor.toArray())[0] as { [key: number]: { dummy: number }[] }
 
