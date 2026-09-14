@@ -10,7 +10,7 @@ readFileSync("datasets/kanjidic", { encoding: "utf8" })
     if (line.startsWith("#"))
       return
     const kanji = line[0]
-    const allInfoFromFile = line.substr(4).trimEnd().split(" ")
+    const allInfoFromFile = line.slice(4).trimEnd().split(" ")
     const strokeCount = Number.parseInt(allInfoFromFile.find(s => s.startsWith("S"))?.substring(1) as string)
     
     kanjidic[kanji] = { strokeCount: strokeCount }

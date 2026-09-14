@@ -16,7 +16,7 @@ readFileSync("datasets/kradfile-u", { encoding: "utf8" })
     const kanji = line.split(" ")[0]
 
     const radicals = line
-      .substr(4)
+      .slice(4)
       .trimEnd()
       .split(" ")
       // Pretend that 攵 and 夂 are the same radical, not all fonts make that distinction
